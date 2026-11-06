@@ -1,0 +1,366 @@
+/* Rounded paper controls; paired with compose-motion.js. */
+.compose-panel {
+  --cp-panel: color-mix(in srgb, var(--soft) 88%, var(--paper));
+  --cp-well: color-mix(in srgb, var(--white) 86%, var(--paper));
+  --cp-radius: 13px;
+}
+.compose-panel .bill-usage {
+  border: 0;
+  border-radius: var(--cp-radius);
+  background: var(--cp-panel);
+  padding: 2px 11px;
+  margin-bottom: 12px;
+}
+.compose-panel :is(.bill-usage, .bill-cost) summary {
+  gap: 7px;
+  min-height: 34px;
+}
+.compose-panel :is(.bill-details, .bill-breakdown) {
+  padding: 3px 1px 11px;
+}
+.compose-panel .bill-action {
+  border: 0;
+  border-radius: 7px;
+  padding: 5px 8px;
+  background: var(--cp-well);
+}
+.compose-panel .fc-engine-line {
+  gap: 6px;
+}
+.compose-panel .fc-engine-line > * {
+  border-radius: 10px;
+  min-height: 48px;
+  background: var(--cp-panel);
+}
+.compose-panel .fc-engine {
+  padding: 9px 10px;
+}
+.compose-panel .fc-engine-line > .fc-input {
+  padding-inline: 8px;
+}
+.compose-panel .fc-model-bar {
+  gap: 8px;
+  margin-bottom: 0;
+}
+.compose-panel .fc-model-bar .fc-mode-switch {
+  border: 0;
+  border-radius: 11px;
+  background: var(--cp-panel);
+  padding: 4px;
+  gap: 2px;
+}
+.compose-panel .fc-model-bar .fc-mode-switch button {
+  position: relative;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 1px;
+  font-size: 11px;
+}
+.compose-panel .fc-model-bar .fc-mode-switch button[aria-pressed='true'] {
+  background: var(--cp-well);
+  color: var(--accent);
+  box-shadow: 0 2px 5px -3px #18212740;
+}
+.compose-panel #model-controls {
+  margin: 10px 0 12px;
+}
+.compose-panel .prompt-section {
+  border: 0;
+  border-radius: var(--cp-radius);
+  background: var(--cp-panel);
+  padding: 13px 12px 11px;
+  margin-bottom: 10px;
+}
+.compose-panel .field-label {
+  padding-inline: 1px;
+  gap: 5px;
+}
+.compose-panel .field-label > span {
+  font-size: 7px;
+  letter-spacing: 0.035em;
+}
+.compose-panel .field-surface {
+  border: 0;
+  border-radius: 10px;
+  background: var(--cp-well);
+  transition:
+    box-shadow 220ms ease,
+    background 220ms ease;
+}
+.compose-panel .field-surface:focus-within {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+.compose-panel .pt-rich-frame,
+.compose-panel .pt-editor {
+  border-radius: inherit;
+}
+.compose-panel .prompt-token-meter {
+  margin: 8px 2px 13px;
+}
+.compose-panel .pt-token-track,
+.compose-panel .bill-track {
+  border-radius: 3px;
+  overflow: hidden;
+}
+.compose-panel .prompt-tools {
+  gap: 5px;
+  margin: 9px 0 0;
+  flex-wrap: wrap;
+}
+.compose-panel .prompt-tools button,
+.compose-panel .prompt-tools .recipe-btn {
+  border-radius: 8px;
+  background: var(--cp-well);
+  padding: 7px 8px;
+  color: var(--ink);
+}
+.compose-panel .pt-workbench {
+  padding-top: 5px;
+}
+.compose-panel :is(.pt-weights button, .pt-weights label, .pt-links button, .pt-shelf > button) {
+  border-radius: 6px;
+}
+.compose-panel .pt-weights label {
+  background: var(--cp-well);
+}
+.compose-panel .pt-links {
+  gap: 2px;
+}
+.compose-panel :is(.pt-chips button, .pt-tagrow button) {
+  border-radius: 6px;
+  overflow: hidden;
+}
+.compose-panel .fc-details,
+.compose-panel .fc-details:last-of-type {
+  border: 0;
+  border-radius: var(--cp-radius);
+  background: var(--cp-panel);
+  margin: 8px 0;
+}
+.compose-panel .fc-details > summary {
+  padding: 13px 12px;
+  min-height: 44px;
+  border-radius: inherit;
+}
+.compose-panel .fc-detail-body {
+  padding: 0 12px 12px;
+}
+.compose-panel .fc-size {
+  border: 0;
+  border-radius: var(--cp-radius);
+  background: var(--cp-panel);
+  padding: 13px 12px;
+  margin: 8px 0;
+}
+.compose-panel .fc-input :is(input, select, textarea) {
+  border: 0;
+  border-radius: 8px;
+  background: var(--cp-well);
+  transition:
+    box-shadow 200ms ease,
+    background 180ms ease;
+}
+.compose-panel .fc-input :is(input, select, textarea):focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.compose-panel .fc-engine-line > .fc-input select {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.compose-panel .fc-input .pt-rich-frame {
+  border-radius: 8px;
+  background: var(--cp-well);
+}
+.compose-panel .fc-input .pt-rich-frame:focus-within {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+.compose-panel .fc-preset-picker {
+  border: 0;
+  border-radius: 8px;
+  background: var(--cp-well);
+}
+.compose-panel .fc-formats {
+  gap: 2px;
+  border-radius: 8px;
+  padding: 2px;
+  background: var(--cp-well);
+}
+.compose-panel .fc-formats button {
+  border-radius: 6px;
+  background: transparent;
+  min-height: 30px;
+  font-size: 10px;
+  gap: 4px;
+}
+.compose-panel .fc-formats button[aria-pressed='true'] {
+  background: var(--accent-soft);
+}
+.compose-panel :is(.fc-char, .fc-ref, .fc-source) {
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper) 82%, var(--white));
+}
+.compose-panel .fc-source {
+  background: var(--cp-panel);
+  margin-block: 10px;
+  padding: 13px 12px;
+}
+.compose-panel :is(.fc-ref-top img, .fc-ref-top > span) {
+  border-radius: 7px;
+}
+.compose-panel
+  :is(
+    .fc-seed button,
+    .fc-asset-title button,
+    .fc-ref-top button,
+    .fc-inline button,
+    .fc-ref-add > label:last-child,
+    .fc-file-button,
+    .fc-add,
+    .fc-position
+  ) {
+  border-radius: 8px;
+}
+.compose-panel :is(.fc-seed button, .fc-inline button, .fc-file-button, .fc-add) {
+  background: var(--cp-well);
+}
+.compose-panel .fc-check {
+  border-radius: 7px;
+  padding: 5px 6px;
+  min-width: 0;
+  white-space: normal;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+.compose-panel .fc-check:has(input:checked) {
+  background: color-mix(in srgb, var(--accent-soft) 75%, transparent);
+  color: var(--ink);
+}
+.compose-panel .fc-check input {
+  flex: none;
+}
+.compose-panel .generate-foot {
+  margin: 0 10px 10px;
+  padding: 9px 11px 11px;
+  border: 0;
+  border-radius: 15px;
+  background: var(--cp-panel);
+  box-shadow: 0 -7px 16px -12px color-mix(in srgb, var(--ink) 22%, transparent);
+}
+.compose-panel .fc-transport {
+  border-radius: 8px;
+  background: var(--cp-well);
+  padding: 7px 9px;
+  margin-bottom: 4px;
+}
+.compose-panel .bill-cost {
+  border: 0;
+  border-radius: 8px;
+  padding-inline: 2px;
+}
+.compose-panel #generation-status:not(:empty) {
+  padding-inline: 2px;
+}
+.compose-panel .submit-row #generate {
+  border-radius: 10px;
+  min-height: 44px;
+}
+.compose-panel .submit-row #cancel {
+  border-radius: 10px;
+  background: var(--cp-well);
+  text-decoration: none;
+  padding-inline: 9px;
+}
+/* A single underlay travels between choices; text never changes its layout. */
+.compose-panel .cm-segmented {
+  position: relative;
+  isolation: isolate;
+}
+.compose-panel .cm-segmented::before {
+  content: '';
+  position: absolute;
+  inset: var(--cm-y, 4px) auto auto 0;
+  width: var(--cm-width, 0px);
+  height: var(--cm-height, 0px);
+  border-radius: 8px;
+  background: var(--cp-well);
+  box-shadow: 0 2px 5px -3px #18212740;
+  translate: var(--cm-x, 4px) 0;
+  pointer-events: none;
+  z-index: -1;
+  transition:
+    translate 300ms cubic-bezier(0.22, 0.75, 0.25, 1),
+    width 300ms cubic-bezier(0.22, 0.75, 0.25, 1);
+}
+.compose-panel .fc-formats.cm-segmented::before {
+  border-radius: 6px;
+  background: var(--accent-soft);
+  box-shadow: none;
+}
+.compose-panel .fc-model-bar .cm-segmented button[aria-pressed='true'],
+.compose-panel .fc-formats.cm-segmented button[aria-pressed='true'] {
+  background: transparent;
+  box-shadow: none;
+}
+.compose-panel .cm-segmented[data-cm-instant]::before {
+  transition: none;
+}
+.compose-panel [data-cm-disclosing] {
+  overflow: hidden;
+}
+.compose-panel [data-cm-disclosing] > :not(summary) {
+  animation: none;
+}
+.compose-panel
+  :is(
+    .prompt-tools button,
+    .pt-weights button,
+    .pt-links button,
+    .pt-chips button,
+    .fc-add,
+    .fc-seed button,
+    .fc-file-button,
+    .fc-inline button
+  ) {
+  transition:
+    scale 170ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    background 180ms ease,
+    color 180ms ease;
+}
+.compose-panel
+  :is(
+    .prompt-tools button,
+    .pt-weights button,
+    .pt-links button,
+    .pt-chips button,
+    .fc-add,
+    .fc-seed button,
+    .fc-file-button,
+    .fc-inline button
+  ):active:not(:disabled) {
+  scale: 0.97;
+}
+@media (max-width: 420px) {
+  .compose-panel .prompt-section,
+  .compose-panel .fc-size {
+    padding-inline: 10px;
+  }
+  .compose-panel .fc-detail-body {
+    padding-inline: 10px;
+  }
+  .compose-panel .fc-mode-switch button {
+    font-size: 10px;
+  }
+  .compose-panel .generate-foot {
+    margin-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .compose-panel .cm-segmented::before,
+  .compose-panel :is(button, .field-surface, .fc-input input, .fc-input select, .fc-check, .fc-file-button) {
+    transition: none;
+    scale: none;
+  }
+}

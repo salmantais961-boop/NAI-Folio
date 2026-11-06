@@ -1,0 +1,124 @@
+/* Boolean choices share one quiet circle. Native checkbox semantics stay intact;
+   transport switches and numbered merge selections keep their own affordance. */
+:is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']),
+.mr-checkbox + .mr-checkmark {
+  --choice-size: 16px;
+  --choice-ink: var(--accent, #4741e8);
+  --choice-edge: color-mix(in srgb, var(--ink, #191a1a) 35%, transparent);
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 var(--choice-size);
+  box-sizing: border-box;
+  width: var(--choice-size);
+  height: var(--choice-size);
+  min-width: var(--choice-size);
+  min-height: var(--choice-size);
+  margin: 0;
+  padding: 0;
+  border: 1.25px solid var(--choice-edge);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  vertical-align: -3px;
+  cursor: pointer;
+  color: var(--choice-ink);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']) {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch'])::before,
+.mr-checkbox + .mr-checkmark::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  grid-area: 1 / 1;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0.3);
+  transition:
+    opacity 140ms ease,
+    transform 230ms cubic-bezier(0.2, 0.85, 0.3, 1.2);
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']):checked,
+.mr-checkbox:checked + .mr-checkmark {
+  border-color: var(--choice-ink);
+  background: color-mix(in srgb, var(--choice-ink) 7%, transparent);
+  color: var(--choice-ink);
+  box-shadow: none;
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']):checked::before,
+.mr-checkbox:checked + .mr-checkmark::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref)
+  > input[type='checkbox']:not([role='switch']):indeterminate::before,
+.mr-checkbox:indeterminate + .mr-checkmark::before {
+  width: 7px;
+  height: 2px;
+  border-radius: 2px;
+  opacity: 1;
+  transform: scale(1);
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref):hover > input[type='checkbox']:not([role='switch']):enabled,
+.mr-field-label:hover > .mr-checkbox:enabled + .mr-checkmark {
+  border-color: var(--choice-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--choice-ink) 8%, transparent);
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']):enabled:active,
+.mr-field-label:active > .mr-checkbox:enabled + .mr-checkmark {
+  transform: scale(0.9);
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']):focus-visible,
+.mr-checkbox:focus-visible + .mr-checkmark {
+  outline: 2px solid var(--choice-ink);
+  outline-offset: 3px;
+}
+
+:is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']):disabled,
+.mr-checkbox:disabled + .mr-checkmark {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Replace only META's decorative tick; its real checkbox keeps focus and labels. */
+.mr-checkbox + .mr-checkmark svg {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']),
+  :is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch'])::before,
+  .mr-checkbox + .mr-checkmark,
+  .mr-checkbox + .mr-checkmark::before {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  :is(.cat-appearance, .fc-check, .opening-pref) > input[type='checkbox']:not([role='switch']),
+  .mr-checkbox + .mr-checkmark {
+    --choice-edge: CanvasText;
+    --choice-ink: Highlight;
+    forced-color-adjust: none;
+    background: Canvas;
+    box-shadow: none;
+  }
+}

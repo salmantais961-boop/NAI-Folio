@@ -1,0 +1,410 @@
+/* Rounded tool folios, with restrained inline status transitions inspired by
+   Rare UI's Inline AI Status. Original CSS/WAAPI implementation, no runtime kit. */
+:root {
+  --canvas-ground: #e6e9e7;
+  --floating-paper: #fdfdfa;
+}
+:root[data-theme='dark'] {
+  --canvas-ground: #0e1115;
+  --floating-paper: #272b31;
+}
+.workspace-grid,
+.proof-panel {
+  background: var(--canvas-ground);
+}
+.pv-window {
+  --pv-radius: 14px;
+}
+.proof-head {
+  align-items: center;
+  gap: 14px 20px;
+}
+.pa-strip {
+  border: 0;
+  border-radius: 14px;
+  background: var(--floating-paper);
+  box-shadow: 0 3px 15px -10px #17212528;
+  padding: 6px;
+  gap: 3px;
+}
+.pa-strip .pa-button {
+  border-radius: 9px;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    translate 220ms ease;
+}
+.pa-strip .pa-button:not([aria-disabled='true']):hover {
+  translate: 0 -1px;
+}
+.pa-strip .pa-more {
+  border-left: 0;
+  background: var(--soft);
+}
+.pa-menu {
+  border: 0;
+  border-radius: 15px;
+  padding: 12px;
+  box-shadow: 0 10px 45px -15px #18212750;
+}
+.pa-menu .pa-item {
+  border-radius: 8px;
+}
+.pa-menu:popover-open {
+  animation: folio-panel-open 220ms cubic-bezier(0.2, 0.8, 0.25, 1);
+}
+.preview-field.pv-external-tools {
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+}
+.proof-foot {
+  display: grid;
+  gap: 8px;
+  margin: 0 clamp(12px, 1.6vw, 32px) 13px;
+  padding: 11px 14px 9px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--floating-paper);
+  box-shadow: 0 3px 20px -15px #18212735;
+  min-width: 0;
+}
+.proof-dock-info,
+.proof-dock-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  min-width: 0;
+}
+.proof-dock-tools {
+  border-top: 1px solid color-mix(in srgb, var(--rule) 65%, transparent);
+  padding-top: 7px;
+}
+.proof-summary {
+  flex: 1 1 190px;
+  min-width: 0;
+}
+.proof-summary:has(.proof-activity:not([hidden])) .proof-caption {
+  display: none;
+}
+.proof-foot .proof-caption {
+  gap: 4px 8px;
+}
+.proof-foot .proof-caption .micro {
+  font-size: 9px;
+}
+.proof-foot .state-led {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.proof-foot .pv-meta {
+  display: none;
+}
+.proof-foot .pv-bar {
+  padding: 0;
+}
+.proof-foot .pv-tools {
+  gap: 3px;
+}
+.proof-foot .pv-tool,
+.proof-foot .icon-btn {
+  border-radius: 8px;
+}
+.proof-foot .pv-tool[aria-pressed='true'] {
+  background: var(--soft);
+  color: var(--ink);
+}
+.proof-foot .proof-utilities {
+  margin-left: auto;
+  gap: 2px;
+  padding: 0;
+}
+.proof-foot .ink-palette {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+}
+#proof-status-slot .proof-activity {
+  position: static;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  max-width: 100%;
+  gap: 9px;
+}
+#proof-status-slot .proof-activity time {
+  border: 0;
+  padding-left: 4px;
+}
+#proof-status-slot .activity-copy {
+  display: flex;
+  align-items: baseline;
+  gap: 6px 12px;
+  flex-wrap: wrap;
+}
+#proof-status-slot .activity-note {
+  font-size: 10px;
+}
+#proof-status-slot .proof-activity[data-state='working'] .activity-label {
+  background: linear-gradient(100deg, var(--mute) 25%, var(--ink) 48%, var(--mute) 70%) 100% 0 / 220% 100%;
+  color: transparent;
+  background-clip: text;
+  animation: folio-status-ink 2.8s ease-in-out infinite;
+}
+.history-panel {
+  padding: 14px 9px 13px 0;
+  background: transparent;
+  border: 0;
+}
+.history-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 19px;
+  background: var(--floating-paper);
+}
+.history-shell .history-head {
+  flex: none;
+  margin: 0;
+  padding: 15px 10px 12px;
+}
+.history-shell .history-stream {
+  padding-inline: 8px;
+  gap: 8px;
+}
+.history-shell .history-item {
+  padding-bottom: 24px;
+}
+.history-shell .history-open img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 140px;
+  aspect-ratio: auto;
+  margin-inline: auto;
+  border-radius: 9px;
+}
+.history-shell .hp-surface {
+  width: min(100%, calc(140px * var(--hp-aspect, 4 / 5)));
+  margin-inline: auto;
+  border-radius: 9px;
+}
+.hp-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  border-radius: 9px;
+}
+.hp-open:focus-visible {
+  outline-offset: 3px;
+}
+.history-open img,
+.hp-open .hp-surface {
+  transition:
+    filter 200ms ease,
+    opacity 200ms ease;
+}
+.history-open:hover img,
+.hp-open:hover .hp-surface {
+  filter: brightness(1.035);
+}
+.history-shell .history-item[data-selected='true']::before {
+  inset-block: 4px 28px;
+}
+.history-shell .history-item small {
+  bottom: 4px;
+}
+.history-shell .history-delete {
+  top: auto;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  box-shadow: none;
+  background: transparent;
+  color: var(--mute);
+  transform: translateY(2px);
+}
+.history-shell .history-delete svg {
+  width: 13px;
+  height: 13px;
+}
+.history-shell .history-delete:hover {
+  background: color-mix(in srgb, #bd6256 13%, transparent);
+  color: #b75f54;
+}
+.history-shell .history-lineage {
+  position: absolute;
+  right: 24px;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--mute);
+  background: transparent;
+  opacity: 0;
+  translate: 0 2px;
+  transition:
+    opacity 180ms ease,
+    translate 220ms ease,
+    background 180ms ease;
+}
+.history-shell .history-lineage svg {
+  width: 13px;
+  height: 13px;
+}
+.history-shell .history-lineage:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.history-shell .history-item:hover .history-lineage,
+.history-shell .history-item:focus-within .history-lineage {
+  opacity: 1;
+  translate: 0 0;
+}
+.proof-lineage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 31px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent) 7%, var(--paper));
+  color: var(--accent);
+  font: 11px/1.3 var(--sans);
+  transition:
+    background 180ms,
+    translate 220ms;
+}
+.proof-lineage-btn svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.proof-lineage-btn:hover {
+  background: var(--accent-soft);
+  translate: 0 -1px;
+}
+.proof-lineage-btn:active {
+  translate: 0 1px;
+}
+.proof-lineage-btn[hidden] {
+  display: none;
+}
+.history-shell .history-item:hover .history-delete,
+.history-shell .history-item:focus-within .history-delete {
+  transform: none;
+}
+@media (pointer: coarse) {
+  .history-shell .history-item {
+    padding-bottom: 32px;
+  }
+  .history-shell .history-delete {
+    width: 24px;
+    height: 30px;
+    transform: none;
+  }
+  .history-shell .history-lineage {
+    right: 26px;
+    width: 24px;
+    height: 30px;
+    opacity: 1;
+    translate: none;
+  }
+  .history-shell .history-item small {
+    bottom: 8px;
+  }
+  .history-shell .history-item[data-selected='true']::before {
+    bottom: 36px;
+  }
+}
+.history-shell #all-history {
+  margin: 0 5px 5px;
+  padding: 11px 3px;
+  border-top: 0;
+  border-radius: 10px;
+}
+@keyframes folio-status-ink {
+  to {
+    background-position: -120% 0;
+  }
+}
+@keyframes folio-panel-open {
+  from {
+    opacity: 0;
+    translate: 0 5px;
+    scale: 0.985;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+@media (max-width: 760px) {
+  .pv-window {
+    --pv-radius: 11px;
+  }
+  .history-panel {
+    padding: 8px;
+  }
+  .history-shell {
+    border-radius: 18px;
+  }
+  .history-shell .history-stream {
+    padding-inline: 12px;
+  }
+  .proof-foot {
+    margin: 0 10px max(8px, env(safe-area-inset-bottom));
+    padding: 9px 10px;
+    border-radius: 14px;
+  }
+  .proof-dock-tools {
+    gap: 5px;
+  }
+  .proof-foot .pv-tool {
+    min-width: 28px;
+    padding-inline: 4px;
+  }
+  .proof-foot .pv-tools {
+    gap: 0;
+  }
+  .proof-foot .pv-readout {
+    min-width: 32px;
+  }
+  .proof-foot .proof-utilities .icon-btn {
+    width: 30px;
+    height: 32px;
+  }
+  .proof-foot .ink-label {
+    display: none;
+  }
+  .proof-foot .ink-well {
+    width: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pa-strip .pa-button,
+  .pa-menu:popover-open,
+  #proof-status-slot .proof-activity[data-state='working'] .activity-label {
+    animation: none;
+    transition: none;
+    translate: none;
+  }
+}

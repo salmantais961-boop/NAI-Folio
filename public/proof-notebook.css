@@ -1,0 +1,259 @@
+/* A working colophon, with quiet value handoffs inspired by Rare UI's counter. */
+.proof-foot {
+  display: grid;
+  grid-template-columns: minmax(155px, 1fr) minmax(0, max-content);
+  column-gap: 24px;
+  row-gap: 9px;
+  align-items: start;
+  padding: 15px 18px 10px;
+}
+.proof-dock-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 10px;
+  padding-top: 2px;
+}
+.proof-summary {
+  flex: none;
+  width: 100%;
+}
+.proof-foot .proof-caption {
+  display: grid;
+  grid-template-columns: 5px minmax(0, 1fr);
+  align-items: center;
+}
+.proof-foot .proof-caption .micro {
+  grid-column: 2;
+  line-height: 1.65;
+}
+.proof-summary:has(.proof-activity[data-background='true']:not([hidden])) .proof-caption {
+  display: grid;
+  margin-top: 7px;
+}
+.proof-foot .ink-palette {
+  margin-left: 13px;
+}
+.proof-dock-tools {
+  grid-column: 1 / -1;
+}
+#proof-notebook {
+  min-width: 0;
+  width: max-content;
+  max-width: 560px;
+  justify-self: end;
+}
+.pn-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 8px;
+  min-height: 15px;
+}
+.pn-caption {
+  font: 10px/1.4 var(--sans);
+  color: var(--mute);
+  letter-spacing: 0.05em;
+}
+.pn-return {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 10px/1.4 var(--sans);
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 3px 5px;
+  margin: -3px -5px;
+}
+.pn-return:hover {
+  background: var(--accent-soft);
+}
+.pn-signal {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.pn-return[data-state='running'] .pn-signal {
+  animation: pn-pulse 2.4s ease-in-out infinite;
+}
+.pn-return[data-state='complete'] .pn-signal {
+  width: 8px;
+  height: 5px;
+  border: solid currentColor;
+  border-width: 0 0 1.5px 1.5px;
+  background: none;
+  border-radius: 0;
+  transform: rotate(-45deg);
+}
+.pn-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: start;
+}
+.pn-stat {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.pn-stat small {
+  font: 8px/1.25 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--mute);
+}
+.pn-stat b {
+  display: block;
+  font: 500 10px/1.4 var(--mono);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.pn-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 9px;
+  margin: 9px 0 -2px;
+  align-items: center;
+}
+.pn-action {
+  border-radius: 6px;
+  font: 10px/1.5 var(--sans);
+  padding: 3px 5px;
+  margin-left: -5px;
+  color: var(--mute);
+  transition:
+    color 0.18s,
+    background 0.18s,
+    translate 0.2s;
+}
+.pn-action:hover {
+  background: var(--soft);
+  color: var(--ink);
+  translate: 0 -1px;
+}
+.pn-action:active {
+  translate: 0 0;
+}
+.pn-action[data-done] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.pn-action[data-pn-action='reuse'] {
+  color: var(--accent);
+}
+.pn-action:disabled {
+  opacity: 0.4;
+}
+.pn-hint {
+  font: 9px/1.6 var(--sans);
+  color: var(--mute);
+}
+.pn-details {
+  padding: 12px 0 2px;
+  max-height: min(28vh, 220px);
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
+  overscroll-behavior: contain;
+}
+.pn-detail-label {
+  font: 8px/1.4 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--mute);
+}
+.pn-details p {
+  margin: 5px 0 11px;
+  font: 11px/1.7 var(--sans);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  user-select: text;
+}
+#proof-notebook [hidden] {
+  display: none;
+}
+@keyframes pn-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+@container proof (min-width: 651px) {
+  .proof-foot:has(.pv-bar[hidden]) .proof-dock-info {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+  .proof-foot:has(.pv-bar[hidden]) .proof-dock-tools {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    border: 0;
+    padding-top: 0;
+    margin-top: 38px;
+  }
+  .proof-foot:has(.pv-bar[hidden]) .proof-utilities {
+    margin-left: 0;
+  }
+  .proof-foot:has(.pv-bar[hidden]) #proof-notebook {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+@container proof (min-width: 1480px) {
+  .proof-foot {
+    width: 1400px;
+    align-self: center;
+  }
+}
+@container proof (max-width: 650px) {
+  .proof-foot {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 13px 9px;
+  }
+  .proof-dock-info {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  #proof-notebook {
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+  }
+  .proof-summary {
+    flex: 1 1 auto;
+    width: auto;
+  }
+  .proof-foot .ink-palette {
+    margin-left: auto;
+  }
+  .pn-heading {
+    margin-bottom: 7px;
+  }
+  .pn-stats {
+    gap: 5px 14px;
+  }
+  .pn-stat:first-child {
+    display: none;
+  }
+  .pn-hint {
+    display: none;
+  }
+  .pn-actions:has(.pn-hint:not([hidden])) {
+    margin-top: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pn-action {
+    transition: none;
+    translate: none;
+  }
+  .pn-return[data-state='running'] .pn-signal {
+    animation: none;
+  }
+}

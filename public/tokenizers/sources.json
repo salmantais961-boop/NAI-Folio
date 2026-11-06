@@ -1,0 +1,46 @@
+{
+  "format": "UTF-8 JSON compressed with raw DEFLATE",
+  "payloadSha256": {
+    "qwen35.def": "a36975affe511c01d6381bcb5fd0eb35597266e28e0b16da278b14063aec8bb1",
+    "t5.def": "84caccfe1e22d2db94338c7588e5cbf99f7abc754c7d0d917a64081de078b76c",
+    "clip.def": "d6335cf5bcfc7a2588fb5dc09b8889d66bbf52f59755332fd122a78366f5c72d"
+  },
+  "sources": {
+    "qwen.json": {
+      "url": "https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/2fc06364715b967f1860aea9cf38778875588b17/tokenizer.json",
+      "sha256": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42",
+      "license": "Qwen3.5-LICENSE.txt"
+    },
+    "t5.json": {
+      "url": "https://huggingface.co/google-t5/t5-small/resolve/df1b051c49625cf57a3d0d8d3863ed4d13564fe4/tokenizer.json",
+      "sha256": "d2acde0d8d71dd30a711834b07781b9c89feaac33fd332f60507699282740066",
+      "license": "T5-LICENSE.txt"
+    },
+    "clip.gz": {
+      "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/bpe_simple_vocab_16e6.txt.gz",
+      "sha256": "924691ac288e54409236115652ad4aa250f48203de50a9e4722a6ecd48d6804a",
+      "license": "CLIP-LICENSE.txt"
+    },
+    "entities.py": {
+      "url": "https://raw.githubusercontent.com/python/cpython/0cc81280367df838c4b199f8f0378837165071c2/Lib/html/entities.py",
+      "sha256": "d9c65fb2828dbc1f3e399058a341d51e9375ec5bca95a8e92599c41bd5b78bde",
+      "license": "Python-LICENSE.txt"
+    },
+    "Qwen3.5-LICENSE.txt": {
+      "url": "https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/2fc06364715b967f1860aea9cf38778875588b17/LICENSE",
+      "sha256": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a"
+    },
+    "T5-LICENSE.txt": {
+      "url": "https://raw.githubusercontent.com/google-research/text-to-text-transfer-transformer/42909aa15d1fbd16c69333aa474a00ae8ed9fde4/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "CLIP-LICENSE.txt": {
+      "url": "https://raw.githubusercontent.com/openai/CLIP/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/LICENSE",
+      "sha256": "987e63b32f6c89ff5160e429458a872ff048e6860b590a3912e938f9da8f14db"
+    },
+    "Python-LICENSE.txt": {
+      "url": "https://raw.githubusercontent.com/python/cpython/0cc81280367df838c4b199f8f0378837165071c2/LICENSE",
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+    }
+  }
+}

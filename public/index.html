@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#f9f9f6" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="description" content="Folio · NovelAI 本地图像工作台与 Danbooru 提示词图典" />
+    <title>Folio — NovelAI 图像工作台</title>
+    <link rel="icon" href="/mark.svg?v=petal" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/italiana.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/catalog.css" />
+    <link rel="stylesheet" href="/controls.css" />
+    <link rel="stylesheet" href="/account-profiles.css" />
+    <link rel="stylesheet" href="/prompt-tools.css" />
+    <link rel="stylesheet" href="/character-import.css" />
+    <link rel="stylesheet" href="/billing.css" />
+    <link rel="stylesheet" href="/workspace.css" />
+    <link rel="stylesheet" href="/atelier.css" />
+    <link rel="stylesheet" href="/proof-viewer.css" />
+    <link rel="stylesheet" href="/proof-actions.css" />
+    <link rel="stylesheet" href="/generation-atmosphere.css" />
+    <link rel="stylesheet" href="/background-grid.css" />
+    <link rel="stylesheet" href="/brand-motion.css" />
+    <link rel="stylesheet" href="/archive.css" />
+    <link rel="stylesheet" href="/archive-appreciation.css" />
+    <link rel="stylesheet" href="/history-pending.css" />
+    <link rel="stylesheet" href="/studio-panels.css" />
+    <link rel="stylesheet" href="/prompt-tokens.css" />
+    <link rel="stylesheet" href="/compose-panels.css" />
+    <link rel="stylesheet" href="/proof-notebook.css" />
+    <link rel="stylesheet" href="/folio-select.css" />
+    <link rel="stylesheet" href="/meta-reuse.css" />
+    <link rel="stylesheet" href="/lineage-canvas.css" />
+    <link rel="stylesheet" href="/atlas-picker.css" />
+    <link rel="stylesheet" href="/atlas.css" />
+    <link rel="stylesheet" href="/collection-navigation.css" />
+    <link rel="stylesheet" href="/surface-polish.css" />
+    <link rel="stylesheet" href="/history-motion.css" />
+    <link rel="stylesheet" href="/circular-options.css" />
+    <link rel="stylesheet" href="/prompt-fold.css" />
+    <link rel="stylesheet" href="/generation-dock.css" />
+    <link rel="stylesheet" href="/proof-progress.css" />
+  </head>
+  <body>
+    <section class="cover" id="cover" aria-label="入场画刊" hidden>
+      <header class="cover-top">
+        <div class="cover-brand">
+          <i class="flower folio-mark" aria-hidden="true"></i><b>FOLIO</b><span class="hair-sep"></span
+          ><span>AURORA ATELIER</span>
+        </div>
+        <div class="running">NOVELAI IMAGE JOURNAL <i></i> VOL. 01</div>
+        <div class="cover-entry">
+          <label class="opening-pref"><input id="opening-pref" type="checkbox" />入场时播放</label
+          ><button id="enter-cover" class="enter-link">进入工作台 <span aria-hidden="true">↗</span></button>
+        </div>
+      </header>
+      <div class="cover-mast">
+        <div>
+          <div class="micro mast-kicker"><i class="square"></i> THE ILLUSTRATION ISSUE</div>
+          <h1>CHROMATICA</h1>
+        </div>
+        <div class="mast-note">
+          <em>Notes on light,<br />colour &amp; atmosphere.</em
+          ><span class="micro">A VISUAL ANTHOLOGY &nbsp; / &nbsp; 001</span>
+        </div>
+        <i class="flower mast-flower folio-mark" aria-hidden="true"></i>
+      </div>
+      <div class="spread-layout landscape" id="spread">
+        <div class="cover-spine"><span>FOLIO &nbsp;—&nbsp; CHROMATIC STUDIES</span><span>EDITION I</span></div>
+        <div class="spread-picture">
+          <img id="spread-img" alt="白底人物插画，浅金短发，灰褐色开衫和暗红领带" />
+          <div class="plate-stamp" aria-hidden="true"><span>FIG.</span><b id="stamp-number">01</b></div>
+        </div>
+        <div class="spread-ink">
+          <span class="micro" id="spread-eyebrow">PLATE 01 &nbsp;/&nbsp; UMBER</span>
+          <h2 id="plate-title">Portrait Study</h2>
+          <p id="plate-cn">人物习作</p>
+          <div id="swatches" class="swatches" aria-hidden="true"></div>
+        </div>
+      </div>
+      <footer class="cover-foot">
+        <div class="cover-index">
+          <span class="micro">PLATE INDEX</span>
+          <div id="plate-nav" aria-label="选择杂志版面">
+            <button data-slide="0" aria-label="人物习作" aria-current="true">01</button>
+          </div>
+          <button id="pause-cover" class="pause" title="暂停播放" aria-label="暂停播放">Ⅱ</button>
+        </div>
+        <span class="cover-colophon"
+          ><em id="plate-imprint">Portrait Study</em> <span> / </span> <b id="foot-cn">人物习作</b></span
+        >
+        <div class="folio-code"><span class="barcode"></span><span>FO—001</span></div>
+      </footer>
+      <div class="cover-progress"><i id="progress-line"></i></div>
+    </section>
+    <div id="app">
+      <header class="app-top">
+        <button id="brand" class="wordmark" aria-label="Folio 首页">
+          <i class="flower folio-mark" aria-hidden="true"></i>Folio<span class="wordmark-dot">.</span>
+        </button>
+        <nav aria-label="主导航">
+          <button id="studio-nav" aria-current="page">工作台</button
+          ><button id="archive-nav">作品集 <small id="nav-count">00</small></button
+          ><button id="atlas-nav">万象集</button><button id="replay">封面画刊 <span>↗</span></button>
+        </nav>
+        <div class="header-actions account-island" role="group" aria-label="账户与界面主题">
+          <button
+            id="theme"
+            class="icon-btn"
+            title="切换深浅色"
+            aria-label="切换深浅色"
+            data-icon="moon"
+          ></button
+          ><button id="account" class="account">
+            <i></i><span>连接 NovelAI</span><span data-icon="arrow-up-right"></span>
+          </button>
+        </div>
+      </header>
+      <main class="studio workspace" id="studio" data-panel="compose">
+        <nav class="mobile-views" aria-label="工作区视图">
+          <button data-view="compose" aria-pressed="true">创作</button>
+          <button data-view="canvas" aria-pressed="false">画布</button>
+          <button data-view="history" aria-pressed="false">历史</button>
+        </nav>
+        <div class="workspace-grid">
+          <section class="compose-panel" aria-label="创作参数">
+            <div
+              class="column-grip"
+              id="column-grip"
+              role="separator"
+              tabindex="0"
+              aria-orientation="vertical"
+              aria-label="调整创作栏宽度"
+              title="拖动或按左右方向键调节栏宽，双击恢复"
+              aria-controls="editor-scroll"
+            ></div>
+            <div class="compose-scroll" id="editor-scroll">
+              <header class="panel-intro">
+                <span class="chapter"><i class="square"></i> 01 / COMPOSITION</span>
+                <h1>创作台<span lang="en">Compose</span></h1>
+              </header>
+              <div id="usage-summary"></div>
+              <div id="model-controls"></div>
+              <section class="prompt-section" aria-label="提示词编辑器">
+                <div class="field-label">
+                  <i class="tone-mark positive-mark" aria-hidden="true"></i
+                  ><label for="prompt">正向提示词</label><span>PROMPT</span>
+                </div>
+                <div class="field-surface">
+                  <textarea
+                    id="prompt"
+                    rows="3"
+                    spellcheck="false"
+                    aria-label="正向提示词"
+                    placeholder="描绘画面，或输入标签…"
+                  ></textarea>
+                </div>
+                <div class="field-label negative-label">
+                  <i class="tone-mark negative-mark" aria-hidden="true"></i
+                  ><label for="negative">负面提示词</label><span>UNDESIRED CONTENT</span>
+                </div>
+                <div class="field-surface">
+                  <textarea
+                    id="negative"
+                    rows="2"
+                    spellcheck="false"
+                    aria-label="负面提示词"
+                    placeholder="希望避开的元素…"
+                  ></textarea>
+                </div>
+                <div class="prompt-toolkit">
+                  <div class="prompt-foot">
+                    <span id="suggestion-source" class="micro"></span
+                    ><span class="micro" id="char-count">0 字符</span>
+                  </div>
+                  <div id="prompt-workbench"></div>
+                  <div class="prompt-tools">
+                    <button id="artists"><span data-icon="pen"></span>画师图鉴</button>
+                    <button id="characters"><span data-icon="user"></span>角色图鉴</button>
+                    <button id="recipes" class="recipe-btn" aria-label="配方导入与导出">
+                      <span data-icon="sliders"></span>配方
+                    </button>
+                  </div>
+                </div>
+              </section>
+              <div id="controls"></div>
+            </div>
+            <div class="generate-foot">
+              <div id="generation-controls"></div>
+              <div id="transport-controls"></div>
+              <div id="cost-summary"></div>
+              <div id="generation-status" role="status"></div>
+              <div class="submit-row">
+                <button id="generate">
+                  <span class="generate-label"
+                    ><i class="shutter folio-mark" aria-hidden="true"></i><b>生成图像</b></span
+                  ><span class="generate-end"
+                    ><small id="generate-cost"></small><span aria-hidden="true">↗</span></span
+                  >
+                </button>
+                <button id="cancel" hidden>取消等待</button>
+              </div>
+            </div>
+          </section>
+          <div id="block-library-slot" hidden></div>
+          <section class="proof-panel" aria-label="预览画布">
+            <div id="background-grid" class="folio-dot-background" aria-hidden="true"></div>
+            <header class="proof-head">
+              <div class="proof-mast">
+                <span class="iris-mark folio-mark" aria-hidden="true"></span>
+                <div>
+                  <span class="chapter"
+                    >02 / CANVAS <i class="mast-dash"></i> <span id="proof-edition">STUDIO</span></span
+                  >
+                  <h2>Image <em>Atelier</em><b>.</b></h2>
+                </div>
+              </div>
+              <div id="proof-actions"></div>
+            </header>
+            <div class="preview-field" id="canvas-stage" data-state="empty">
+              <img id="canvas-image" alt="" hidden />
+            </div>
+            <footer class="proof-foot">
+              <div class="proof-dock-info">
+                <div class="proof-summary">
+                  <div id="proof-status-slot" aria-live="polite"></div>
+                  <div class="proof-caption">
+                    <span class="state-led"></span><b id="image-title">画布待命</b
+                    ><span id="image-info" class="micro"></span>
+                  </div>
+                </div>
+                <div
+                  id="ink-palette"
+                  class="ink-palette"
+                  role="group"
+                  aria-label="从图像提取的印色，点击复制色值"
+                  hidden
+                ></div>
+              </div>
+              <section id="proof-notebook" aria-label="图像配方札记"></section>
+              <div class="proof-dock-tools">
+                <div id="proof-view-tools"></div>
+                <div class="canvas-actions proof-utilities" aria-label="画布工具">
+                  <button id="save-atlas" class="proof-lineage-btn" title="收藏到万象集" hidden>
+                    <span data-icon="bookmark"></span><span>收藏</span>
+                  </button>
+                  <button id="image-lineage" class="proof-lineage-btn" title="查看图片线索与修改过程" hidden>
+                    <span data-icon="lineage"></span><span>线索</span>
+                  </button>
+                  <button id="draw" class="icon-btn" title="打开分层绘图画布" aria-label="绘图">
+                    <span data-icon="pen"></span>
+                  </button>
+                  <button id="pixel" class="icon-btn" title="像素网格校正" aria-label="像素化">
+                    <span data-icon="pixels"></span>
+                  </button>
+                  <button
+                    id="expand"
+                    class="icon-btn"
+                    title="沉浸查看（F）"
+                    aria-label="查看大图"
+                    data-icon="maximize"
+                    disabled
+                  ></button>
+                  <button
+                    id="use-source"
+                    class="icon-btn"
+                    title="送入图生图"
+                    aria-label="送入图生图"
+                    data-icon="image-plus"
+                    hidden
+                  ></button>
+                  <button
+                    id="download-image"
+                    class="icon-btn"
+                    title="下载原图"
+                    aria-label="下载原图"
+                    data-icon="download"
+                    hidden
+                  ></button>
+                  <button
+                    id="clear-preview"
+                    class="icon-btn"
+                    title="清空预览，保留历史"
+                    aria-label="清空预览，保留历史"
+                    data-icon="x"
+                    hidden
+                  ></button>
+                </div>
+              </div>
+            </footer>
+          </section>
+          <aside class="history-panel" aria-label="生成历史">
+            <div class="history-shell">
+              <div class="history-head">
+                <span class="chapter">03 / LOG</span>
+                <div>
+                  <h2>历史</h2>
+                  <b id="strip-count">00</b>
+                </div>
+              </div>
+              <div class="history-stream" id="contact-strip" aria-label="历史图像"></div>
+              <button id="all-history" title="查看全部作品" aria-label="查看全部作品">
+                <span data-icon="archive-grid"></span><span>作品集</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      </main>
+      <main class="archive" id="archive" hidden>
+        <header class="studio-heading">
+          <div>
+            <div class="micro eyebrow"><i class="square"></i> LOCAL ARCHIVE <span>/</span> FOLIO</div>
+            <h1>Image <em>Archive</em><span class="blue-dot">.</span></h1>
+          </div>
+          <div class="heading-right">
+            <b>本地作品集</b><span class="micro">COLLECTION &nbsp;/&nbsp; 02</span>
+          </div>
+        </header>
+        <div class="archive-search-bar" role="search" aria-label="搜索全部作品">
+          <label class="archive-search-field" for="archive-search">
+            <span data-icon="search" aria-hidden="true"></span>
+            <input
+              id="archive-search"
+              type="search"
+              autocomplete="off"
+              placeholder="寻找画面中的某个词…"
+              aria-label="搜索作品正面提示词"
+            />
+            <button id="archive-search-clear" type="button" aria-label="清除搜索" hidden data-icon="x"></button>
+          </label>
+          <div id="archive-score-controls"></div>
+          <span id="archive-search-count" aria-live="polite">按正面提示词搜索 · 支持模糊匹配</span>
+        </div>
+        <div class="section-rule">
+          <span><b id="archive-total" class="index-no">00</b> 已生成作品</span
+          ><span class="micro">完整画幅 &nbsp; / &nbsp; 最新在前</span>
+        </div>
+        <div id="archive-grid"></div>
+      </main>
+      <main id="atlas" hidden></main>
+      <footer class="app-foot">
+        <span>FOLIO <b>/</b> AURORA ATELIER</span><span>LOCAL IMAGE WORKSPACE <i class="square"></i></span>
+      </footer>
+    </div>
+    <dialog id="utility" class="utility-dialog" aria-labelledby="recipe-heading">
+      <div class="dialog-top">
+        <span class="micro eyebrow">FOLIO &nbsp;/&nbsp; RECIPE</span
+        ><button data-close class="icon-btn" aria-label="关闭" data-icon="x"></button>
+      </div>
+      <div class="recipe-layout">
+        <figure class="recipe-plate">
+          <span class="micro">A WORK IN PROGRESS</span>
+          <div class="recipe-picture">
+            <img id="recipe-preview" alt="当前画布预览" hidden />
+            <span id="recipe-blank"><em>Recipe.</em><small>把灵感，留给下一次创作。</small></span>
+          </div>
+          <figcaption id="recipe-caption">当前创作配方</figcaption>
+        </figure>
+        <div class="recipe-sheet">
+          <h2 id="recipe-heading">创作配方<span>Creative notes</span></h2>
+          <p>保存当前提示词、底图与参数，或带着一张图片的 META 继续创作。</p>
+          <div id="recipe-summary" class="recipe-summary" aria-label="当前草稿参数"></div>
+          <div class="recipe-actions">
+            <button id="export-recipe">
+              <span data-icon="download"></span><span>导出当前配方<small>提示词与完整参数 · JSON</small></span
+              ><i aria-hidden="true">↗</i>
+            </button>
+            <button id="import-recipe">
+              <span data-icon="upload"></span
+              ><span>导入配方或图片<small>选择需要保留的 META · JSON / PNG</small></span
+              ><i aria-hidden="true">↗</i>
+            </button>
+          </div>
+          <input type="file" accept=".json,.png" id="recipe-file" hidden />
+          <details class="syntax-help">
+            <summary>随机组合与权重 <small>SYNTAX</small></summary>
+            <p>
+              用 <code>||morning|sunset||</code> 随机选取一项，用 <code>1.2::soft light::</code> 调整权重。 V3
+              的 <code>cat|fox:0.4</code> 可混合提示词，V4 及以上可使用独立多角色。
+            </p>
+          </details>
+        </div>
+      </div>
+    </dialog>
+    <div id="toast" role="status"></div>
+    <noscript>请启用 JavaScript 进入图像工作台。</noscript>
+    <script type="module" src="/cover.js"></script>
+    <script type="module" src="/studio.js"></script>
+    <script type="module" src="/background-grid.js"></script>
+    <script type="module" src="/brand-motion.js"></script>
+    <script type="module">
+      import { mountComposeMotion } from '/compose-motion.js';
+      import { mountFolioSelects } from '/folio-select.js';
+      mountComposeMotion();
+      mountFolioSelects();
+    </script>
+  </body>
+</html>

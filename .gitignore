@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+/previews/
+/private/
+/exports/
+/playwright-report/
+/test-results/
+/browser-profile/
+__pycache__/
+*.pyc

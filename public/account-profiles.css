@@ -1,0 +1,378 @@
+.ap-panel {
+  position: fixed;
+  z-index: 35;
+  inset: 76px 24px 24px auto;
+  width: min(416px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow:
+    -18px 16px 70px #15192717,
+    0 0 0 1px color-mix(in srgb, var(--rule) 60%, transparent);
+  border-radius: 8px;
+  overflow: hidden;
+  animation: ap-arrive 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.ap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 23px 25px 20px;
+  position: relative;
+}
+.ap-header::before {
+  content: '';
+  position: absolute;
+  left: 25px;
+  right: 25px;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0 48px, var(--rule) 48px);
+}
+.ap-header small,
+.ap-edit-marker,
+.ap-footer > span {
+  font: 500 9px/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--mute);
+}
+.ap-header h2 {
+  margin-top: 9px;
+  font: 500 24px/1.3 var(--sans);
+  letter-spacing: -0.04em;
+}
+.ap-header > button {
+  width: 28px;
+  height: 28px;
+  margin: -4px -7px 0 0;
+  color: var(--mute);
+  font-size: 23px;
+  border-radius: 50%;
+}
+.ap-header > button:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+.ap-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 0 25px 24px;
+}
+.ap-current {
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 4px;
+  padding-bottom: 16px;
+}
+.ap-current > i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mute);
+  margin-top: 6px;
+}
+.ap-current > i.is-connected {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.ap-current > span {
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.ap-current > small {
+  grid-column: 2;
+  color: var(--mute);
+  font-size: 10px;
+}
+.ap-usage {
+  border-top: 1px solid var(--rule);
+  padding-top: 10px;
+  margin-bottom: 17px;
+}
+.ap-usage > summary {
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--mute);
+}
+.ap-usage .bill-account-detail {
+  margin-top: 12px;
+  font-size: 11px;
+}
+.ap-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ap-section-head h3 {
+  font: 600 11px/1.5 var(--sans);
+}
+.ap-section-head > button {
+  font-size: 10px;
+  color: var(--accent);
+  padding: 6px 0 6px 10px;
+}
+.ap-collection {
+  padding: 4px 0 20px;
+}
+.ap-profiles {
+  display: grid;
+  gap: 2px;
+  margin-top: 9px;
+}
+.ap-empty {
+  color: var(--mute);
+  font-size: 11px;
+  padding: 10px 0 3px;
+}
+.ap-profile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-radius: 4px;
+  transition: background 180ms;
+}
+.ap-profile:hover {
+  background: var(--soft);
+}
+.ap-profile.is-current {
+  background: var(--accent-soft);
+}
+.ap-choose {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 11px 10px;
+  text-align: left;
+}
+.ap-number {
+  font: 500 13px/1 var(--display);
+  color: var(--mute);
+  flex-shrink: 0;
+  width: 17px;
+}
+.ap-profile.is-current .ap-number {
+  color: var(--accent);
+}
+.ap-choose > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.ap-choose strong {
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ap-choose small {
+  font-size: 9px;
+  color: var(--mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ap-edit {
+  font-size: 10px;
+  color: var(--mute);
+  padding: 10px;
+}
+.ap-edit:hover {
+  color: var(--accent);
+}
+.ap-form {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid var(--rule);
+  padding-top: 17px;
+}
+.ap-field {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+.ap-field > span {
+  font-size: 11px;
+}
+.ap-field > span small {
+  color: var(--mute);
+  font-size: 9px;
+  margin-left: 5px;
+}
+.ap-field input,
+.ap-field select {
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  font: 400 12px/1.5 var(--sans);
+  color: var(--ink);
+  background: var(--soft);
+  border-radius: 3px 3px 0 0;
+  transition:
+    border-color 160ms,
+    background 160ms;
+}
+.ap-field input::placeholder {
+  color: var(--mute);
+  opacity: 0.8;
+  font-size: 11px;
+}
+.ap-field input:focus,
+.ap-field select:focus {
+  border-bottom-color: var(--accent);
+  outline: 0;
+  background: color-mix(in srgb, var(--accent-soft) 40%, var(--soft));
+}
+.ap-field select option {
+  background: var(--paper);
+}
+.ap-secret {
+  display: flex;
+  position: relative;
+  min-width: 0;
+}
+.ap-secret input {
+  padding-right: 50px;
+}
+.ap-secret button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  font-size: 10px;
+  color: var(--mute);
+  padding: 0 10px;
+}
+.ap-secret button:hover {
+  color: var(--accent);
+}
+.ap-relay {
+  display: grid;
+  gap: 14px;
+}
+.ap-hint {
+  color: var(--mute);
+  font-size: 10px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.ap-error {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+.ap-error:empty {
+  display: none;
+}
+.ap-submit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ap-submit > button {
+  padding: 11px 12px;
+  font-size: 11px;
+  border-radius: 4px;
+}
+.ap-submit > button:first-child {
+  color: var(--mute);
+  background: var(--soft);
+}
+.ap-submit > .ap-primary {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--paper);
+  background: var(--ink);
+}
+.ap-submit > .ap-primary:hover {
+  background: var(--accent);
+}
+.ap-primary span {
+  font-size: 17px;
+  transition: transform 180ms;
+}
+.ap-primary:hover span {
+  transform: translate(2px, -2px);
+}
+.ap-panel button:disabled {
+  opacity: 0.5;
+}
+.ap-delete-line {
+  display: flex;
+  gap: 15px;
+}
+.ap-delete-line > button {
+  color: var(--mute);
+  font-size: 10px;
+  padding: 4px 0;
+}
+.ap-delete-line > button:first-child:hover {
+  color: #ba5656;
+}
+.ap-footer {
+  padding: 13px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid var(--rule);
+}
+.ap-footer > span {
+  font-size: 8px;
+}
+.ap-footer > button {
+  color: var(--mute);
+  font-size: 10px;
+}
+@keyframes ap-arrive {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 760px) {
+  .ap-panel {
+    inset: 64px 12px 56px auto;
+    width: min(390px, calc(100vw - 24px));
+  }
+  .ap-header {
+    padding: 18px 20px;
+  }
+  .ap-body {
+    padding-inline: 20px;
+  }
+  .ap-footer {
+    padding-inline: 20px;
+  }
+  .ap-header::before {
+    left: 20px;
+    right: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ap-panel {
+    animation: none;
+  }
+  .ap-primary span {
+    transition: none;
+  }
+}

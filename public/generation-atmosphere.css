@@ -1,0 +1,61 @@
+.ga-atmosphere {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 7px;
+  isolation: isolate;
+  contain: layout paint style;
+}
+.ga-atmosphere[hidden] {
+  display: none !important;
+}
+.ga-floating {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 0;
+}
+.ga-attached {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+.ga-paper,
+.ga-wash,
+.ga-dots {
+  position: absolute;
+  display: block;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.ga-paper {
+  background: var(--proof-paper, #e2e4e7);
+}
+.ga-wash {
+  filter: blur(18px) saturate(0.92);
+  transform: scale(1.055);
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+.ga-dots {
+  opacity: 1;
+}
+.ga-atmosphere[data-phase='complete'] .ga-wash {
+  transition: none;
+}
+.ga-generating-sheet {
+  box-shadow: none;
+  background: var(--proof-paper, #e2e4e7);
+}
+.ga-generating-sheet:has(> .ga-atmosphere[data-phase='waiting']) > :is(.pv-image, .pv-before) {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ga-wash {
+    transition: none;
+  }
+}

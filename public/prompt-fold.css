@@ -1,0 +1,115 @@
+/* A folded reference and its opened proof remain the same document atom. */
+.pt-inline-toggle {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.65;
+  cursor: pointer;
+  transition:
+    background 160ms,
+    opacity 160ms;
+}
+.pt-inline-toggle svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  transition: rotate 200ms ease;
+}
+.pt-inline-toggle[aria-expanded='true'] svg {
+  rotate: 180deg;
+}
+.pt-inline-toggle:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.pt-inline-toggle:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.pt-inline-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.pt-editor .pt-inline-block.pt-expanded-block {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  margin: 9px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  white-space: normal;
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 7%, transparent);
+  vertical-align: baseline;
+}
+.pt-block-heading {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--ink);
+  cursor: grab;
+}
+.pt-block-heading .pt-inline-name {
+  font: 600 12px/1.5 var(--sans);
+  padding: 0;
+  max-width: 70%;
+}
+.pt-block-heading > small {
+  margin-left: auto;
+  padding-right: 6px;
+  color: var(--mute);
+  font: 7px/1.4 var(--mono);
+  letter-spacing: 0.05em;
+}
+.pt-expanded-body {
+  display: block;
+  padding: 12px 13px 15px;
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font: 12px/2.1 var(--sans);
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.pt-expanded-body .pt-ink-tag {
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.pt-macro-ghost .pt-block-heading {
+  padding: 5px 9px;
+}
+.pt-macro-ghost.pt-expanded-block {
+  display: block;
+  overflow: hidden;
+}
+@media (max-width: 430px) {
+  .pt-block-heading > small {
+    display: none;
+  }
+  .pt-block-heading .pt-inline-name {
+    margin-right: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pt-inline-toggle,
+  .pt-inline-toggle svg {
+    transition: none;
+  }
+}

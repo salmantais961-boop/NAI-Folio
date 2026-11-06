@@ -1,0 +1,240 @@
+/* Native select values, with the studio's existing rounded popover language. */
+.fs-control {
+  position: relative;
+  display: inline-grid;
+  vertical-align: middle;
+  min-width: 0;
+  max-width: 100%;
+}
+.fs-control > select.fs-native {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  grid-area: 1 / 1;
+}
+.fs-trigger {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--soft);
+  font: 500 12px/1.5 var(--sans);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+.fs-control .fs-trigger .fs-value {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+.fs-trigger .fs-chevron {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.65;
+  transition: rotate 220ms cubic-bezier(0.2, 0.8, 0.25, 1);
+}
+.fs-trigger[aria-expanded='true'] .fs-chevron {
+  rotate: 180deg;
+}
+.fs-trigger:is(:hover, [aria-expanded='true']):not(:disabled) {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.fs-trigger:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 68%, transparent);
+  outline-offset: 2px;
+}
+.fs-trigger:disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+:is(.fc-input, .fc-engine-fields, .fc-preset-picker, .ap-field) > .fs-control {
+  display: grid;
+  width: 100%;
+}
+.fd-three-body label > .fs-control {
+  display: grid;
+  width: 100%;
+}
+.compose-panel .fs-trigger {
+  background: var(--cp-well, var(--soft));
+}
+.fc-engine-fields .fs-trigger,
+.fc-engine-line > .fc-input .fs-trigger {
+  border-radius: 4px;
+  background: transparent;
+  padding: 0;
+  gap: 4px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+.fc-engine-line > .fc-input .fs-trigger {
+  font-size: 11px;
+}
+.fc-engine-fields .fs-trigger:is(:hover, [aria-expanded='true']):not(:disabled),
+.fc-engine-line > .fc-input .fs-trigger:is(:hover, [aria-expanded='true']):not(:disabled) {
+  background: transparent;
+  color: var(--accent);
+}
+.fc-preset-picker .fs-trigger {
+  background: transparent;
+  font-weight: 500;
+}
+.fc-preset-picker > .fs-control {
+  position: relative;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+}
+.ap-field .fs-trigger {
+  padding: 10px 12px;
+  background: var(--white);
+  font-size: 13px;
+}
+.fs-menu {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(250px, calc(100vw - 16px));
+  max-height: min(380px, calc(100dvh - 16px));
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
+  padding: 10px;
+  border: 0;
+  border-radius: 15px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow:
+    0 10px 45px -15px #18212750,
+    0 0 0 1px color-mix(in srgb, var(--rule) 45%, transparent);
+  font: 12px/1.4 var(--sans);
+  z-index: 10000;
+}
+.fs-menu:popover-open,
+.fs-menu.fs-fallback-open {
+  animation: fs-menu-enter 220ms cubic-bezier(0.2, 0.8, 0.25, 1);
+}
+.fs-menu::backdrop {
+  background: transparent;
+}
+.fs-heading {
+  margin: 2px 5px 5px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid color-mix(in srgb, var(--rule) 65%, transparent);
+  color: var(--mute);
+  font: 500 10px/1.4 var(--sans);
+  letter-spacing: 0.04em;
+}
+.fs-options {
+  outline: none;
+}
+.fs-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+.fs-option > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.fs-option[data-active],
+.fs-option:hover:not([aria-disabled='true']) {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.fs-option[aria-selected='true'] {
+  color: var(--accent);
+  font-weight: 600;
+}
+.fs-check {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+.fs-option[aria-selected='true'] .fs-check {
+  opacity: 1;
+}
+.fs-option[aria-disabled='true'] {
+  color: var(--mute);
+  opacity: 0.42;
+  cursor: default;
+}
+.fs-optgroup {
+  color: var(--mute);
+  font-size: 10px;
+  margin: 9px 9px 4px;
+}
+.fs-menu[data-fs-closing] {
+  pointer-events: none;
+}
+@keyframes fs-menu-enter {
+  from {
+    opacity: 0;
+    translate: 0 5px;
+    scale: 0.985;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+@media (pointer: coarse) {
+  .fs-option {
+    min-height: 40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fs-menu {
+    transition: none !important;
+  }
+  .fs-trigger,
+  .fs-chevron,
+  .fs-option {
+    transition: none !important;
+  }
+  .fs-menu:popover-open,
+  .fs-menu.fs-fallback-open {
+    animation: none;
+  }
+}

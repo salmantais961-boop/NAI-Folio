@@ -1,0 +1,47 @@
+.folio-dot-background {
+  --dot-base: #d7dbdf;
+  --dot-active: #c5cbd3;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  contain: strict;
+  animation: dot-paper-arrive 900ms ease-out both;
+}
+.folio-dot-background .dot-grid__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+:root[data-theme='dark'] .folio-dot-background {
+  --dot-base: #31363e;
+  --dot-active: #505866;
+}
+.proof-panel {
+  background: #eef0ee;
+}
+:root[data-theme='dark'] .proof-panel {
+  background: #111418;
+}
+.compose-panel,
+.history-panel {
+  background: var(--paper);
+}
+@keyframes dot-paper-arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .folio-dot-background {
+    animation: none;
+  }
+}

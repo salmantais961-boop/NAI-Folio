@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="382" viewBox="0 0 1440 382" role="img" aria-labelledby="title description">
+  <title id="title">Folio. — NovelAI 图像工作台</title>
+  <desc id="description">米白纸面上的黑色手绘衬线字标、靛蓝句点与细线编排。</desc>
+  <rect width="1440" height="382" fill="#f7f6f1"/>
+  <g stroke="#393a38" stroke-width="1">
+    <path d="M50 58.5H1390M50 321.5H1390"/>
+  </g>
+  <g fill="#3b3c3a" font-family="ui-monospace, Consolas, monospace" font-size="15" letter-spacing="2">
+    <text x="51" y="40">FOLIO STUDIO</text>
+    <text x="1390" y="40" text-anchor="end">IMAGE ATELIER</text>
+  </g>
+  <g id="wordmark" transform="translate(53 72) scale(1.19)" fill="#1b1b1b" fill-rule="evenodd">
+    <path d="M1 195V192L20 188V10L1 6V3H133L140 49H137Q120 9 98 8H45V94H76Q90 94 98 67H101V125H98Q90 99 76 99H45V188L70 192V195Z"/>
+    <path id="first-o" d="M51 0C18 0 0 28 0 64C0 100 17 125 46 125C79 125 98 96 98 61C98 25 80 0 51 0ZM48 4C65 2 76 24 77 61C79 99 69 120 51 121C33 123 23 101 21 65C19 29 29 5 48 4Z" transform="translate(102 70)"/>
+    <path d="M198 195V192L212 188V13L197 10V8Q216 6 235 0V188L251 192V195Z"/>
+    <path d="M250 195V192L265 188V83L250 80V78Q274 74 288 68V188L302 192V195ZM262 36A13 13 0 1 0 288 36A13 13 0 1 0 262 36Z"/>
+    <path d="M51 0C18 0 0 28 0 64C0 100 17 125 46 125C79 125 98 96 98 61C98 25 80 0 51 0ZM48 4C65 2 76 24 77 61C79 99 69 120 51 121C33 123 23 101 21 65C19 29 29 5 48 4Z" transform="translate(301 70)"/>
+    <circle cx="423" cy="183" r="12" fill="#4444bb"/>
+  </g>
+  <g fill="#232322" transform="translate(930 0)">
+    <text x="0" y="188" font-family="Georgia, 'Times New Roman', serif" font-size="88" font-style="italic" letter-spacing="-4">NovelAI</text>
+    <text x="4" y="251" font-family="'Songti SC', 'Noto Serif CJK SC', SimSun, serif" font-size="38" letter-spacing="4">图像工作台</text>
+  </g>
+  <g fill="#3b3c3a" font-family="'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="16" letter-spacing="1.5">
+    <text x="51" y="356">提示词编排</text>
+    <path d="M165 340l-8 20m28-20l-8 20" stroke="#4444bb" stroke-width="1.3"/>
+    <text x="203" y="356">流式生图</text>
+    <path d="M305 340l-8 20m28-20l-8 20" stroke="#4444bb" stroke-width="1.3"/>
+    <text x="344" y="356">作品归档</text>
+  </g>
+</svg>

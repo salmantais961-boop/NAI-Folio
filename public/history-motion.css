@@ -1,0 +1,32 @@
+.history-shell.hm-enabled {
+  position: relative;
+}
+.history-shell.hm-enabled .history-item[data-selected='true']::before {
+  content: none;
+}
+.hm-track {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+  contain: strict;
+}
+.hm-marker {
+  position: absolute;
+  display: block;
+  left: 3px;
+  width: 3px;
+  min-height: 12px;
+  border-radius: 99px;
+  background: var(--accent);
+  pointer-events: none;
+}
+.hm-marker[hidden] {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hm-marker {
+    animation: none !important;
+    transition: none !important;
+  }
+}

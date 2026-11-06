@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.wasm binary
+*.ttf binary
+*.woff2 binary
+*.png binary
+*.webp binary
+*.def binary
+public/tokenizers/*-LICENSE.txt -text

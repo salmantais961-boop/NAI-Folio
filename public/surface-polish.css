@@ -1,0 +1,448 @@
+/* The shell is continuous paper; inset scroll rails never touch its curved corners. */
+:root {
+  --folio-surface-radius: 22px;
+  --scroll-ink: color-mix(in srgb, var(--ink) 24%, transparent);
+  --scroll-hover: color-mix(in srgb, var(--ink) 42%, transparent);
+}
+.pv-window {
+  --pv-radius: var(--folio-surface-radius);
+}
+.ga-floating {
+  border-radius: var(--folio-surface-radius);
+}
+.history-shell {
+  border-radius: var(--folio-surface-radius);
+}
+.app-top .account-island {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 4px;
+  padding: 4px 5px 4px 4px;
+  border-radius: 999px;
+  background: #17191b;
+  color: #f4f3ee;
+  box-shadow:
+    inset 0 0 0 1px #ffffff0c,
+    0 3px 11px -7px #10141770;
+  transition:
+    box-shadow 220ms ease,
+    background 220ms ease;
+}
+.app-top .account-island:hover {
+  box-shadow:
+    inset 0 0 0 1px #ffffff1c,
+    0 5px 16px -7px #10141760;
+}
+.app-top .account-island #theme {
+  width: 29px;
+  height: 29px;
+  flex: none;
+  padding: 0;
+  background: #f4f3ee;
+  color: #25282a;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px #00000035;
+  transition:
+    background 250ms ease,
+    color 250ms ease,
+    rotate 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 180ms ease;
+}
+.app-top .account-island #theme svg {
+  width: 15px;
+  height: 15px;
+}
+.app-top .account-island #theme:hover {
+  rotate: -16deg;
+}
+.app-top .account-island #theme:active {
+  scale: 0.9;
+}
+.app-top .account-island .account {
+  height: 29px;
+  max-width: clamp(100px, 23vw, 300px);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0 9px 0 7px;
+  border-radius: 999px;
+  gap: 8px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background 220ms ease,
+    padding 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.app-top .account-island .account:hover {
+  padding-inline: 10px 12px;
+  background: #ffffff0b;
+}
+.app-top .account-island .account > i {
+  width: 5px;
+  height: 5px;
+  background: #85888c;
+}
+.app-top .account-island .account.connected > i {
+  background: #a0c9af;
+  box-shadow: 0 0 0 3px #a0c9af10;
+}
+.app-top .account-island .account > [data-icon] {
+  opacity: 0.55;
+  transition:
+    opacity 180ms,
+    translate 220ms;
+}
+.app-top .account-island .account > [data-icon] svg {
+  width: 13px;
+  height: 13px;
+}
+.app-top .account-island .account:hover > [data-icon] {
+  opacity: 1;
+  translate: 1px -1px;
+}
+.app-top .account-island button:focus-visible {
+  outline-color: #aeb6ff;
+  outline-offset: 2px;
+}
+:root[data-theme='dark'] .app-top .account-island {
+  background: #080a0c;
+  box-shadow: inset 0 0 0 1px #ffffff15;
+}
+:root[data-theme='dark'] .app-top .account-island #theme {
+  background: #34383c;
+  color: #f4f3ee;
+  box-shadow: inset 0 0 0 1px #ffffff15;
+}
+html,
+body,
+body * {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--scroll-ink) transparent !important;
+}
+@supports selector(::-webkit-scrollbar) {
+  html,
+  body,
+  body * {
+    scrollbar-width: auto !important;
+    scrollbar-color: auto !important;
+  }
+  ::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+    background: transparent;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    margin-block: 10px;
+    margin-inline: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scroll-ink);
+    border: 2px solid transparent;
+    border-radius: 20px;
+    background-clip: padding-box;
+    min-height: 36px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scroll-hover);
+  }
+  ::-webkit-scrollbar-thumb:active {
+    background-color: color-mix(in srgb, var(--ink) 55%, transparent);
+  }
+  ::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+.app-top {
+  border-bottom-color: transparent;
+}
+.workspace-grid {
+  background: var(--paper);
+}
+.compose-panel {
+  border-right: 0;
+  background: var(--paper);
+}
+.compose-scroll {
+  margin: 8px 6px 0 0;
+  padding-top: 10px;
+  border-radius: 0 16px 0 0;
+  scroll-padding-block: 18px;
+}
+.proof-panel {
+  margin-top: 7px;
+  border-radius: 22px 0 0 0;
+  overflow: hidden;
+}
+.proof-panel .folio-dot-background {
+  border-radius: inherit;
+}
+.history-panel {
+  margin-top: 7px;
+  border-radius: 0 22px 0 0;
+  background: var(--canvas-ground);
+}
+.column-grip {
+  top: 23px;
+  bottom: 14px;
+}
+.history-stream {
+  margin-inline: 2px;
+}
+
+#utility {
+  width: min(790px, calc(100vw - 36px));
+  max-height: 90dvh;
+  padding: 24px;
+  border-radius: 24px;
+  border: 0;
+  overflow: hidden;
+  box-shadow: 0 24px 90px -28px #0c141b55;
+}
+#utility .dialog-top {
+  margin-bottom: 22px;
+}
+#utility .dialog-top .icon-btn {
+  border-radius: 50%;
+  background: var(--soft);
+}
+.recipe-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1fr);
+  gap: 30px;
+}
+.recipe-plate {
+  margin: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.recipe-plate > .micro {
+  font-size: 8px;
+  color: var(--mute);
+  letter-spacing: 0.12em;
+}
+.recipe-picture {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  min-width: 0;
+}
+.recipe-picture img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(460px, 62dvh);
+  border-radius: 13px;
+}
+#recipe-blank {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+#recipe-blank em {
+  font: italic 66px/0.9 var(--display);
+  letter-spacing: -0.04em;
+}
+#recipe-blank small {
+  margin: 0;
+  font: 11px/1.6 var(--sans);
+}
+.recipe-plate figcaption {
+  color: var(--mute);
+  font: 9px/1.5 var(--mono);
+}
+.recipe-sheet {
+  min-width: 0;
+  min-height: 0;
+  max-height: calc(90dvh - 100px);
+  overflow-y: auto;
+  padding-right: 3px;
+}
+#utility h2 {
+  margin: 0 0 14px;
+  font: 500 26px/1.3 var(--sans);
+  letter-spacing: -0.04em;
+}
+#utility h2 span {
+  display: block;
+  margin-top: 5px;
+  color: var(--mute);
+  font: italic 25px/1.2 var(--display);
+}
+#utility .recipe-sheet > p {
+  margin: 0 0 20px;
+  font-size: 12px;
+}
+.recipe-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 23px;
+}
+.recipe-summary > span {
+  display: grid;
+  gap: 4px;
+  color: var(--ink);
+  font: 11px/1.3 var(--mono);
+}
+#utility .recipe-summary small {
+  margin: 0;
+  font: 8px/1.5 var(--mono);
+  color: var(--mute);
+}
+.recipe-actions {
+  display: grid;
+  gap: 8px;
+}
+.recipe-actions button {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 12px;
+  padding: 15px 13px;
+  background: var(--soft);
+  border: 0;
+  border-radius: 13px;
+  transition:
+    background 180ms ease,
+    translate 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.recipe-actions button:hover {
+  background: color-mix(in srgb, var(--accent) 7%, var(--soft));
+  translate: 0 -1px;
+}
+.recipe-actions button:active {
+  translate: 0 0;
+}
+.recipe-actions button > span:not([data-icon]) {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+}
+.recipe-actions button > i {
+  margin-left: auto;
+  font-style: normal;
+  color: var(--mute);
+}
+#utility .recipe-actions small {
+  font: 9px/1.4 var(--sans);
+  margin: 0;
+}
+.recipe-actions [data-icon] svg {
+  width: 18px;
+  height: 18px;
+}
+#utility .syntax-help {
+  border: 0;
+  border-radius: 12px;
+  margin-top: 16px;
+  padding: 0 11px;
+  background: color-mix(in srgb, var(--soft) 55%, transparent);
+}
+#utility .syntax-help summary {
+  padding-block: 12px;
+  font-size: 11px;
+}
+#utility .syntax-help p {
+  margin: 0;
+  padding: 0 0 12px;
+  font-size: 11px;
+}
+#utility .syntax-help code {
+  border-radius: 4px;
+  padding: 1px 3px;
+}
+@media (max-width: 760px) {
+  .app-top .account-island {
+    gap: 1px;
+    padding: 3px;
+  }
+  .app-top .account-island #theme {
+    width: 25px;
+    height: 25px;
+  }
+  .app-top .account-island .account {
+    max-width: 96px;
+    height: 25px;
+    padding-inline: 5px 7px;
+    font-size: 9px;
+    gap: 5px;
+  }
+  .app-top .account-island .account:hover {
+    padding-inline: 5px 7px;
+  }
+  .app-top .account-island .account > [data-icon] {
+    display: none;
+  }
+  .proof-panel {
+    margin: 5px 5px 0;
+    border-radius: 18px 18px 0 0;
+  }
+  .history-panel {
+    margin-top: 5px;
+    border-radius: 18px 18px 0 0;
+  }
+  .compose-scroll {
+    margin-top: 5px;
+    margin-right: 3px;
+    padding-top: 8px;
+  }
+}
+@media (max-width: 430px) {
+  .app-top .account-island .account {
+    max-width: 55px;
+  }
+  .app-top .account-island .account > i {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  #utility {
+    width: calc(100vw - 24px);
+    padding: 19px;
+    border-radius: 20px;
+  }
+  #utility .dialog-top {
+    margin-bottom: 18px;
+  }
+  .recipe-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: calc(90dvh - 90px);
+    overflow-y: auto;
+  }
+  .recipe-plate {
+    display: none;
+  }
+  .recipe-sheet {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recipe-actions button,
+  .app-top .account-island,
+  .app-top .account-island :is(#theme, .account, [data-icon]) {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  html,
+  body,
+  body * {
+    scrollbar-color: auto !important;
+  }
+}

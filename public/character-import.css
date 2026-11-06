@@ -1,0 +1,326 @@
+.ci-dialog {
+  width: min(860px, calc(100vw - 40px));
+  height: min(730px, calc(100dvh - 64px));
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 26px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 30px 100px #10141c30;
+  overflow: hidden;
+}
+.ci-dialog::backdrop {
+  background: #1419224a;
+  backdrop-filter: blur(7px);
+}
+.ci-dialog:not([open]) {
+  display: none;
+}
+.ci-spread {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+}
+.ci-aside {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 30px 27px;
+  background: color-mix(in srgb, var(--soft) 78%, var(--paper));
+}
+.ci-kicker {
+  font: 9px/1.5 var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--mute);
+}
+.ci-total {
+  font: italic 128px/0.95 var(--display);
+  letter-spacing: -0.08em;
+  margin: 38px 0 24px;
+  color: color-mix(in srgb, var(--ink) 76%, var(--paper));
+}
+.ci-aside h2 {
+  font: 44px/0.95 var(--display);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.ci-aside h2 i {
+  display: block;
+  font-weight: 400;
+}
+.ci-aside-copy {
+  font: 12px/1.9 var(--sans);
+  color: var(--mute);
+  margin: 25px 0;
+}
+.ci-note {
+  margin-top: auto;
+  padding-top: 22px;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  font: 10px/1.8 var(--sans);
+  color: var(--mute);
+}
+.ci-note span {
+  font-size: 11px;
+  color: var(--ink);
+}
+.ci-note p {
+  margin: 10px 0 0;
+}
+.ci-sheet {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 26px 24px 20px;
+}
+.ci-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: none;
+  margin-bottom: 18px;
+}
+.ci-header > div {
+  flex: 1;
+  min-width: 0;
+}
+.ci-header h3 {
+  font: 500 21px/1.4 var(--sans);
+  margin: 8px 0;
+}
+.ci-header p {
+  font: 11px/1.7 var(--sans);
+  color: var(--mute);
+  margin: 0;
+}
+.ci-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--soft);
+  color: var(--ink);
+  font: 24px/1 var(--sans);
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+.ci-close:hover {
+  transform: rotate(90deg);
+  background: color-mix(in srgb, var(--ink) 12%, var(--paper));
+}
+.ci-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 10px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  min-height: 0;
+  padding: 1px 4px 2px 1px;
+}
+.ci-character {
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: 15px;
+  background: color-mix(in srgb, var(--soft) 67%, var(--paper));
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.ci-character[data-selected='true'] {
+  border-color: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.ci-character-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.ci-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 11px/1.4 var(--sans);
+  cursor: pointer;
+}
+.ci-selection input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  margin: 0;
+}
+.ci-character-top > small {
+  font: 8px/1.4 var(--mono);
+  letter-spacing: 0.07em;
+  color: var(--mute);
+}
+.ci-name-label,
+.ci-prompt-label {
+  display: grid;
+  gap: 6px;
+  font: 10px/1.5 var(--sans);
+  color: var(--mute);
+}
+.ci-prompt-label {
+  margin-top: 14px;
+}
+.ci-name,
+.ci-prompt {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 8px;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  transition: outline-color 0.18s;
+}
+.ci-name {
+  height: 40px;
+  padding: 8px 11px;
+  font:
+    italic 23px/1 var(--display),
+    var(--sans);
+}
+.ci-prompt {
+  resize: vertical;
+  min-height: 82px;
+  max-height: 210px;
+  padding: 10px 11px;
+  font: 12px/1.7 var(--sans);
+}
+.ci-name:focus,
+.ci-prompt:focus {
+  outline-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.ci-message {
+  flex: none;
+  min-height: 0;
+  font: 11px/1.7 var(--sans);
+  color: var(--accent);
+  margin: 10px 0 0;
+}
+.ci-message:empty {
+  display: none;
+}
+.ci-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex: none;
+  margin-top: auto;
+  padding-top: 18px;
+}
+.ci-footer button {
+  min-height: 40px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  font: 12px/1.4 var(--sans);
+  transition:
+    transform 0.2s,
+    background 0.2s,
+    opacity 0.2s;
+}
+.ci-keep {
+  color: var(--ink);
+  background: var(--soft);
+}
+.ci-save {
+  color: var(--paper);
+  background: var(--ink);
+}
+.ci-footer button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+.ci-footer button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+.ci-dialog button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (max-width: 660px) {
+  .ci-dialog {
+    width: calc(100vw - 24px);
+    height: min(840px, calc(100dvh - 32px));
+    border-radius: 22px;
+  }
+  .ci-spread {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .ci-aside {
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 0 16px;
+    padding: 20px;
+  }
+  .ci-aside > .ci-kicker {
+    grid-column: 2;
+  }
+  .ci-total {
+    grid-column: 1;
+    grid-row: 1/4;
+    margin: 0;
+    font-size: 75px;
+    align-self: center;
+  }
+  .ci-aside h2 {
+    font-size: 29px;
+    line-height: 1;
+    margin: 7px 0 0;
+  }
+  .ci-aside h2 i {
+    display: inline;
+    margin-left: 5px;
+  }
+  .ci-aside-copy {
+    grid-column: 2;
+    font-size: 10px;
+    line-height: 1.7;
+    margin: 8px 0 0;
+  }
+  .ci-note {
+    display: none;
+  }
+  .ci-sheet {
+    padding: 20px 16px 16px;
+  }
+  .ci-header h3 {
+    font-size: 18px;
+  }
+  .ci-header {
+    margin-bottom: 14px;
+  }
+  .ci-footer {
+    gap: 8px;
+    padding-top: 14px;
+  }
+  .ci-footer button {
+    flex: 1;
+    padding-inline: 9px;
+  }
+  .ci-character {
+    padding: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ci-dialog * {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,112 @@
+/* An active print joins the contact strip before its first image arrives. */
+.history-pending {
+  animation: hp-arrive 340ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.hp-surface {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: var(--hp-aspect, 4 / 5);
+  max-height: 140px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--proof-paper, #e2e4e7);
+  isolation: isolate;
+}
+.hp-grain {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, #454b5a25 0 1px, transparent 1.2px) 0 0 / 7px 7px;
+  mask-image: radial-gradient(ellipse at 40% 50%, #000, transparent 78%);
+  animation: hp-breathe 3.2s ease-in-out infinite alternate;
+}
+.hp-flower {
+  width: 20px;
+  height: 20px;
+  background: #575c67;
+  mask: url('/mark.svg') center / contain no-repeat;
+  animation: hp-turn 9s linear infinite;
+  opacity: 0.8;
+}
+.history-item .hp-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: transparent;
+}
+.history-item .hp-image[hidden] {
+  display: none;
+}
+.hp-surface[data-preview] .hp-grain,
+.hp-surface[data-preview] .hp-flower {
+  visibility: hidden;
+}
+.history-item .hp-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mute);
+  letter-spacing: 0;
+  white-space: nowrap;
+  padding-inline: 0;
+}
+.hp-dot {
+  width: 3px;
+  height: 3px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: hp-breathe 1.8s ease-in-out infinite alternate;
+}
+.history-item > .hp-handoff {
+  position: absolute;
+  inset: auto;
+  max-height: none;
+  aspect-ratio: auto;
+  pointer-events: none;
+  z-index: 2;
+}
+.hp-handoff .hp-grain,
+.hp-handoff .hp-flower,
+.hp-suspended *,
+.hp-suspended {
+  animation-play-state: paused;
+}
+@keyframes hp-arrive {
+  from {
+    opacity: 0;
+    translate: 0 -5px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes hp-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes hp-breathe {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .history-pending,
+  .history-pending *,
+  .hp-handoff,
+  .hp-handoff * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

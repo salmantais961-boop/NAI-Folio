@@ -1,0 +1,114 @@
+#usage-summary,
+#cost-summary {
+  min-width: 0;
+}
+.bill-usage,
+.bill-cost {
+  border-block: 1px solid var(--rule);
+  color: var(--ink);
+  font-size: 12px;
+}
+.bill-usage {
+  margin: 0 0 13px;
+}
+.bill-usage summary,
+.bill-cost summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 31px;
+  list-style: none;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.bill-usage summary::-webkit-details-marker,
+.bill-cost summary::-webkit-details-marker {
+  display: none;
+}
+.bill-usage summary strong,
+.bill-cost summary strong {
+  margin-left: auto;
+  color: var(--ink);
+  font: 11px/1.4 var(--mono);
+  font-weight: 600;
+}
+.bill-indicator {
+  height: 5px;
+  width: 5px;
+  border: 1px solid var(--mute);
+  border-radius: 50%;
+}
+.bill-usage.is-connected .bill-indicator {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.bill-chevron {
+  font-size: 12px;
+  color: var(--mute);
+  font-family: Arial;
+  transform-origin: center;
+}
+.bill-usage[open] .bill-chevron,
+.bill-cost[open] .bill-chevron {
+  transform: rotate(180deg);
+}
+.bill-details,
+.bill-breakdown,
+.bill-account-detail {
+  display: grid;
+  gap: 6px;
+  padding: 4px 1px 10px;
+}
+.bill-details .bill-action {
+  justify-self: start;
+}
+.bill-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--mute);
+}
+.bill-row b {
+  font-size: 11px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.bill-note,
+.bill-breakdown p {
+  margin: 0;
+  color: var(--mute);
+  font: 11px/1.55 var(--sans);
+}
+.bill-meter {
+  display: grid;
+  gap: 4px;
+  margin-top: 2px;
+}
+.bill-track {
+  height: 3px;
+  background: var(--rule);
+}
+.bill-track i {
+  height: 100%;
+  display: block;
+  background: var(--accent);
+}
+.bill-action {
+  padding: 4px 0;
+  color: var(--accent);
+  border-bottom: 1px solid var(--accent-soft);
+  background: none;
+}
+.bill-cost {
+  border-bottom: 0;
+}
+.bill-low {
+  color: var(--accent) !important;
+}
+.bill-account-detail {
+  margin: 8px 0 10px;
+  padding: 4px 0 9px;
+  border-bottom: 1px solid var(--rule);
+}

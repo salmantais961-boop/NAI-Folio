@@ -1,0 +1,129 @@
+/* One quiet masthead for the studio, archive and personal image atlas. */
+.app-top {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.app-top nav {
+  min-width: 0;
+}
+.app-top nav button {
+  white-space: nowrap;
+}
+.archive-search-bar {
+  margin: 0 clamp(14px, 2.2vw, 34px) 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.archive-search-field {
+  width: min(100%, 480px);
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+  box-shadow: 0 0 0 1px transparent;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+.archive-search-field:focus-within {
+  background: var(--paper);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 4px 22px #00000004;
+}
+.archive-search-field > span {
+  display: grid;
+  color: var(--mute);
+}
+.archive-search-field svg {
+  width: 17px;
+  height: 17px;
+}
+.archive-search-field input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  background: transparent;
+  color: var(--ink);
+  border: 0;
+  outline: 0;
+  padding: 0;
+  font: 13px/1.5 var(--sans);
+}
+.archive-search-field input::-webkit-search-cancel-button {
+  display: none;
+}
+.archive-search-field button {
+  border: 0;
+  border-radius: 7px;
+  padding: 5px;
+  color: var(--mute);
+}
+.archive-search-field button:hover {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+}
+#archive-search-count {
+  margin-left: auto;
+  color: var(--mute);
+  font: 11px/1.6 var(--sans);
+}
+.archive-card > .archive-actions {
+  flex-wrap: wrap;
+  max-width: calc(100% - 16px);
+}
+@media (max-width: 760px) {
+  .app-top nav {
+    gap: 12px;
+  }
+  .app-top #replay {
+    display: none;
+  }
+  .archive-search-bar {
+    margin-bottom: 10px;
+    gap: 6px;
+  }
+  .archive-search-field {
+    width: auto;
+    flex: 1 1 0;
+  }
+  .archive-search-field input {
+    height: 43px;
+  }
+  #archive-search-count {
+    flex-basis: 100%;
+    margin-left: 0;
+    text-align: right;
+    font-size: 10px;
+  }
+  .archive-score-toggle {
+    min-height: 43px;
+    padding-inline: 9px;
+    gap: 6px;
+  }
+}
+@media (max-width: 400px) {
+  .app-top nav {
+    gap: 10px;
+  }
+  .app-top .wordmark {
+    font-size: 26px;
+  }
+  .app-top .wordmark .flower {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .archive-search-field {
+    transition: none;
+  }
+}
