@@ -343,11 +343,13 @@ export function mountAtlas(
     }
   }
   function present() {
+    const swapping = dialog.open;
     if (!dialog.open) {
       dialogFocus = document.activeElement;
       dialog.showModal();
     }
-    if (!motion.matches)
+    // Opening is choreographed by motion.css; an open sheet only cues its new content.
+    if (swapping && !motion.matches)
       dialog.animate(
         [
           { opacity: 0, translate: '0 10px' },

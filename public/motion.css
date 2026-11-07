@@ -1,0 +1,746 @@
+/* ============================================================================
+   Folio · Motion
+   One choreography for every surface: things arrive like a printed leaf settling
+   onto the desk (spring, soft focus), and leave like paper being lifted away
+   (quick, slightly upward, defocused). Loaded last so it can harmonise the
+   per-component timings without touching their geometry.
+   ========================================================================== */
+
+@property --m-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  /* Curves. Springs are sampled from damped oscillators (k / c in comments). */
+  --m-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --m-ease-in: cubic-bezier(0.4, 0, 0.7, 0.4);
+  --m-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* k190 / c24 — settles without visible overshoot. */
+  --m-spring: linear(
+    0, 0.024, 0.083, 0.164, 0.254, 0.348, 0.44, 0.525, 0.604, 0.674, 0.735, 0.787, 0.832, 0.869, 0.899, 0.924,
+    0.944, 0.96, 0.972, 0.982, 0.989, 0.994, 0.998, 1, 1.002, 1.003, 1.004, 1.004, 1.004, 1.004, 1.003, 1.003, 1
+  );
+  /* k340 / c24 — a small, lively overshoot for direct manipulation. */
+  --m-spring-snap: linear(
+    0, 0.042, 0.147, 0.284, 0.432, 0.576, 0.706, 0.816, 0.903, 0.969, 1.016, 1.045, 1.062, 1.067, 1.066, 1.06,
+    1.051, 1.041, 1.031, 1.022, 1.014, 1.008, 1.003, 1, 0.997, 0.996, 0.996, 0.996, 0.996, 0.996, 0.997, 0.998, 1
+  );
+  --m-quick: 160ms;
+  --m-base: 280ms;
+  --m-settle: 540ms;
+  --m-slow: 760ms;
+  --m-glow: color-mix(in srgb, var(--accent) 22%, transparent);
+  interpolate-size: allow-keywords;
+}
+
+/* ---------------------------------------------------------------------------
+   Paper. A barely-there print grain gives every surface the same stock.
+   ------------------------------------------------------------------------- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+:root[data-theme='dark'] body::after {
+  opacity: 0.06;
+  filter: invert(1);
+}
+::selection {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+textarea,
+input {
+  caret-color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Touch. Every press compresses and springs back; nothing snaps.
+   ------------------------------------------------------------------------- */
+button {
+  transition:
+    background-color var(--m-quick) ease,
+    background var(--m-quick) ease,
+    color var(--m-quick) ease,
+    border-color var(--m-base) ease,
+    box-shadow var(--m-base) var(--m-ease-out),
+    opacity var(--m-quick) ease,
+    scale var(--m-settle) var(--m-spring-snap),
+    translate var(--m-settle) var(--m-spring);
+}
+:is(
+    .icon-btn,
+    .prompt-tools button,
+    .pa-strip .pa-button,
+    .proof-lineage-btn,
+    #all-history,
+    .recipe-actions button,
+    .mobile-views button,
+    .ap-submit button,
+    .ap-section-head button,
+    .fc-dialog .fc-primary,
+    .enter-link,
+    .archive-search-bar button,
+    #cancel
+  ):active:not(:disabled) {
+  scale: 0.94;
+  transition-duration: 90ms;
+}
+.prompt-tools button:active:not(:disabled),
+.recipe-actions button:active:not(:disabled),
+.ap-submit button:active:not(:disabled) {
+  scale: 0.975;
+}
+.icon-btn:hover:not(:disabled) {
+  translate: 0 -1px;
+}
+
+/* Fields gather a soft halo of the accent instead of a hard ring. */
+.field-surface,
+.archive-search-field,
+.ap-field input,
+.ap-field select {
+  transition:
+    box-shadow 360ms var(--m-ease-out),
+    background-color 260ms ease,
+    border-color 260ms ease;
+}
+.compose-panel .field-surface:focus-within {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent),
+    0 10px 34px -18px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.archive-search-field:focus-within {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 34%, transparent),
+    0 12px 36px -20px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Switch. The knob stretches while pressed and lands on a spring.
+   ------------------------------------------------------------------------- */
+.fc-switch {
+  transition:
+    background-color 300ms var(--m-ease-out),
+    box-shadow 300ms var(--m-ease-out);
+}
+.fc-switch:before {
+  transition:
+    transform var(--m-settle) var(--m-spring-snap),
+    width 260ms var(--m-ease-out),
+    margin 260ms var(--m-ease-out);
+}
+.fc-transport:active .fc-switch:before {
+  width: 14px;
+}
+.fc-transport:active input:checked + .fc-switch:before {
+  margin-left: -3px;
+}
+.fc-transport input:checked + .fc-switch {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Masthead. One ink rule glides between sections.
+   ------------------------------------------------------------------------- */
+.app-top nav.m-has-ink {
+  position: relative;
+}
+.app-top nav.m-has-ink button[aria-current='page']:after {
+  opacity: 0;
+}
+.m-nav-ink {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: var(--m-ink-w, 0px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  translate: var(--m-ink-x, 0px) 0;
+  pointer-events: none;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 55%, transparent);
+  transition:
+    translate 620ms var(--m-spring),
+    width 620ms var(--m-spring),
+    opacity 200ms ease;
+}
+.m-nav-ink[data-instant] {
+  transition: none;
+}
+.app-top nav button {
+  transition:
+    color 260ms ease,
+    font-weight 260ms ease;
+}
+
+/* ---------------------------------------------------------------------------
+   Generate. A firmer press, a lift on hover and an orbiting light while the
+   image is being exposed.
+   ------------------------------------------------------------------------- */
+.submit-row #generate {
+  transition:
+    background-color 260ms ease,
+    box-shadow 420ms var(--m-ease-out),
+    translate 520ms var(--m-spring),
+    scale 520ms var(--m-spring-snap),
+    opacity 260ms ease;
+}
+.submit-row #generate:hover:not(:disabled) {
+  translate: 0 -1px;
+  box-shadow:
+    0 14px 30px -16px color-mix(in srgb, #393dc1 85%, transparent),
+    0 0 0 1px #ffffff14 inset;
+}
+.submit-row #generate:active:not(:disabled) {
+  transform: none;
+  scale: 0.975;
+  translate: 0 0;
+  transition-duration: 90ms;
+}
+.submit-row #generate::before {
+  transition: transform 900ms var(--m-ease-out);
+}
+.submit-row #generate::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--m-angle),
+    transparent 0 52%,
+    #8f96ff 66%,
+    #ffffff 75%,
+    #c3c7ff 82%,
+    transparent 94%
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 420ms ease;
+  pointer-events: none;
+}
+.workspace.is-exposing .submit-row #generate::after {
+  opacity: 1;
+  animation: m-orbit 2.6s linear infinite;
+}
+.workspace.is-exposing .submit-row #generate {
+  box-shadow: 0 16px 40px -18px color-mix(in srgb, #393dc1 90%, transparent);
+}
+@keyframes m-orbit {
+  to {
+    --m-angle: 360deg;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Choices. Segmented underlays travel on a spring.
+   ------------------------------------------------------------------------- */
+.compose-panel .cm-segmented::before {
+  transition:
+    translate 560ms var(--m-spring),
+    width 560ms var(--m-spring),
+    height 560ms var(--m-spring);
+}
+
+/* ---------------------------------------------------------------------------
+   Menus unfold from their trigger and fold away again.
+   ------------------------------------------------------------------------- */
+.pa-menu,
+.fs-menu {
+  transform-origin: var(--m-origin, top center);
+}
+.pa-menu:popover-open {
+  animation: m-menu-in 440ms var(--m-spring) both;
+}
+.fs-menu:popover-open,
+.fs-menu.fs-fallback-open {
+  animation: m-menu-in 440ms var(--m-spring) both;
+}
+.pa-menu {
+  transition:
+    opacity 170ms ease,
+    translate 200ms var(--m-ease-in),
+    scale 200ms var(--m-ease-in),
+    display 200ms allow-discrete,
+    overlay 200ms allow-discrete;
+}
+.pa-menu:not(:popover-open) {
+  opacity: 0;
+  translate: 0 -4px;
+  scale: 0.97;
+}
+.pa-menu .pa-item,
+.fs-menu .fs-option {
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    padding-left 260ms var(--m-spring);
+}
+.pa-menu .pa-item:hover:not([aria-disabled='true']),
+.fs-menu .fs-option:hover:not([aria-disabled='true']) {
+  padding-left: 13px;
+}
+@keyframes m-menu-in {
+  from {
+    opacity: 0;
+    translate: 0 -6px;
+    scale: 0.96;
+    filter: blur(4px);
+  }
+  60% {
+    filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Tooltip. Replaces the system title bubble with a quiet ink label.
+   ------------------------------------------------------------------------- */
+.m-tip {
+  position: fixed !important;
+  inset: auto !important;
+  left: 0 !important;
+  top: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  max-width: min(280px, calc(100vw - 16px));
+  padding: 6px 10px 7px !important;
+  border-radius: 8px;
+  overflow: visible !important;
+  color: #f4f3ee !important;
+  background: color-mix(in srgb, #15171c 90%, transparent) !important;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 0 1px #ffffff12 inset,
+    0 10px 28px -12px #0b0d14aa;
+  font: 500 11px/1.45 var(--sans);
+  letter-spacing: 0.02em;
+  white-space: normal;
+  pointer-events: none;
+  translate: var(--m-tip-x, 0px) var(--m-tip-y, 0px);
+  z-index: 2147482500;
+}
+:root[data-theme='dark'] .m-tip {
+  color: #17191d !important;
+  background: color-mix(in srgb, #f4f3ee 94%, transparent) !important;
+  box-shadow:
+    0 0 0 1px #0000000d inset,
+    0 10px 28px -12px #000c;
+}
+.m-tip[data-state='in'] {
+  animation: m-tip-in 320ms var(--m-spring-snap) both;
+}
+.m-tip[data-state='out'] {
+  animation: m-tip-out 140ms ease both;
+}
+.m-tip kbd {
+  margin-left: 7px;
+  padding: 0 4px;
+  border-radius: 4px;
+  font: 500 10px/1.5 var(--mono);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+@keyframes m-tip-in {
+  from {
+    opacity: 0;
+    scale: 0.94;
+    filter: blur(3px);
+    transform: translateY(var(--m-tip-lift, 4px));
+  }
+}
+@keyframes m-tip-out {
+  to {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Dialogs. Every sheet rises into focus on a spring; its backdrop dims in.
+   Departures are drawn by motion.js as a detached ghost so callers can keep
+   closing and removing dialogs synchronously.
+   ------------------------------------------------------------------------- */
+dialog[open]:not(.m-ghost-sheet):not([data-motion='none']) {
+  animation: m-sheet-in 620ms var(--m-spring) both !important;
+}
+dialog[open]:not([data-motion='none'])::backdrop {
+  animation: m-backdrop-in 420ms var(--m-ease-out) both !important;
+}
+dialog.pv-dialog[open] {
+  animation-name: m-sheet-fade !important;
+}
+@keyframes m-sheet-in {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+    scale: 0.965;
+    filter: blur(10px);
+  }
+  55% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: none;
+  }
+}
+@keyframes m-sheet-fade {
+  from {
+    opacity: 0;
+    scale: 0.99;
+  }
+}
+@keyframes m-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+.m-ghost {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  z-index: 2147482000;
+  contain: layout paint;
+}
+.m-ghost::backdrop {
+  display: none;
+}
+.m-ghost-backdrop {
+  position: absolute;
+  inset: 0;
+}
+.m-ghost-sheet,
+.m-ghost-panel {
+  position: absolute !important;
+  margin: 0 !important;
+  inset: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+  pointer-events: none !important;
+  will-change: opacity, translate, scale, filter;
+}
+.m-ghost-sheet *,
+.m-ghost-sheet *::before,
+.m-ghost-sheet *::after {
+  animation: none !important;
+  transition: none !important;
+}
+/* Floating panels that are not native dialogs leave the same way. */
+.m-leaving {
+  pointer-events: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   Toast. A dark glass capsule with a hairline that measures its stay.
+   ------------------------------------------------------------------------- */
+body > #toast {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  left: 50%;
+  bottom: 26px;
+  transform: none;
+  translate: -50% 0;
+  padding: 11px 18px 11px 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  color: #f4f3ee;
+  background: color-mix(in srgb, #15171c 86%, transparent);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow:
+    0 0 0 1px #ffffff14 inset,
+    0 18px 50px -18px #0b0d1499,
+    0 3px 10px -4px #0b0d1440;
+  animation: none;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+}
+:root[data-theme='dark'] body > #toast {
+  color: #17191d;
+  background: color-mix(in srgb, #f4f3ee 90%, transparent);
+  box-shadow:
+    0 0 0 1px #00000010 inset,
+    0 18px 50px -18px #000c;
+}
+body > #toast:empty,
+body > #toast:not([data-state]) {
+  display: none;
+}
+body > #toast[data-state='in'] {
+  animation: m-toast-in 620ms var(--m-spring-snap) both;
+}
+body > #toast[data-state='out'] {
+  animation: m-toast-out 300ms var(--m-ease-in) both;
+}
+.m-toast-mark {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #aeb3ff;
+  box-shadow: 0 0 0 4px #aeb3ff26;
+}
+:root[data-theme='dark'] .m-toast-mark {
+  background: var(--accent);
+  background: #393ecb;
+  box-shadow: 0 0 0 4px #393ecb22;
+}
+.m-toast-text {
+  display: block;
+  min-width: 0;
+}
+.m-toast-time {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.28;
+  transform-origin: left;
+  animation: m-toast-time var(--m-toast-life, 3800ms) linear both;
+}
+@keyframes m-toast-in {
+  from {
+    opacity: 0;
+    translate: -50% 26px;
+    scale: 0.92;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    translate: -50% 0;
+    scale: 1;
+    filter: none;
+  }
+}
+@keyframes m-toast-out {
+  to {
+    opacity: 0;
+    translate: -50% 12px;
+    scale: 0.96;
+    filter: blur(6px);
+  }
+}
+@keyframes m-toast-time {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Archive. Images develop out of a soft sheen; cards tilt toward the pointer.
+   ------------------------------------------------------------------------- */
+.archive-card[data-image-state='loading'] > .archive-open {
+  background:
+    linear-gradient(
+        100deg,
+        transparent 30%,
+        color-mix(in srgb, var(--white) 70%, transparent) 50%,
+        transparent 70%
+      )
+      0 0 / 240% 100% no-repeat,
+    color-mix(in srgb, var(--ink) 5%, var(--proof-paper, var(--soft)));
+  animation: m-sheen 1.6s var(--m-ease-in-out) infinite;
+}
+@keyframes m-sheen {
+  from {
+    background-position: 140% 0, 0 0;
+  }
+  to {
+    background-position: -40% 0, 0 0;
+  }
+}
+.archive-card > .archive-open {
+  position: relative;
+  transition:
+    transform 700ms var(--m-spring),
+    box-shadow 500ms var(--m-ease-out);
+}
+.archive-card[data-m-tilt] > .archive-open {
+  transform: perspective(900px) rotateX(var(--m-tilt-x, 0deg)) rotateY(var(--m-tilt-y, 0deg));
+  transition:
+    transform 180ms var(--m-ease-out),
+    box-shadow 500ms var(--m-ease-out);
+  box-shadow: 0 22px 50px -26px #0d111a66;
+}
+.archive-card > .archive-open::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    420px circle at var(--m-spot-x, 50%) var(--m-spot-y, 50%),
+    #ffffff2e,
+    transparent 45%
+  );
+  opacity: 0;
+  transition: opacity 400ms ease;
+  mix-blend-mode: soft-light;
+}
+.archive-card[data-m-tilt] > .archive-open::before {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Reading disclosures open and close by height. Masonry tiles and the compose
+   column measure or animate their own disclosures, so they are left alone.
+   ------------------------------------------------------------------------- */
+:is(.syntax-help, .ap-usage, .lc-change-details, .lc-prompt, .mr-parameter-details, .mr-character-details, .pt-legend)::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    block-size 460ms var(--m-ease-out),
+    opacity 320ms ease,
+    content-visibility 460ms allow-discrete;
+}
+:is(.syntax-help, .ap-usage, .lc-change-details, .lc-prompt, .mr-parameter-details, .mr-character-details, .pt-legend)[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   View transitions.
+   Screen: the old page lifts away while the new one settles into focus; the
+   masthead stays put and its ink rule slides to the new section.
+   Theme: the new paper is revealed as an expanding circle from the switch.
+   ------------------------------------------------------------------------- */
+::view-transition {
+  pointer-events: none;
+}
+html.m-vt-screen .app-top[data-m-still] {
+  view-transition-name: m-masthead;
+}
+html.m-vt-screen .app-top[data-m-still] .m-nav-ink {
+  view-transition-name: m-nav-ink;
+}
+html.m-vt-screen::view-transition-group(m-masthead) {
+  animation-duration: 0s;
+}
+html.m-vt-screen::view-transition-old(m-masthead),
+html.m-vt-screen::view-transition-new(m-masthead) {
+  animation-duration: 220ms;
+}
+html.m-vt-screen::view-transition-group(m-nav-ink) {
+  animation-duration: 640ms;
+  animation-timing-function: var(--m-spring);
+}
+html.m-vt-screen::view-transition-old(root) {
+  animation: m-page-out 260ms var(--m-ease-in) both;
+}
+html.m-vt-screen::view-transition-new(root) {
+  animation: m-page-in 680ms var(--m-ease-out) 40ms both;
+}
+@keyframes m-page-out {
+  to {
+    opacity: 0;
+    translate: 0 -14px;
+    scale: 0.992;
+    filter: blur(6px);
+  }
+}
+@keyframes m-page-in {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+    filter: blur(8px);
+  }
+}
+html.m-vt-layered::view-transition-new(root) {
+  /* The atelier staggers its own paper layers; the page only comes into focus. */
+  animation-name: m-page-focus;
+  animation-duration: 520ms;
+}
+@keyframes m-page-focus {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+html.m-theme-swap *,
+html.m-theme-swap *::before,
+html.m-theme-swap *::after {
+  transition: none !important;
+}
+html.m-vt-theme::view-transition-old(root),
+html.m-vt-theme::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.m-vt-theme::view-transition-old(root) {
+  z-index: 1;
+}
+html.m-vt-theme::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* ---------------------------------------------------------------------------
+   Quiet mode.
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  dialog[open],
+  dialog[open]::backdrop,
+  body > #toast[data-state],
+  .m-toast-time,
+  .archive-card[data-image-state='loading'] > .archive-open,
+  .workspace.is-exposing .submit-row #generate::after {
+    animation: none !important;
+  }
+  button,
+  .m-nav-ink,
+  .fc-switch:before,
+  .archive-card > .archive-open,
+  .compose-panel .cm-segmented::before,
+  .pa-menu,
+  details::details-content {
+    transition: none !important;
+  }
+  .pa-menu:popover-open,
+  .fs-menu:popover-open,
+  .m-tip[data-state] {
+    animation: none !important;
+  }
+  :is(.icon-btn, .prompt-tools button, .submit-row #generate):is(:hover, :active) {
+    scale: none !important;
+    translate: none !important;
+  }
+  .archive-card > .archive-open {
+    transform: none !important;
+  }
+}

@@ -1,5 +1,6 @@
 import { paintAccountDetails } from './billing.js'
 import { normalizeProfile, readProfiles, writeProfiles, profileHeaders } from './account-profiles.js'
+import { leave } from './motion.js'
 
 export function connection({ onAccount, notify }) {
   const saved = readProfiles()
@@ -416,7 +417,7 @@ export function connection({ onAccount, notify }) {
       panel = null
       paintPanel = null
       document.removeEventListener('keydown', escape)
-      d.remove()
+      leave(d)
       if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true })
     }
     function escape(event) {
