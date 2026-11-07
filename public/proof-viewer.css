@@ -31,21 +31,15 @@
   outline: 1px solid var(--accent);
   outline-offset: -1px;
 }
-@property --pv-depth {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
 .pv-history-previous,
 .pv-history-next {
   position: absolute;
   pointer-events: none;
   z-index: 8;
-  scale: var(--pv-depth);
-  will-change: translate, scale;
+  will-change: translate, rotate;
 }
-.pv-history-track .pv-edge {
-  --pv-stroke: calc(var(--pv-history-stroke, 4px) / var(--pv-depth));
+.pv-history-previous {
+  will-change: translate, rotate, scale, filter, opacity;
 }
 .pv-history-track {
   position: absolute;

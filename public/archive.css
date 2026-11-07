@@ -44,6 +44,30 @@
 .archive-card[data-actions-open] {
   z-index: 2;
 }
+.archive-card[data-departing] {
+  z-index: 3;
+  pointer-events: none;
+}
+.archive-card:is([data-departing], [data-removal-armed]) > :not(.archive-open) {
+  visibility: hidden;
+  pointer-events: none;
+}
+.archive-card[data-removal-armed] .archive-open::before {
+  opacity: 0;
+}
+.archive-card .image-delete-wash {
+  z-index: 2;
+}
+.archive-card .image-delete-wash > svg {
+  width: clamp(22px, 2.8vw, 38px);
+  height: clamp(22px, 2.8vw, 38px);
+}
+#archive-grid:has(> .archive-card[data-departing]) {
+  overflow-anchor: none;
+}
+#archive-grid:has(> .archive-card[data-departing]) .archive-empty {
+  visibility: hidden;
+}
 .archive-card > .archive-open {
   display: block;
   padding: 0;

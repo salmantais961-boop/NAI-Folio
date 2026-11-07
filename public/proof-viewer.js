@@ -114,7 +114,6 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
   let historyLayer = null,
     historyIn = null,
     historyOut = null,
-    historyShade = null,
     historySettled = null,
     resolveHistory = null,
     historyGeometry = null
@@ -122,12 +121,10 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
   function clearHistoryMotion() {
     historyIn?.cancel()
     historyOut?.cancel()
-    historyShade?.cancel()
     historyLayer?.remove()
     delete view.dataset.historyHidden
     stage.classList.remove('pv-history-moving')
     historyIn = historyOut = historyLayer = null
-    historyShade = null
     historyGeometry = null
     resolveHistory?.()
     historySettled = resolveHistory = null
@@ -157,9 +154,8 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
       width: bounds.width + 'px',
       height: bounds.height + 'px',
     })
-    layer.style.setProperty('--pv-history-radius', getComputedStyle(view).getPropertyValue('--pv-radius'))
-    layer.style.setProperty('--pv-history-stroke', getComputedStyle(edge).borderTopWidth)
-    layer.style.setProperty('--pv-radius', 'calc(var(--pv-history-radius, 22px) / var(--pv-depth))')
+    layer.style.setProperty('--pv-radius', getComputedStyle(view).getPropertyValue('--pv-radius'))
+    frame.style.setProperty('--pv-stroke', getComputedStyle(edge).borderTopWidth)
     layer.style.setProperty('--pv-crop', getComputedStyle(view).getPropertyValue('--pv-crop'))
     paper.style.cssText = sheet.style.cssText
     paper.style.transform = getComputedStyle(sheet).transform
@@ -179,40 +175,34 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
     })
     return layer
   }
-  function historyFrames(offset) {
-    const sign = Math.sign(offset)
+  const exitScale = 0.82
+  function historyFrames(exitY, entryY, tilt) {
+    const retreatEnd = 0.32
+    const glide = 'cubic-bezier(.42,.04,.23,1)'
     return {
       out: [
-        { translate: '0 0', '--pv-depth': '1', easing: 'cubic-bezier(.2,.7,.2,1)' },
+        // Rotation has one uninterrupted curve across both the retreat and the slide.
+        { offset: 0, rotate: '0deg', easing: 'cubic-bezier(.23,.36,.58,.84)' },
         {
-          translate: `0 ${sign * 4}px`,
-          '--pv-depth': '.974',
-          offset: 0.18,
-          easing: 'cubic-bezier(.45,.01,.72,.5)',
+          offset: 0, translate: '0 0', scale: '1', opacity: 1, filter: 'blur(0px)',
+          easing: 'cubic-bezier(.28,.08,.25,1)',
         },
-        { translate: `0 ${-offset}px`, '--pv-depth': '.966' },
+        {
+          offset: retreatEnd, translate: '0 0', scale: '.86',
+          opacity: 0.9, filter: 'blur(0.7px)', easing: glide,
+        },
+        { translate: `0 ${exitY}px`, scale: String(exitScale), rotate: `${tilt}deg`, opacity: 0.18, filter: 'blur(5px)' },
       ],
       incoming: [
-        { translate: `0 ${offset}px`, '--pv-depth': '.972' },
-        {
-          translate: `0 ${offset}px`,
-          '--pv-depth': '.972',
-          offset: 0.1,
-          easing: 'cubic-bezier(.22,.52,.18,1)',
-        },
-        {
-          translate: `0 ${-sign * 2}px`,
-          '--pv-depth': '1',
-          offset: 0.88,
-          easing: 'cubic-bezier(.2,.65,.2,1)',
-        },
-        { translate: '0 0', '--pv-depth': '1' },
+        { translate: `0 ${entryY}px`, rotate: '0deg', easing: 'cubic-bezier(.30,.26,.26,1)' },
+        { offset: 0.55, rotate: `${Math.sign(entryY) * 0.85}deg` },
+        { translate: '0 0', rotate: '0deg' },
       ],
     }
   }
   function layoutHistory() {
     if (!historyGeometry || !view.clientWidth || !view.clientHeight) return null
-    const { host, track, panels, direction } = historyGeometry,
+    const { host, track, panels, direction, tilt } = historyGeometry,
       viewport = view.getBoundingClientRect(),
       outer = host.getBoundingClientRect(),
       scaleX = outer.width / host.offsetWidth || 1,
@@ -263,18 +253,18 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
         width: right - cropLeft + 'px',
         height: bottom - cropTop + 'px',
       })
-      return { top: top + cropTop, bottom: top + bottom }
+      return { top: top + cropTop, bottom: top + bottom, width: right - cropLeft }
     })
-    const offset =
-      Math.sign(direction) *
-      (Math.max(
-        1,
-        direction > 0
-          ? Math.max(crops[0].bottom, host.clientHeight - crops[1].top)
-          : Math.max(host.clientHeight - crops[0].top, crops[1].bottom),
-      ) +
-        18)
-    const frames = historyFrames(offset)
+    // Start the new artwork at the canvas edge even when its aspect ratio
+    // differs from the departing artwork's. A shared distance can delay its appearance.
+    const [outgoing, incoming] = crops
+    // The far corner of a tilted panorama can extend well beyond its upright bounds.
+    const angle = Math.abs(tilt) * Math.PI / 180
+    const centerY = (outgoing.top + outgoing.bottom) / 2
+    const halfHeight = exitScale * (outgoing.width * Math.sin(angle) + (outgoing.bottom - outgoing.top) * Math.cos(angle)) / 2
+    const exitY = direction > 0 ? -centerY - halfHeight - 18 : host.clientHeight - centerY + halfHeight + 18
+    const entryY = direction > 0 ? host.clientHeight - incoming.top + 1 : -incoming.bottom - 1
+    const frames = historyFrames(exitY, entryY, tilt)
     // Grid resizing changes geometry, never the running animation clock. This
     // keeps both copies proportional while a word-block sidebar opens/closes.
     historyOut?.effect.setKeyframes(frames.out)
@@ -299,27 +289,16 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
     host.append(track)
     view.dataset.historyHidden = 'true'
     stage.classList.add('pv-history-moving')
-    const timing = { duration: 640, easing: 'linear', fill: 'both' }
+    const timing = { duration: 680, fill: 'both' }
     historyLayer = track
-    historyGeometry = { host, track, panels: [layer, incoming], direction }
+    // Re-layout can rebuild the keyframes mid-swipe; sample the angle only once.
+    const tilt = (15 + 10 * Math.random()) * (Math.random() < 0.5 ? -1 : 1)
+    historyGeometry = { host, track, panels: [layer, incoming], direction, tilt }
     const frames = layoutHistory()
     historySettled = new Promise((resolve) => {
       resolveHistory = resolve
     })
-    historyOut = layer.animate(frames.out, { ...timing, duration: 560 })
-    // Let the retreat register first. Then lower only the old photograph's
-    // luminance; the paper stays opaque and its ink edge remains crisp.
-    historyShade = layer
-      .querySelector('.pv-image')
-      .animate(
-        [
-          { filter: 'brightness(1) saturate(1)' },
-          { filter: 'brightness(1) saturate(1)', offset: 0.18 },
-          { filter: 'brightness(.6) saturate(.96)', offset: 0.64 },
-          { filter: 'brightness(.6) saturate(.96)' },
-        ],
-        { ...timing, duration: 560 },
-      )
+    historyOut = layer.animate(frames.out, timing)
     const animation = incoming.animate(frames.incoming, timing)
     historyIn = animation
     animation.onfinish = () => {
@@ -718,6 +697,14 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
   }
   function reveal(type, ghost) {
     if (reduceMotion.matches) return
+    if (type === 'selection') {
+      // Bring the decoded artwork and its ink edge into focus as one print.
+      flash = view.animate([
+        { opacity: 0, filter: 'blur(9px)', translate: '0 9px' },
+        { opacity: 1, filter: 'blur(0px)', translate: '0 0' },
+      ], { duration: 460, easing: 'cubic-bezier(.22,.65,.25,1)' })
+      return
+    }
     if (ghost) {
       previous = ghost
       sheet.append(ghost)
@@ -825,7 +812,8 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
     const from = historyOrder.indexOf(model?.historyKey),
       to = historyOrder.indexOf(historyKey)
     if (from >= 0 && to >= 0 && from !== to) slide = Math.sign(to - from)
-    const historySlide = slide && state === 'result' && !finalReveal && !reduceMotion.matches
+    const fromEmpty = state === 'result' && !model?.url
+    const historySlide = !fromEmpty && slide && state === 'result' && !finalReveal && !reduceMotion.matches
     const oldProof = historySlide ? historySnapshot() : null
     const incomingStream = state === 'stream',
       sameAspect =
@@ -860,6 +848,7 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
     draw()
     schedule()
     if (incomingStream || finalReveal) reveal(incomingStream ? 'frame' : 'final', ghost)
+    else if (fromEmpty) reveal('selection')
     else if (historySlide) slideHistory(slide, oldProof)
     return true
   }

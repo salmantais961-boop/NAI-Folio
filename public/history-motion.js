@@ -1,3 +1,5 @@
+import { fadeRemovedTile } from './image-removal.js';
+
 /** One ink capsule follows the selected proof. Kept outside the list so history
  * sorting, pending handoffs and deletion never treat it as an artwork. */
 export function mountHistoryMotion(host) {
@@ -12,6 +14,7 @@ export function mountHistoryMotion(host) {
   shell.append(track);
   shell.classList.add('hm-enabled');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const departures = new Map();
   let frame = 0,
     animateNext = false,
     motion = null,
@@ -19,6 +22,51 @@ export function mountHistoryMotion(host) {
     observed = null;
   const resize = new ResizeObserver(() => schedule(false));
   resize.observe(host);
+  function finishDeparture(id) {
+    const exit = departures.get(id);
+    if (!exit) return;
+    departures.delete(id);
+    resize.unobserve(exit.slot);
+    for (const animation of exit.animations) animation.cancel();
+    exit.slot.remove();
+    if (!departures.size) host.classList.remove('hm-removing');
+    schedule(false);
+  }
+
+  // The record has already been deleted. Keep its thumbnail in an inert slot
+  // so the visual exit does not delay storage or undo.
+  function depart(tile, id) {
+    if (!tile || reduced.matches || document.hidden || !host.clientHeight) return false;
+    const img = tile.querySelector('.history-open img');
+    const picture = img?.getBoundingClientRect();
+    const viewport = host.getBoundingClientRect();
+    if (!picture?.width || picture.bottom <= viewport.top || picture.top >= viewport.bottom) return false;
+    const bounds = tile.getBoundingClientRect();
+    const scale = bounds.width / tile.offsetWidth || 1;
+    const height = bounds.height / scale;
+    const gap = parseFloat(getComputedStyle(host).rowGap) || 0;
+    const slot = document.createElement('div');
+    slot.className = 'hm-departure';
+    slot.inert = true;
+    slot.setAttribute('aria-hidden', 'true');
+    slot.style.height = height + 'px';
+    host.classList.add('hm-removing');
+    tile.dataset.departing = '';
+    tile.before(slot);
+    slot.append(tile);
+    tile.dataset.selected = 'false';
+    const fade = fadeRemovedTile(tile);
+    const collapse = slot.animate([
+      { height: height + 'px', marginBottom: '0px' },
+      { height: '0px', marginBottom: -gap + 'px' },
+    ], { delay: 30, duration: 260, easing: 'cubic-bezier(.24,.72,.24,1)', fill: 'both' });
+    departures.set(id, { slot, animations: [fade, collapse] });
+    resize.observe(slot);
+    collapse.onfinish = () => {
+      if (departures.get(id)?.slot === slot) finishDeparture(id);
+    };
+    return true;
+  }
   function cancel() {
     motion?.cancel();
     motion = null;
@@ -111,17 +159,26 @@ export function mountHistoryMotion(host) {
   const load = () => schedule(false);
   const preference = () => {
     if (reduced.matches) {
+      for (const id of departures.keys()) finishDeparture(id);
       cancel();
       sync(false);
     }
   };
+  const onVisibility = () => {
+    if (document.hidden) for (const id of departures.keys()) finishDeparture(id);
+  };
+  document.addEventListener('visibilitychange', onVisibility);
   host.addEventListener('scroll', scroll, { passive: true });
   host.addEventListener('load', load, true);
   reduced.addEventListener('change', preference);
   schedule(false);
   return {
+    depart,
+    finishDeparture,
     refresh: () => schedule(false),
     destroy() {
+      for (const id of departures.keys()) finishDeparture(id);
+      document.removeEventListener('visibilitychange', onVisibility);
       cancelAnimationFrame(frame);
       cancel();
       mutation.disconnect();

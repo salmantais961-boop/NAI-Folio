@@ -35,6 +35,7 @@ import { mountScreenExit } from './screen-exit.js';
 import { transitionScreen, transitionTheme, mountToast, revealHeadings } from './motion.js';
 import { mountGenerationAtmosphere } from './generation-atmosphere.js';
 import { mountArchiveLayout } from './archive-layout.js';
+import { mountRemovalConfirmation } from './removal-confirmation.js';
 import { mountArchiveScoring } from './archive-scoring.js';
 import { mountArchiveAppreciation } from './archive-appreciation.js';
 import { mountPendingHistory } from './history-pending.js';
@@ -91,8 +92,13 @@ const proofProgress = mountProofProgress(document.querySelector('.proof-foot'));
 const finish = mountStudioFinish({ notify });
 const studioEntrance = mountStudioEntrance($('studio'));
 const screenExit = mountScreenExit();
-const archiveTiles = new Map();
-const archiveLayout = mountArchiveLayout($('archive-grid'));
+const removal = mountRemovalConfirmation(deleteHistoryWork);
+const archiveLayout = mountArchiveLayout($('archive-grid'), {
+  createCard: createArchiveCard,
+  updateCard: (card, work) => archiveScoring.decorate(card, work),
+  onUnmount: removal.forget,
+  getURL: itemUrl,
+});
 const archiveScoring = mountArchiveScoring($('archive-score-controls'), {
   onChange: () => renderArchive(),
   notify,
@@ -140,7 +146,7 @@ const atlas = mountAtlas($('atlas'), {
   notify,
 });
 const pendingHistory = mountPendingHistory($('contact-strip'), { onOpen: returnToGeneration });
-mountHistoryMotion($('contact-strip'));
+const historyMotion = mountHistoryMotion($('contact-strip'));
 const lineageRecords = new Map();
 const deletedWorkIds = new Set();
 let lineageReuse = [];
@@ -192,9 +198,12 @@ const appreciation = mountArchiveAppreciation({
   onReuse: (work) => metaReuse.open(work),
   onCollect: (work) => atlas.openSaveWork(work),
   onLineage: (work) => lineageCanvas.open(work),
-  onDelete: (work) => {
-    deleteHistoryWork(work);
-    return historyQueue.then(() => !works.some((item) => item.id === work.id));
+  onRequestDelete: (work) => {
+    if (archiveLayout.focusWork(work.id)) {
+      const card = document.activeElement?.closest('.archive-card');
+      if (card?.dataset.workId === work.id)
+        removal.arm(card, works.find(item => item.id === work.id), card.querySelector('.archive-open'));
+    }
   },
   onScore: (updated) => {
     for (const work of new Set([
@@ -292,6 +301,7 @@ function setScreen(target, viewTransition = false) {
   }
   $(screen + '-nav').setAttribute('aria-current', 'page');
   if (screen === 'archive') renderArchive();
+  else if (changed) archiveLayout.refresh();
   if (screen === 'atlas') void atlas.refresh();
   if (changed) {
     // Animate the content, keeping the shared masthead fixed and immediately usable.
@@ -465,9 +475,11 @@ function deleteHistoryWork(work) {
     if (!works.some((item) => item.id === work.id)) return;
     const focused = document.activeElement;
     const tile = historyTiles.get(work.id);
-    const fromArchive = archiveTiles.get(work.id)?.contains(focused);
+    const fromArchive = focused?.closest('.archive-card')?.dataset.workId === work.id;
     const keepFocus = fromArchive || tile?.contains(focused);
-    const index = works.findIndex((item) => item.id === work.id);
+    const order = fromArchive ? filteredArchiveWorks() : works;
+    const index = order.findIndex((item) => item.id === work.id);
+    const neighbor = order[index + 1] || order[index - 1];
     try {
       const snapshot = await removeWork(work.id);
       const restoreFocus = keepFocus && document.activeElement === focused;
@@ -488,6 +500,8 @@ function deleteHistoryWork(work) {
         controls.restore(draftSettings);
       }
       saveDraft(true);
+      if (currentScreen === 'archive') archiveLayout.depart(work.id);
+      if (historyMotion.depart(tile, work.id)) historyTiles.delete(work.id);
       works = works.filter((item) => item.id !== work.id);
       if (current?.id === work.id) {
         current = null;
@@ -499,19 +513,16 @@ function deleteHistoryWork(work) {
       renderArchive();
       refreshUndo();
       finish.enter(undoTray);
-      if (restoreFocus) {
-        const next = works[Math.min(index, works.length - 1)];
-        (fromArchive
-          ? archiveTiles.get(next?.id)?.querySelector('.archive-open') || undoButton
-          : historyTiles.get(next?.id)?.querySelector('.history-delete') || undoButton
-        ).focus({
-          preventScroll: true,
-        });
+      if (restoreFocus && fromArchive) {
+        if (!neighbor || !archiveLayout.focusWork(neighbor.id)) undoButton.focus({ preventScroll: true });
+      } else if (restoreFocus) {
+        (historyTiles.get(neighbor?.id)?.querySelector('.history-delete') || undoButton).focus({ preventScroll: true });
       }
     } catch {
       notify('删除失败，图片仍保留在历史中。');
     }
   });
+  return historyQueue;
 }
 undoButton.onclick = () => {
   clearTimeout(undoTimer);
@@ -522,6 +533,8 @@ undoButton.onclick = () => {
     try {
       await restoreWorks(batch);
       for (const snapshot of batch) {
+        archiveLayout.finishDeparture(snapshot.work.id);
+        historyMotion.finishDeparture(snapshot.work.id);
         deletedWorkIds.delete(snapshot.work.id);
         for (const node of snapshot.lineage || []) {
           const existing = lineageRecords.get(node.id);
@@ -539,10 +552,12 @@ undoButton.onclick = () => {
       drawStrip(new Set(batch.map((item) => item.work.id)));
       renderArchive();
       notify('已恢复 ' + batch.length + ' 张作品与配方');
-      const restored = !$('archive').hidden
-        ? archiveTiles.get(batch[0].work.id)?.querySelector('.archive-open')
-        : historyTiles.get(batch[0].work.id)?.querySelector('.history-open');
-      restored?.focus({ preventScroll: true });
+      const restoredId = batch[0].work.id;
+      if (currentScreen === 'archive') {
+        if (!archiveLayout.focusWork(restoredId)) $('archive-search').focus({ preventScroll: true });
+      } else {
+        historyTiles.get(restoredId)?.querySelector('.history-open')?.focus({ preventScroll: true });
+      }
     } catch {
       notify('恢复失败，可以再次点击撤销。');
       refreshUndo();
@@ -557,6 +572,7 @@ function drawStrip(freshIds) {
   const live = new Set(works.map((w) => w.id));
   for (const [id, tile] of historyTiles)
     if (!live.has(id)) {
+      removal.forget(tile);
       tile.remove();
       historyTiles.delete(id);
     }
@@ -565,10 +581,16 @@ function drawStrip(freshIds) {
       pendingHistory.sync();
       return;
     }
-    if (!host.querySelector('.history-empty')) host.replaceChildren(make('span', 'history-empty', '暂无记录'));
+    if (!host.querySelector('.history-empty')) host.append(make('span', 'history-empty', '暂无记录'));
     return;
   }
   host.querySelector('.history-empty')?.remove();
+  // Inert departure slots hold their place until their animation completes.
+  const nextWorkTile = (element) => {
+    while (element && !element.matches('.history-item:not([data-pending])')) element = element.nextElementSibling;
+    return element;
+  };
+  let cursor = nextWorkTile(host.firstElementChild);
   works.forEach((work, i) => {
     const num = two(works.length - i);
     let tile = historyTiles.get(work.id);
@@ -577,6 +599,7 @@ function drawStrip(freshIds) {
       const open = make('button', 'history-open');
       open.type = 'button';
       open.dataset.workId = work.id;
+      const surface = make('span', 'hm-thumbnail');
       const img = make('img');
       img.src = itemUrl(work);
       img.loading = 'lazy';
@@ -585,15 +608,13 @@ function drawStrip(freshIds) {
         if (!(width > 0 && height > 0)) return;
         img.width = width;
         img.height = height;
-        img.style.setProperty('--thumb-aspect', width + ' / ' + height);
-        // Reserve the actual painted rectangle before the object URL decodes.
-        // Its corners belong to the image itself, including very tall pictures.
-        img.style.width = 'min(100%, calc(140px * var(--thumb-aspect)))';
+        surface.style.setProperty('--thumb-aspect', width + ' / ' + height);
         img.style.aspectRatio = width + ' / ' + height;
       };
       sizeThumbnail(work.width, work.height);
       img.addEventListener('load', () => sizeThumbnail(img.naturalWidth, img.naturalHeight), { once: true });
-      open.append(img, make('small'));
+      surface.append(img);
+      open.append(surface, make('small'));
       open.onclick = () => {
         setPanel('canvas');
         showWork(work);
@@ -603,7 +624,7 @@ function drawStrip(freshIds) {
       del.dataset.workId = work.id;
       del.innerHTML =
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5m4-5v5"/></svg>';
-      del.onclick = () => deleteHistoryWork(work);
+      del.onclick = () => removal.arm(tile, work, open, surface);
       const trail = make('button', 'history-lineage');
       trail.type = 'button';
       trail.title = '查看图片线索';
@@ -615,14 +636,17 @@ function drawStrip(freshIds) {
     }
     const label = '作品 ' + num + ' · ' + shortPrompt(work);
     const open = tile.querySelector('.history-open');
-    open.title = label;
-    open.setAttribute('aria-label', label);
+    if (!tile.hasAttribute('data-removal-armed')) {
+      open.title = label;
+      open.setAttribute('aria-label', label);
+    }
     open.querySelector('small').textContent = num;
     open.setAttribute('aria-pressed', String(work.id === current?.id));
     tile.dataset.selected = String(work.id === current?.id);
     tile.querySelector('.history-delete').setAttribute('aria-label', '删除作品 ' + num);
     tile.querySelector('.history-delete').title = '删除作品 · 可撤销';
-    if (host.children[i] !== tile) host.insertBefore(tile, host.children[i] || null);
+    if (cursor !== tile) host.insertBefore(tile, cursor);
+    cursor = nextWorkTile(tile.nextElementSibling);
     if (freshIds?.has(work.id) && work.id !== pendingHistory.completingId)
       finish.enter(tile, Math.min(i, 3) * 45);
   });
@@ -770,6 +794,7 @@ function filteredArchiveWorks() {
 }
 function renderArchive() {
   $('nav-count').textContent = $('archive-total').textContent = two(works.length);
+  if (currentScreen !== 'archive') return;
   const filtered = filteredArchiveWorks();
   $('archive').querySelector('.section-rule > .micro').textContent = archiveScoring.enabled
     ? '完整画幅 / 高分优先 · 同分按原顺序'
@@ -779,13 +804,8 @@ function renderArchive() {
     : '按正面提示词搜索 · 支持模糊匹配';
   $('archive-search-clear').hidden = !archiveQuery;
   const grid = $('archive-grid');
-  const live = new Set(filtered.map((work) => work.id));
-  for (const [id, card] of archiveTiles) {
-    if (!live.has(id)) {
-      card.remove();
-      archiveTiles.delete(id);
-    }
-  }
+  archiveLayout.setWorks(filtered);
+  grid.querySelector('.archive-empty')?.remove();
   if (!filtered.length) {
     const empty = make('div', 'archive-empty'),
       button = make('button', '', works.length ? '清除搜索 ↗' : '返回工作台 ↗');
@@ -802,118 +822,104 @@ function renderArchive() {
       ),
       button,
     );
-    grid.replaceChildren(empty);
-    archiveLayout.refresh();
-    return;
+    grid.append(empty);
   }
-  grid.querySelector('.archive-empty')?.remove();
-  let position = 0;
-  for (const work of filtered) {
-    const existing = archiveTiles.get(work.id);
-    if (existing) {
-      archiveScoring.decorate(existing, work);
-      if (grid.children[position] !== existing) grid.insertBefore(existing, grid.children[position] || null);
-      position++;
-      continue;
-    }
-    const card = make('article', 'archive-card'),
-      button = make('button', 'archive-open'),
-      image = make('img');
-    card.dataset.workId = work.id;
-    card.style.setProperty('--archive-order', Math.min(position, 8));
-    if (work.width > 0 && work.height > 0) {
-      card.dataset.width = image.width = work.width;
-      card.dataset.height = image.height = work.height;
-    }
-    button.type = 'button';
-    button.setAttribute('aria-label', '查看作品：' + shortPrompt(work));
-    archiveLayout.registerImage(card, image, () => itemUrl(work));
-    image.loading = 'lazy';
-    image.decoding = 'async';
-    image.alt = shortPrompt(work);
-    button.append(image);
-    const caption = make('div', 'archive-caption'),
-      dimensions = make('span', 'archive-dimensions');
-    const updateDimensions = () => {
-      const width = image.naturalWidth || work.width,
-        height = image.naturalHeight || work.height;
-      dimensions.textContent = width && height ? width + ' × ' + height : '';
-      card.toggleAttribute('data-wide', width / height > 2.4);
-    };
-    updateDimensions();
-    image.addEventListener('load', updateDimensions);
-    caption.append(
-      make('strong', '', shortPrompt(work)),
-      make('span', 'micro', stamp.format(work.created) + '  /  ' + (work.modelLabel || 'NOVELAI')),
-      dimensions,
-    );
-    button.onclick = () => appreciation.open(work);
-    const actions = make('div', 'record-tools archive-actions');
-    const action = (label, icon, name) => {
-      const item = make('button');
-      item.type = 'button';
-      item.title = label;
-      item.setAttribute('aria-label', label);
-      item.dataset.archiveAction = name;
-      setIcon(item, icon);
-      return item;
-    };
-    const restore = action('复用配方', 'sliders', 'restore'),
-      trail = action('查看图片线索', 'lineage', 'lineage'),
-      collect = action('收藏到万象集', 'bookmark', 'collect'),
-      dl = action('下载原图', 'download', 'download'),
-      del = action('删除作品', 'trash', 'delete'),
-      more = action('作品操作', 'more', 'more');
-    more.className = 'archive-more';
-    actions.id = 'archive-actions-' + work.id;
-    actions.setAttribute('role', 'group');
-    actions.setAttribute('aria-label', '作品操作');
-    more.setAttribute('aria-controls', actions.id);
+}
+function createArchiveCard(work) {
+  const card = make('article', 'archive-card'),
+    button = make('button', 'archive-open'),
+    image = make('img');
+  card.dataset.workId = work.id;
+  if (work.width > 0 && work.height > 0) {
+    card.dataset.width = image.width = work.width;
+    card.dataset.height = image.height = work.height;
+  }
+  button.type = 'button';
+  button.setAttribute('aria-label', '查看作品：' + shortPrompt(work));
+  image.decoding = 'async';
+  image.alt = shortPrompt(work);
+  button.append(image);
+  const caption = make('div', 'archive-caption'),
+    dimensions = make('span', 'archive-dimensions');
+  const updateDimensions = () => {
+    const width = image.naturalWidth || work.width,
+      height = image.naturalHeight || work.height;
+    dimensions.textContent = width && height ? width + ' × ' + height : '';
+    card.toggleAttribute('data-wide', width / height > 2.4);
+  };
+  updateDimensions();
+  image.addEventListener('load', updateDimensions);
+  caption.append(
+    make('strong', '', shortPrompt(work)),
+    make('span', 'micro', stamp.format(work.created) + '  /  ' + (work.modelLabel || 'NOVELAI')),
+    dimensions,
+  );
+  button.onclick = () => appreciation.open(work);
+  const actions = make('div', 'record-tools archive-actions');
+  const action = (label, icon, name) => {
+    const item = make('button');
+    item.type = 'button';
+    item.title = label;
+    item.setAttribute('aria-label', label);
+    item.dataset.archiveAction = name;
+    setIcon(item, icon);
+    return item;
+  };
+  const restore = action('复用配方', 'sliders', 'restore'),
+    trail = action('查看图片线索', 'lineage', 'lineage'),
+    collect = action('收藏到万象集', 'bookmark', 'collect'),
+    dl = action('下载原图', 'download', 'download'),
+    del = action('删除作品', 'trash', 'delete'),
+    more = action('作品操作', 'more', 'more');
+  more.className = 'archive-more';
+  actions.id = 'archive-actions-' + work.id;
+  actions.setAttribute('role', 'group');
+  actions.setAttribute('aria-label', '作品操作');
+  more.setAttribute('aria-controls', actions.id);
+  more.setAttribute('aria-expanded', 'false');
+  more.onclick = () => {
+    const opened = card.toggleAttribute('data-actions-open');
+    more.setAttribute('aria-expanded', String(opened));
+    if (opened) restore.focus({ preventScroll: true });
+  };
+  const closeActions = () => {
+    card.removeAttribute('data-actions-open');
     more.setAttribute('aria-expanded', 'false');
-    more.onclick = () => {
-      const opened = card.toggleAttribute('data-actions-open');
-      more.setAttribute('aria-expanded', String(opened));
-      if (opened) restore.focus({ preventScroll: true });
-    };
-    const closeActions = () => {
-      card.removeAttribute('data-actions-open');
-      more.setAttribute('aria-expanded', 'false');
-    };
-    card.addEventListener('focusout', (event) => {
-      if (!card.contains(event.relatedTarget)) closeActions();
-    });
-    card.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && card.hasAttribute('data-actions-open')) {
-        closeActions();
-        more.focus({ preventScroll: true });
-        event.stopPropagation();
-      }
-    });
-    restore.onclick = () => {
+  };
+  card.addEventListener('focusout', (event) => {
+    if (!card.contains(event.relatedTarget)) closeActions();
+  });
+  card.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && card.hasAttribute('data-actions-open')) {
       closeActions();
-      metaReuse.open(work);
-    };
-    trail.onclick = () => {
-      closeActions();
-      lineageCanvas.open(work);
-    };
-    collect.onclick = () => {
-      closeActions();
-      atlas.openSaveWork(work);
-    };
-    dl.onclick = () => {
-      download(itemUrl(work), work.filename);
-      closeActions();
-    };
-    del.onclick = () => deleteHistoryWork(work);
-    actions.append(collect, restore, trail, dl, del);
-    card.append(button, caption, actions, more);
-    archiveScoring.decorate(card, work);
-    archiveTiles.set(work.id, card);
-    grid.insertBefore(card, grid.children[position] || null);
-    position++;
-  }
-  archiveLayout.refresh();
+      more.focus({ preventScroll: true });
+      event.stopPropagation();
+    }
+  });
+  restore.onclick = () => {
+    closeActions();
+    metaReuse.open(work);
+  };
+  trail.onclick = () => {
+    closeActions();
+    lineageCanvas.open(work);
+  };
+  collect.onclick = () => {
+    closeActions();
+    atlas.openSaveWork(work);
+  };
+  dl.onclick = () => {
+    download(itemUrl(work), work.filename);
+    closeActions();
+  };
+  del.onclick = () => {
+    closeActions();
+    removal.arm(card, work, button);
+  };
+  actions.append(collect, restore, trail, dl, del);
+  card.append(button, caption, actions, more);
+  archiveScoring.decorate(card, work);
+  return card;
 }
 function showPreview(frame) {
   if (!request || request.signal.aborted) return;
@@ -1361,6 +1367,7 @@ let searchTimer,
   composingSearch = false;
 function updateArchiveSearch() {
   clearTimeout(searchTimer);
+  removal.cancel();
   archiveQuery = $('archive-search').value;
   renderArchive();
 }

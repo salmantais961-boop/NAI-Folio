@@ -24,6 +24,47 @@
 .hm-marker[hidden] {
   display: none;
 }
+.history-stream.hm-removing {
+  overflow-anchor: none;
+}
+.hm-thumbnail {
+  position: relative;
+  display: block;
+  width: min(100%, calc(140px * var(--thumb-aspect, 0.8)));
+  aspect-ratio: var(--thumb-aspect, 4 / 5);
+  margin-inline: auto;
+  border-radius: 9px;
+  overflow: hidden;
+}
+.history-shell .hm-thumbnail > img {
+  width: 100%;
+  border-radius: inherit;
+}
+.history-item:is([data-removal-armed], [data-departing]) :is(.history-lineage, .history-delete) {
+  visibility: hidden;
+  pointer-events: none;
+}
+.hm-departure {
+  flex: none;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.image-delete-wash {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  pointer-events: none;
+  color: #fff;
+  background: rgb(202 54 58 / 93%);
+}
+.image-delete-wash > svg {
+  width: 22px;
+  height: 22px;
+  max-width: 65%;
+  max-height: 65%;
+}
 @media (prefers-reduced-motion: reduce) {
   .hm-marker {
     animation: none !important;

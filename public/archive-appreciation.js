@@ -69,7 +69,7 @@ export function mountArchiveAppreciation({
   onReuse,
   onCollect,
   onLineage,
-  onDelete,
+  onRequestDelete,
   onScore = () => {},
   notify = () => {},
 } = {}) {
@@ -184,19 +184,14 @@ export function mountArchiveAppreciation({
     secondary.append(item);
   }
   const remove = button('', 'av-secondary av-remove', 'trash');
-  remove.title = '删除作品';
-  remove.setAttribute('aria-label', '删除作品');
-  remove.disabled = !onDelete;
-  remove.onclick = async () => {
-    if (!work || !onDelete) return;
-    remove.disabled = true;
-    try {
-      if (await onDelete(work)) dialog.close();
-    } catch (error) {
-      notify(error.message);
-    } finally {
-      remove.disabled = !onDelete;
-    }
+  remove.title = '返回作品集确认删除';
+  remove.setAttribute('aria-label', remove.title);
+  remove.disabled = !onRequestDelete;
+  remove.onclick = () => {
+    if (!work || !onRequestDelete) return;
+    const selected = work;
+    dialog.addEventListener('close', () => onRequestDelete(selected), { once: true });
+    dialog.close();
   };
   secondary.append(remove);
   footer.append(openStudio, secondary);

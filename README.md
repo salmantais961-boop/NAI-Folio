@@ -12,7 +12,7 @@
 
 ## 快速开始
 
-**Windows x64**　下载便携包，完整解压后双击 **启动工作台.cmd**。包内已附 Node.js 运行时。[下载 Folio 1.0.1](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.1/NAI-Folio-1.0.1-windows-x64.zip) · [版本与校验文件](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.1)
+**Windows x64**　下载便携包，完整解压后双击 **启动工作台.cmd**。包内已附 Node.js 运行时。[下载 Folio 1.0.2](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.2/NAI-Folio-1.0.2-windows-x64.zip) · [版本与校验文件](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.2)
 
 ### 从源码运行
 

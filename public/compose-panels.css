@@ -1,5 +1,6 @@
 /* Rounded paper controls; paired with compose-motion.js. */
-.compose-panel {
+.compose-panel,
+.ap-panel {
   --cp-panel: color-mix(in srgb, var(--soft) 88%, var(--paper));
   --cp-well: color-mix(in srgb, var(--white) 86%, var(--paper));
   --cp-radius: 13px;

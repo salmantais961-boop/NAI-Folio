@@ -1,424 +1,353 @@
-// Natural-ratio masonry. DOM order follows the gallery's current search and rating order.
-// Geometry is computed only on changes; FLIP never runs a JavaScript frame loop.
-export function mountArchiveLayout(grid) {
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const originals = new Map();
-  const motions = new Map();
-  const decoded = new WeakMap();
-  const images = new Map();
-  const originalHeight = grid.style.height;
-  const originalPosition = grid.style.position;
-  let previous = new Map();
-  let frame = 0;
-  let destroyed = false;
-  let visible = false;
-  let previousWidth = 0;
-  let previousColumns = 0;
-  let previousGap = 0;
-  let observedWidth = -1;
+import { fadeRemovedTile } from './image-removal.js';
 
-  function inViewport(card) {
-    if (document.hidden || !card.isConnected || !grid.getClientRects().length) return false;
-    const bounds = card.getBoundingClientRect();
-    return (
-      bounds.width > 0 &&
-      bounds.height > 0 &&
-      bounds.bottom > 0 &&
-      bounds.top < innerHeight &&
-      bounds.right > 0 &&
-      bounds.left < innerWidth
-    );
+// Lay out the complete archive from metadata so the scrollbar represents the
+// whole collection. Only cards near the viewport need DOM nodes or listeners.
+export function mountArchiveLayout(grid, { createCard, updateCard, getURL, onUnmount }) {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const measured = new WeakMap();
+  const mounted = new Map();
+  const departures = new Map();
+  const originalHeight = grid.style.height;
+  let works = [], lanes = [], places = new Map();
+  let dirty = true, gridWidth = 0, frame = 0, active = null, destroyed = false;
+  let reflowAfterDelete = false, heightMotion = null;
+  const reflowTiming = { duration: 310, easing: 'cubic-bezier(.22,.61,.36,1)' };
+
+  function schedule() {
+    if (!destroyed && !frame && !document.hidden) frame = requestAnimationFrame(paint);
   }
 
-  function releaseImage(state) {
-    state.ticket++;
-    state.visible = false;
+  function release(state) {
+    if (active === state.job) active = null;
+    state.job = null;
     state.enter?.cancel();
     state.enter = null;
-    state.image.removeAttribute('src');
+    if (state.image.hasAttribute('src')) state.image.removeAttribute('src');
     state.card.dataset.imageState = 'idle';
     state.card.removeAttribute('aria-busy');
   }
 
-  function forgetImage(card) {
-    const state = images.get(card);
-    if (!state) return;
-    imageObserver.unobserve(card);
-    releaseImage(state);
-    state.events.abort();
-    delete card.dataset.imageState;
-    images.delete(card);
+  function unmount(state) {
+    onUnmount?.(state.card);
+    release(state);
+    state.flip?.animation.cancel();
+    state.card.remove();
+    mounted.delete(state.work.id);
   }
 
-  function enterImage(state, order = 0) {
-    if (state.visible || !inViewport(state.card)) return;
-    state.visible = true;
-    state.ticket++;
-    state.order = order;
-    state.card.dataset.imageState = 'loading';
-    state.card.setAttribute('aria-busy', 'true');
-    // Native lazy loading prefetches outside the viewport. We assign the source
-    // only after intersection, so eager decoding here cannot preload other cards.
-    state.image.loading = 'eager';
-    try {
-      state.image.src = state.getURL();
-    } catch {
-      state.card.dataset.imageState = 'error';
-      state.card.removeAttribute('aria-busy');
-    }
+  function finishDeparture(id) {
+    const exit = departures.get(id);
+    if (!exit) return;
+    departures.delete(id);
+    exit.fade.cancel();
+    onUnmount?.(exit.state.card);
+    release(exit.state);
+    exit.state.card.remove();
   }
 
-  const imageObserver = new IntersectionObserver(
-    (entries) => {
-      let order = 0;
-      for (const entry of entries) {
-        const state = images.get(entry.target);
-        if (!state) continue;
-        if (entry.isIntersecting && entry.intersectionRatio > 0 && inViewport(state.card))
-          enterImage(state, order++);
-        else if (state.visible) releaseImage(state);
-      }
-    },
-    { rootMargin: '0px', threshold: 0 },
-  );
-
-  function registerImage(card, image, getURL) {
-    forgetImage(card);
-    image.removeAttribute('src');
-    const state = {
-      card,
-      image,
-      getURL,
-      visible: false,
-      observed: false,
-      ticket: 0,
-      enter: null,
-      events: new AbortController(),
+  // Transfer the actual card out of the virtualizer only after the database
+  // deletion succeeds. Its decoded image and red confirmation stay in place.
+  function depart(id) {
+    const state = mounted.get(id);
+    if (!state || reduced.matches || document.hidden || !onScreen(state.card)) return false;
+    const { card, place, flip } = state;
+    const remaining = 1 - (flip?.animation.effect.getComputedTiming().progress ?? 1);
+    mounted.delete(id);
+    if (state.job && active === state.job) active = null;
+    state.job = null;
+    state.enter?.cancel();
+    flip?.animation.cancel();
+    card.style.left = place.left + (flip?.x || 0) * remaining + 'px';
+    card.style.top = place.top + (flip?.y || 0) * remaining + 'px';
+    card.inert = true;
+    card.setAttribute('aria-hidden', 'true');
+    card.dataset.departing = '';
+    grid.append(card);
+    const fade = fadeRemovedTile(card);
+    departures.set(id, { state, fade });
+    fade.onfinish = () => {
+      if (departures.get(id)?.fade === fade) finishDeparture(id);
     };
-    images.set(card, state);
-    card.dataset.imageState = 'idle';
-    image.addEventListener(
-      'load',
-      async () => {
-        const ticket = state.ticket;
-        if (!state.visible || !image.naturalWidth) return;
-        // Remember the actual ratio before releasing a decoded image off-screen.
-        card.dataset.width = image.naturalWidth;
-        card.dataset.height = image.naturalHeight;
-        schedule();
-        try {
-          await image.decode();
-        } catch {
-          /* A decoded load event is sufficient. */
-        }
-        if (destroyed || ticket !== state.ticket || !state.visible || !inViewport(card)) return;
-        card.dataset.imageState = 'ready';
-        card.removeAttribute('aria-busy');
-        if (!reduced.matches) {
-          state.enter?.cancel();
-          const target = card.querySelector('.archive-open') || image;
-          const enter = target.animate(
-            [
-              { opacity: 0, transform: 'translate3d(0, 20px, 0) scale(.985)' },
-              { opacity: 1, transform: 'translate3d(0, 0, 0) scale(1)' },
-            ],
-            {
-              duration: 540,
-              delay: Math.min(state.order, 5) * 24,
-              easing: 'cubic-bezier(.2,.75,.2,1)',
-              fill: 'backwards',
-            },
-          );
-          state.enter = enter;
-          enter.onfinish = () => {
-            if (state.enter === enter) state.enter = null;
-          };
-        }
-      },
-      { signal: state.events.signal },
-    );
-    image.addEventListener(
-      'error',
-      () => {
-        if (!state.visible || !image.hasAttribute('src')) return;
-        card.dataset.imageState = 'error';
-        card.removeAttribute('aria-busy');
-      },
-      { signal: state.events.signal },
-    );
-    schedule();
+    reflowAfterDelete = true;
+    return true;
   }
 
-  function syncImages(cards) {
-    const live = new Set(cards);
-    for (const [card, state] of images) {
-      if (!live.has(card)) {
-        forgetImage(card);
-        continue;
-      }
-      // Observe only once the masonry positions exist, never while all newly
-      // inserted cards temporarily overlap at the grid's origin.
-      if (!state.observed) {
-        imageObserver.observe(card);
-        state.observed = true;
-      }
-    }
+  function stopDepartures() {
+    for (const id of departures.keys()) finishDeparture(id);
+    heightMotion?.cancel();
+    heightMotion = null;
+    reflowAfterDelete = false;
   }
 
-  function suspendImages() {
-    for (const state of images.values()) {
-      if (state.visible) releaseImage(state);
-      imageObserver.unobserve(state.card);
-      state.observed = false;
-    }
+  function suspend() {
+    stopDepartures();
+    for (const state of mounted.values()) unmount(state);
   }
 
-  if (getComputedStyle(grid).position === 'static') grid.style.position = 'relative';
-
-  function schedule() {
-    if (!destroyed && !frame && !document.hidden) frame = requestAnimationFrame(layout);
-  }
-
-  function stopMotions() {
-    for (const { animation } of motions.values()) animation.cancel();
-    motions.clear();
-  }
-
-  function imageSize(card) {
-    const image = card.querySelector('img');
-    const usable = (w, h) => Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0;
-    let width = Number(card.dataset.width);
-    let height = Number(card.dataset.height);
-    if (image?.naturalWidth && image.naturalHeight) {
-      width = image.naturalWidth;
-      height = image.naturalHeight;
-      if (card.dataset.width !== String(width)) card.dataset.width = width;
-      if (card.dataset.height !== String(height)) card.dataset.height = height;
-      // Decode only already-loaded images, leaving lazy loading to the browser.
-      const source = image.currentSrc || image.src;
-      if (image.decode && decoded.get(image) !== source) {
-        decoded.set(image, source);
-        image.decode().then(schedule, schedule);
-      }
-    } else if (!usable(width, height) && image) {
-      width = Number(image.getAttribute('width'));
-      height = Number(image.getAttribute('height'));
+  function geometry() {
+    const width = grid.clientWidth;
+    if (!width || document.hidden) return false;
+    if (!dirty && width === gridWidth) return true;
+    const css = getComputedStyle(grid);
+    const gap = parseFloat(css.getPropertyValue('--archive-gap')) || 0;
+    const count = Math.max(1, parseInt(css.getPropertyValue('--archive-columns'), 10) || 1);
+    const columnWidth = (width - (count - 1) * gap) / count;
+    const bottoms = Array(count).fill(0);
+    lanes = Array.from({ length: count }, () => []);
+    places = new Map();
+    for (const [index, work] of works.entries()) {
+      const { width: w, height: h } = measured.get(work) || work;
+      const known = Number(w) > 0 && Number(h) > 0;
+      const imageWidth = known ? Number(w) : 3, imageHeight = known ? Number(h) : 4;
+      const column = bottoms.indexOf(Math.min(...bottoms));
+      const top = bottoms[column], bottom = top + columnWidth * imageHeight / imageWidth;
+      const place = { work, index, columnWidth, imageWidth, imageHeight, top, bottom, left: column * (columnWidth + gap) };
+      places.set(work.id, place);
+      lanes[column].push(place);
+      bottoms[column] = bottom + gap;
     }
-    const known = usable(width, height);
-    if (!known) [width, height] = [3, 4];
-    if (image) {
-      // Intrinsic attributes reserve the complete image before its pixels arrive.
-      // Never write fallback dimensions into card data: real metadata can arrive later.
-      if (image.getAttribute('width') !== String(width)) image.setAttribute('width', width);
-      if (image.getAttribute('height') !== String(height)) image.setAttribute('height', height);
-    }
-    return { width, height };
-  }
-
-  function layout() {
-    frame = 0;
-    if (destroyed) return;
-    if (!grid.isConnected || !grid.getClientRects().length || grid.clientWidth <= 0) {
-      visible = false;
-      stopMotions();
-      suspendImages();
-      return;
-    }
-    const styles = getComputedStyle(grid);
-    if (styles.visibility === 'hidden') {
-      visible = false;
-      stopMotions();
-      suspendImages();
-      return;
-    }
-    const number = (value) => Number.parseFloat(value) || 0;
-    const paddingLeft = number(styles.paddingLeft);
-    const paddingRight = number(styles.paddingRight);
-    const paddingTop = number(styles.paddingTop);
-    const paddingBottom = number(styles.paddingBottom);
-    const width = grid.clientWidth - paddingLeft - paddingRight;
-    if (width <= 0) return;
-    const rawGap = Number.parseFloat(styles.getPropertyValue('--archive-gap'));
-    const gap = Math.max(0, Number.isFinite(rawGap) ? rawGap : 4);
-    const configuredColumns = Number.parseInt(styles.getPropertyValue('--archive-columns'), 10);
-    const fallbackColumns = width < 600 ? 2 : Math.floor((width + gap) / (240 + gap));
-    const columns = Math.max(
-      1,
-      Math.min(configuredColumns || fallbackColumns || 1, 12, Math.floor((width + gap) / (20 + gap))),
-    );
-    const columnWidth = (width - (columns - 1) * gap) / columns;
-    const cards = [...grid.children].filter((child) => child.matches('article.archive-card'));
-    const cardSet = new Set(cards);
-    const animate =
-      visible &&
-      !reduced.matches &&
-      Math.abs(previousWidth - width) < 0.5 &&
-      previousColumns === columns &&
-      previousGap === gap;
-
-    // Read interrupted animations before canceling; rapid delete/undo begins where
-    // each card is currently displayed, even if renderArchive replaced its DOM node.
-    const offsets = new Map();
-    for (const [card, motion] of motions) {
-      const progress = motion.animation.effect?.getComputedTiming().progress ?? 1;
-      offsets.set(card, { x: motion.x * (1 - progress), y: motion.y * (1 - progress) });
-    }
-    stopMotions();
-    for (const [card, original] of originals) {
-      if (!cardSet.has(card)) {
-        Object.assign(card.style, original);
-        originals.delete(card);
-      }
-    }
-    if (!cards.length) {
-      syncImages(cards);
-      grid.style.height = originalHeight;
-      previous.clear();
-      visible = true;
-      previousWidth = width;
-      previousColumns = columns;
-      previousGap = gap;
-      return;
-    }
-
-    // Batch all width/attribute writes before reading natural block heights.
-    const items = cards.map((card) => {
-      const size = imageSize(card);
-      if (!originals.has(card)) {
-        originals.set(card, {
-          position: card.style.position,
-          width: card.style.width,
-          left: card.style.left,
-          top: card.style.top,
+    const height = Math.max(0, Math.max(...bottoms) - gap);
+    const nextHeight = works.length ? height + 'px' : originalHeight;
+    if (grid.style.height !== nextHeight) {
+      // If the last row was on screen, an instant height reduction would
+      // clamp scrollY and make the whole viewport jump during the reflow.
+      const before = reflowAfterDelete ? grid.offsetHeight : 0;
+      heightMotion?.cancel();
+      heightMotion = null;
+      grid.style.height = nextHeight;
+      if (before > height + 1 && !reduced.matches && width === gridWidth) {
+        let delay = 0;
+        for (const { fade } of departures.values())
+          delay = Math.max(delay, fade.effect.getComputedTiming().endTime - (fade.currentTime || 0));
+        const motion = grid.animate([{ minHeight: before + 'px' }, { minHeight: height + 'px' }], {
+          ...reflowTiming, delay, fill: 'backwards',
         });
-      }
-      card.style.position = 'absolute';
-      card.style.width = `${columnWidth}px`;
-      return { card, size, key: card.dataset.workId || card };
-    });
-    for (const item of items) {
-      const computed = getComputedStyle(item.card);
-      const extras =
-        computed.boxSizing === 'border-box'
-          ? 0
-          : number(computed.paddingTop) +
-            number(computed.paddingBottom) +
-            number(computed.borderTopWidth) +
-            number(computed.borderBottomWidth);
-      item.height = number(computed.height) + extras || (columnWidth * item.size.height) / item.size.width;
-    }
-
-    const bottoms = Array(columns).fill(0);
-    const next = new Map();
-    for (const { card, key, height } of items) {
-      let column = 0;
-      for (let candidate = 1; candidate < columns; candidate++) {
-        if (bottoms[candidate] < bottoms[column]) column = candidate;
-      }
-      const left = paddingLeft + column * (columnWidth + gap);
-      const top = paddingTop + bottoms[column];
-      const old = previous.get(key);
-      card.style.left = `${left}px`;
-      card.style.top = `${top}px`;
-      bottoms[column] += height + gap;
-      next.set(key, { card, left, top });
-      if (animate && old && card.animate) {
-        const offset = offsets.get(old.card);
-        const x = old.left + (offset?.x || 0) - left;
-        const y = old.top + (offset?.y || 0) - top;
-        if (Math.abs(x) > 0.5 || Math.abs(y) > 0.5) {
-          const animation = card.animate([{ translate: `${x}px ${y}px` }, { translate: '0px 0px' }], {
-            duration: 280,
-            easing: 'cubic-bezier(.22,.61,.36,1)',
-          });
-          motions.set(card, { animation, x, y });
-          animation.onfinish = () => {
-            if (motions.get(card)?.animation === animation) motions.delete(card);
-          };
-        }
+        heightMotion = motion;
+        motion.onfinish = () => { if (heightMotion === motion) heightMotion = null; };
       }
     }
-    const contentHeight = Math.max(...bottoms) - gap;
-    const boxExtras =
-      styles.boxSizing === 'border-box'
-        ? paddingTop + paddingBottom + number(styles.borderTopWidth) + number(styles.borderBottomWidth)
-        : 0;
-    grid.style.height = `${Math.max(0, contentHeight) + boxExtras}px`;
-    previous = next;
-    previousWidth = width;
-    previousColumns = columns;
-    previousGap = gap;
-    visible = true;
-    syncImages(cards);
+    reflowAfterDelete = false;
+    dirty = false;
+    gridWidth = width;
+    return true;
   }
 
-  const resize = new ResizeObserver((entries) => {
-    const width = entries[0]?.contentRect.width ?? 0;
-    if (Math.abs(width - observedWidth) > 0.1) {
-      observedWidth = width;
+  // Each lane is monotonic, so a scroll through a large archive only visits
+  // the handful of rows around the new scroll position.
+  function nearby(top, bottom) {
+    const result = [];
+    for (const lane of lanes) {
+      let low = 0, high = lane.length;
+      while (low < high) {
+        const mid = low + Math.floor((high - low) / 2);
+        if (lane[mid].bottom <= top) low = mid + 1;
+        else high = mid;
+      }
+      for (let i = low; i < lane.length && lane[i].top < bottom; i++) result.push(lane[i]);
+    }
+    return result.sort((a, b) => a.index - b.index);
+  }
+
+  function mount(place) {
+    const card = createCard(place.work, place.index);
+    const image = card.querySelector('.archive-open img');
+    const state = { work: place.work, card, image, place: null, job: null, enter: null, flip: null };
+    card.dataset.imageState = 'idle';
+    image.decoding = 'async';
+    image.loading = 'eager';
+    mounted.set(place.work.id, state);
+    grid.append(card);
+    return state;
+  }
+
+  function position(state, place) {
+    const old = state.place;
+    if (old === place) return;
+    const { card, image } = state;
+    card.style.width = place.columnWidth + 'px';
+    card.style.left = place.left + 'px';
+    card.style.top = place.top + 'px';
+    image.width = place.imageWidth;
+    image.height = place.imageHeight;
+    if (old) updateCard(card, place.work, place.index);
+    state.place = place;
+
+    if (old && !reduced.matches && Math.abs(old.columnWidth - place.columnWidth) < 0.5) {
+      if (old.left === place.left && old.top === place.top) return;
+      const prev = state.flip;
+      const progress = prev?.animation.effect.getComputedTiming().progress ?? 1;
+      const x = old.left - place.left + (prev?.x || 0) * (1 - progress);
+      const y = old.top - place.top + (prev?.y || 0) * (1 - progress);
+      prev?.animation.cancel();
+      state.flip = null;
+      if (Math.abs(x) > 0.5 || Math.abs(y) > 0.5) {
+        const animation = card.animate([{ translate: x + 'px ' + y + 'px' }, { translate: '0 0' }], reflowTiming);
+        state.flip = { animation, x, y };
+        animation.onfinish = () => {
+          if (state.flip?.animation === animation) state.flip = null;
+          schedule();
+        };
+      }
+    } else if (state.flip) {
+      state.flip.animation.cancel();
+      state.flip = null;
+    }
+  }
+
+  function onScreen(card) {
+    const box = card.getBoundingClientRect();
+    return box.width > 0 && box.height > 0 && box.top < innerHeight && box.bottom > 0 &&
+      box.left < innerWidth && box.right > 0;
+  }
+
+  async function load(state) {
+    const { image, card, work } = state;
+    const job = {};
+    active = state.job = job;
+    card.dataset.imageState = 'loading';
+    card.setAttribute('aria-busy', 'true');
+    try {
+      image.src = getURL(work);
+      await image.decode();
+      if (state.job !== job) return;
+      if (document.hidden || !onScreen(card)) { release(state); return; }
+      const width = image.naturalWidth, height = image.naturalHeight;
+      if (width && height && (state.place.imageWidth !== width || state.place.imageHeight !== height)) {
+        measured.set(work, { width, height });
+        dirty = true;
+      }
+      card.dataset.imageState = 'ready';
+      if (!reduced.matches) {
+        state.enter = image.parentElement.animate([
+          { opacity: 0, transform: 'translate3d(0, 20px, 0) scale(.985)' },
+          { opacity: 1, transform: 'translate3d(0, 0, 0) scale(1)' },
+        ], { duration: 540, easing: 'cubic-bezier(.2,.75,.2,1)' });
+      }
+    } catch {
+      if (state.job === job) card.dataset.imageState = 'error';
+    } finally {
+      if (state.job === job) {
+        state.job = null;
+        card.removeAttribute('aria-busy');
+      }
+      if (active === job) active = null;
       schedule();
     }
-  });
+  }
+
+  function paint() {
+    frame = 0;
+    if (!geometry()) { suspend(); return; }
+    const rect = grid.getBoundingClientRect();
+    const top = -rect.top, bottom = innerHeight - rect.top;
+    const buffer = Math.min(320, innerHeight / 2);
+    const rows = nearby(top - buffer, bottom + buffer);
+    const needed = new Set(rows.map(place => place.work.id));
+    const visible = rows.filter(place => place.bottom > top && place.top < bottom);
+    const inView = new Set(visible.map(place => place.work.id));
+
+    for (const [id, state] of mounted) {
+      const place = places.get(id);
+      // A previously visible tile can have an offscreen destination after a
+      // tall card is removed. Keep its existing pixels until it slides out.
+      const movingOut = !inView.has(id) && place && !reduced.matches && state.card.dataset.imageState === 'ready' &&
+        (state.flip || state.place?.top !== place.top || state.place?.left !== place.left) && onScreen(state.card);
+      if (!place || state.work !== place.work ||
+          (!needed.has(id) && !movingOut && !state.card.contains(document.activeElement))) {
+        unmount(state);
+      } else {
+        if (!inView.has(id) && !movingOut && state.card.dataset.imageState !== 'idle') release(state);
+        position(state, place);
+      }
+    }
+
+    // Create shells in small batches, visible rows first. The extra shells
+    // support keyboard focus across viewport edges; they never start a load.
+    const priority = visible.concat(rows.filter(place => !inView.has(place.work.id)));
+    let added = 0;
+    for (const place of priority) {
+      if (mounted.has(place.work.id)) continue;
+      if (added === 6) { schedule(); break; }
+      position(mount(place), place);
+      added++;
+    }
+    // Keep tab order in sync even when scrolling upwards or changing sort.
+    let next = grid.firstElementChild;
+    for (const state of [...mounted.values()].sort((a, b) => a.place.index - b.place.index)) {
+      if (next !== state.card) grid.insertBefore(state.card, next);
+      next = state.card.nextElementSibling;
+    }
+
+    // At most one original is being fetched/decoded. Re-evaluate the viewport
+    // before each start instead of finishing a backlog from an earlier scroll.
+    if (!active) {
+      for (const place of visible) {
+        const state = mounted.get(place.work.id);
+        if (state?.card.dataset.imageState === 'idle' && onScreen(state.card)) {
+          void load(state);
+          break;
+        }
+      }
+    }
+  }
+
+  function setWorks(next) {
+    works = next;
+    dirty = true;
+    // Establish the full height before navigation restores this screen's scroll.
+    geometry();
+    schedule();
+  }
+
+  function focusWork(id) {
+    if (!geometry()) return false;
+    const place = places.get(id);
+    if (!place) return false;
+    const rect = grid.getBoundingClientRect();
+    if (rect.top + place.top >= innerHeight || rect.top + place.bottom <= 0)
+      window.scrollTo({ top: scrollY + rect.top + place.top - innerHeight / 3, behavior: 'instant' });
+    const state = mounted.get(id) || mount(place);
+    position(state, place);
+    state.card.querySelector('.archive-open').focus({ preventScroll: true });
+    schedule();
+    return true;
+  }
+
+  const resize = new ResizeObserver(schedule);
   resize.observe(grid);
-  const children = new MutationObserver(schedule);
-  children.observe(grid, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['src', 'srcset', 'data-width', 'data-height', 'data-work-id'],
-  });
-  const visibility = new MutationObserver(schedule);
-  for (let ancestor = grid.parentElement; ancestor; ancestor = ancestor.parentElement) {
-    visibility.observe(ancestor, { attributes: true, attributeFilter: ['hidden', 'class', 'style'] });
-  }
-  function pageVisibility() {
-    if (document.hidden) {
-      cancelAnimationFrame(frame);
-      frame = 0;
-      stopMotions();
-      suspendImages();
-      visible = false;
-    } else schedule();
-  }
-  function motionPreference() {
+  const onVisibility = () => {
+    if (document.hidden) { cancelAnimationFrame(frame); frame = 0; suspend(); }
+    else schedule();
+  };
+  function motionChange() {
     if (reduced.matches) {
-      stopMotions();
-      for (const state of images.values()) {
+      stopDepartures();
+      for (const state of mounted.values()) {
         state.enter?.cancel();
-        state.enter = null;
+        state.flip?.animation.cancel();
+        state.flip = null;
       }
     }
     schedule();
   }
-  grid.addEventListener('load', schedule, true);
-  grid.addEventListener('error', schedule, true);
-  document.addEventListener('visibilitychange', pageVisibility);
-  window.addEventListener('resize', schedule, { passive: true });
-  reduced.addEventListener('change', motionPreference);
-  schedule();
-
+  // Column counts also change at viewport breakpoints even if width stays fixed.
+  function viewportChange() { stopDepartures(); dirty = true; schedule(); }
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', viewportChange, { passive: true });
+  document.addEventListener('visibilitychange', onVisibility);
+  reduced.addEventListener('change', motionChange);
   return {
-    refresh: schedule,
-    registerImage,
+    setWorks, focusWork, depart, finishDeparture, refresh: schedule,
     destroy() {
       destroyed = true;
       cancelAnimationFrame(frame);
-      stopMotions();
-      for (const card of images.keys()) forgetImage(card);
-      imageObserver.disconnect();
+      suspend();
       resize.disconnect();
-      children.disconnect();
-      visibility.disconnect();
-      grid.removeEventListener('load', schedule, true);
-      grid.removeEventListener('error', schedule, true);
-      document.removeEventListener('visibilitychange', pageVisibility);
-      window.removeEventListener('resize', schedule);
-      reduced.removeEventListener('change', motionPreference);
-      for (const [card, original] of originals) Object.assign(card.style, original);
-      originals.clear();
-      previous.clear();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', viewportChange);
+      document.removeEventListener('visibilitychange', onVisibility);
+      reduced.removeEventListener('change', motionChange);
       grid.style.height = originalHeight;
-      grid.style.position = originalPosition;
     },
   };
 }
