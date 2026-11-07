@@ -110,6 +110,7 @@ function enter(immediate = false) {
     sessionStorage.setItem('folio.entered', '1');
   } catch {}
   $('app').hidden = false;
+  if (!immediate && !reduced.matches) document.dispatchEvent(new Event('folio:enter'));
   const close = () => {
     cover.hidden = true;
     cover.classList.remove('closing');

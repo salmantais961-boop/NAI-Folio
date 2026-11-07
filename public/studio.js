@@ -32,6 +32,7 @@ import { mountProofActions } from './proof-actions.js';
 import { mountStudioFinish } from './atelier.js';
 import { mountStudioEntrance } from './studio-motion.js';
 import { mountScreenExit } from './screen-exit.js';
+import { transitionScreen, transitionTheme, mountToast, revealHeadings } from './motion.js';
 import { mountGenerationAtmosphere } from './generation-atmosphere.js';
 import { mountArchiveLayout } from './archive-layout.js';
 import { mountArchiveScoring } from './archive-scoring.js';
@@ -81,7 +82,6 @@ let controls,
   request = null,
   activeGeneration = null,
   completedInBackground = null,
-  noticeTimer,
   draftTimer,
   modeName = '生成图像',
   revision = 0;
@@ -221,10 +221,9 @@ document.addEventListener(
   },
   { passive: true },
 );
+const toast = mountToast($('toast'));
 function notify(message) {
-  $('toast').textContent = String(message);
-  clearTimeout(noticeTimer);
-  noticeTimer = setTimeout(() => ($('toast').textContent = ''), 3800);
+  toast(message);
 }
 let mediaChanged = false;
 let mediaVersion = null;
@@ -281,7 +280,7 @@ function setPanel(panel) {
 }
 for (const btn of document.querySelectorAll('.mobile-views [data-view]'))
   btn.onclick = () => setPanel(btn.dataset.view);
-function setScreen(target) {
+function setScreen(target, viewTransition = false) {
   screenExit.cancel();
   const screen = target === true ? 'archive' : target === false ? 'studio' : target;
   const changed = currentScreen !== screen;
@@ -298,7 +297,8 @@ function setScreen(target) {
     // Animate the content, keeping the shared masthead fixed and immediately usable.
     studioEntrance.cancel();
     if (screen === 'studio') studioEntrance.play();
-    else finish.enter($(screen));
+    else if (!viewTransition) finish.enter($(screen));
+    revealHeadings($(screen), viewTransition ? 120 : 40);
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         if (currentScreen === screen)
@@ -312,7 +312,15 @@ function navigateScreen(target) {
   studioEntrance.cancel();
   screenExit.cancel();
   if (currentScreen === screen) return;
-  screenExit.play($(currentScreen), () => setScreen(screen));
+  const scrollAfter = screenScroll.get(screen) || 0;
+  const swapped = transitionScreen(
+    () => {
+      setScreen(screen, true);
+      window.scrollTo({ top: scrollAfter, behavior: 'instant' });
+    },
+    { scrollAfter, layered: screen === 'studio' },
+  );
+  if (!swapped) screenExit.play($(currentScreen), () => setScreen(screen));
 }
 function useOC(entry) {
   const chunk = listChunks().find((item) => item.id === entry.chunkId || item.atlasId === entry.id);
@@ -1382,7 +1390,10 @@ $('archive-search').addEventListener('keydown', (event) => {
   }
 });
 $('archive-search-clear').onclick = clearArchiveSearch;
-$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+$('theme').onclick = () =>
+  transitionTheme($('theme'), () =>
+    setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'),
+  );
 $('account').onclick = () => controls.openAccount();
 $('generate').onclick = generate;
 $('cancel').onclick = () => request?.abort();
@@ -1549,6 +1560,15 @@ $('recipe-file').onchange = async (e) => {
     notify(err.message || '配方读取失败。');
   }
 };
+document.addEventListener('folio:enter', () => {
+  if (currentScreen !== 'studio') return;
+  studioEntrance.play();
+  revealHeadings($('studio'), 160);
+});
+if (!$('app').hidden && !document.body.classList.contains('is-cover')) {
+  studioEntrance.play();
+  revealHeadings($('studio'), 80);
+}
 showEmpty();
 renderArchive();
 listWorks()
