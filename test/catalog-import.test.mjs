@@ -38,6 +38,7 @@ test('catalog import preserves source, publishes local covers and omits remote l
   assert.equal(row[7], 'covers/ink.webp');
   assert.deepEqual(await readFile(join(base, row[7])), await readFile(join(source, row[7])));
   assert.deepEqual(JSON.parse(await readFile(join(base, 'character-details.json'))), {});
+  assert.deepEqual(JSON.parse(await readFile(join(base, 'related-tags.json'))), {});
   await assert.rejects(stat(join(base, 'search-worker.js')), { code: 'ENOENT' });
 });
 
@@ -45,6 +46,7 @@ test('reimport switches editions without disrupting readers and malformed input 
   const { source, target, artistRow, write } = await fixture(t);
   const old = await importCatalog(source, target);
   await write('character-details', { 'clock keeper': ['rolled sleeves'] });
+  await write('related-tags', { 'ink drawing': ['line art'] });
   await write('artist', [[...artistRow.slice(0, 7), 'covers/missing.png']]);
   const next = await importCatalog(source, target);
   const root = join(target, 'local');
@@ -52,6 +54,7 @@ test('reimport switches editions without disrupting readers and malformed input 
   assert.notEqual(old.edition, next.edition);
   assert.equal(next.missingCovers, 1);
   assert.deepEqual(JSON.parse(await readFile(join(nextRoot, 'character-details.json'))), { 'clock keeper': ['rolled sleeves'] });
+  assert.deepEqual(JSON.parse(await readFile(join(nextRoot, 'related-tags.json'))), { 'ink drawing': ['line art'] });
   assert.equal(JSON.parse(await readFile(join(nextRoot, 'artist.json')))[0][7], '');
   assert.equal(JSON.parse(await readFile(join(root, old.edition, 'artist.json')))[0][7], 'covers/ink.webp');
   await write('artist', [[...artistRow.slice(0, 7), 'covers/../../outside.webp']]);

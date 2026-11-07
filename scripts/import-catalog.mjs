@@ -20,10 +20,10 @@ async function sourceFile(source, name) {
 async function loadIndex(source, kind) {
   const name = kind + '.json';
   const data = JSON.parse(await readFile(await sourceFile(source, name), 'utf8'));
-  if (kind === 'character-details') {
+  if (kind === 'character-details' || kind === 'related-tags') {
     if (!data || typeof data !== 'object' || Array.isArray(data) ||
         Object.values(data).some((tags) => !Array.isArray(tags) || tags.some((tag) => typeof tag !== 'string')))
-      throw Error('角色外貌索引格式无效：' + name);
+      throw Error('标签列表索引格式无效：' + name);
     return data;
   }
   if (!Array.isArray(data) || !data.length) throw Error('索引为空或格式无效：' + name);
@@ -46,11 +46,13 @@ export async function importCatalog(sourceDirectory, targetDirectory = bundledRo
 
   const data = {};
   for (const kind of ['tags', 'artist', 'character']) data[kind] = await loadIndex(source, kind);
-  try {
-    data['character-details'] = await loadIndex(source, 'character-details');
-  } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
-    data['character-details'] = {};
+  for (const kind of ['character-details', 'related-tags']) {
+    try {
+      data[kind] = await loadIndex(source, kind);
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+      data[kind] = {};
+    }
   }
 
   const covers = new Map();

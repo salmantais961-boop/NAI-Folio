@@ -880,16 +880,16 @@
    altering glyph widths, scroll range, clipboard content, or the caret. */
 :root {
   --pt-base: #6fa9ac;
-  --pt-weak: #d8ae58;
-  --pt-strong: #8c7bec;
-  --pt-negative: #df7a9b;
+  --pt-weak: #d89b35;
+  --pt-strong: #9c82ef;
+  --pt-negative: #ed819c;
   --pt-separator: #787b79;
 }
 :root[data-theme='dark'] {
   --pt-base: #9fd1d8;
-  --pt-weak: #edbf86;
-  --pt-strong: #b6adff;
-  --pt-negative: #f49bbc;
+  --pt-weak: #a87730;
+  --pt-strong: #7858b3;
+  --pt-negative: #a74b6b;
   --pt-separator: #a0a4aa;
 }
 .pt-textframe {
@@ -964,7 +964,6 @@
     box-shadow 180ms ease;
 }
 .pt-editor .pt-inline-block:hover {
-  background: color-mix(in srgb, var(--pt-tone) 25%, var(--paper));
   box-shadow: inset 0 -1px color-mix(in srgb, var(--pt-tone) 70%, transparent);
 }
 .pt-inline-block .pt-print {
@@ -1074,19 +1073,14 @@
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-.pt-ink-tag[data-tone='base'] {
-  --pt-wash: 15%;
-}
 .pt-ink-changed {
   animation: pt-weight-wash 420ms ease-out;
 }
 @keyframes pt-weight-wash {
   from {
-    background-color: color-mix(in srgb, var(--pt-tone) 68%, transparent);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--pt-tone) 16%, transparent);
   }
   to {
-    background-color: color-mix(in srgb, var(--pt-tone) var(--pt-wash, 15%), transparent);
     box-shadow: 0 0 0 2px transparent;
   }
 }
@@ -1132,7 +1126,7 @@
 }
 .pt-tagrow button[data-tone] {
   color: var(--ink);
-  background: color-mix(in srgb, var(--pt-tone) 30%, var(--paper));
+  background: color-mix(in srgb, var(--pt-tone) var(--pt-wash, 15%), var(--paper));
   box-shadow: none;
   border-radius: 3px;
   transition:
@@ -1140,15 +1134,11 @@
     box-shadow 180ms ease,
     transform 180ms ease;
 }
-.pt-tagrow button[data-tone='base'] {
-  background: color-mix(in srgb, var(--pt-tone) 15%, var(--paper));
-}
 .pt-tagrow button[data-tone]:hover {
-  background: color-mix(in srgb, var(--pt-tone) 42%, var(--paper));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 20%, transparent);
   transform: translateY(-1px);
 }
 .pt-tagrow button[data-tone][aria-pressed='true'] {
-  background: color-mix(in srgb, var(--pt-tone) 42%, var(--paper));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent);
 }
 .pt-tagrow button em {

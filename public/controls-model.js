@@ -114,6 +114,33 @@ const fail = (msg) => {
 }
 const check = (valid, msg) => valid || fail(msg)
 const num = (x, min, max) => typeof x === 'number' && Number.isFinite(x) && x >= min && x <= max
+
+// Called after resolving macros and random choices. Build request-only roles
+// so editing, saving and reopening a draft preserve the original pipe syntax.
+export function prepareCharacterCaptions(prompt, negative, slots = [], maxCharacters) {
+  const [base, ...inline] = (prompt || '').split(/[|｜]/).map(text => text.trim())
+  const [baseUC, ...roleUC] = (negative || '').split(/[|｜]/).map(text => text.trim())
+  while (inline.length && !inline.at(-1)) inline.pop()
+  while (roleUC.length && !roleUC.at(-1)) roleUC.pop()
+
+  const roles = inline.map(text => ({ prompt: text, negative: '', x: 0.5, y: 0.5 }))
+  for (const slot of slots) {
+    if (slot.enabled !== false && (slot.prompt?.trim() || slot.negative?.trim())) roles.push(slot)
+  }
+  check(roleUC.length <= roles.length, '负面提示词的角色段数超过正向角色数，请核对竖线的顺序。')
+  const characters = []
+  for (const [index, role] of roles.entries()) {
+    const exclusions = [role.negative?.trim(), roleUC[index]].filter(Boolean).join(', ')
+    if (!role.prompt?.trim()) {
+      check(!exclusions, '第 ' + (index + 1) + ' 个角色只填写了负面词，请补充正向描述。')
+      continue
+    }
+    characters.push({ ...role, negative: exclusions, x: role.x ?? 0.5, y: role.y ?? 0.5 })
+  }
+  check(characters.length <= maxCharacters, '当前模型最多支持 ' + maxCharacters + ' 个角色。')
+  return { prompt: base, negative: baseUC, characters }
+}
+
 export function requestFor(d, basePrompt, baseNegative) {
   const cap = capabilities(d),
     src = d.source
@@ -164,25 +191,14 @@ export function requestFor(d, basePrompt, baseNegative) {
     d.seed === null || (Number.isInteger(d.seed) && num(d.seed, 0, 0xffffffff)),
     '种子需为 0–4294967295 的整数，留空即随机。',
   )
-  if (cap.modern)
-    check(
-      !d.characters.some((c) => c.enabled !== false && c.negative.trim() && !c.prompt.trim()),
-      '有一个角色只填写了负面词，请补充该角色的正向描述。',
-    )
-  let chars = cap.modern ? d.characters.filter((c) => c.enabled !== false && c.prompt.trim()) : []
-  if (cap.modern && (basePrompt.includes('|') || baseNegative?.includes('|'))) {
-    check(!d.characters.length, '使用 | 分隔角色时，请先移除独立角色栏，或将角色描述移入角色栏。')
-    const [main, ...roles] = basePrompt.split('|').map((t) => t.trim())
-    const [uc, ...exclusions] = (baseNegative || '').split('|').map((t) => t.trim())
-    check(
-      main && roles.length && roles.every(Boolean) && exclusions.length <= roles.length,
-      '请按「场景 | 角色一 | 角色二」填写，负面词可按相同顺序分段。',
-    )
-    basePrompt = main
-    baseNegative = uc
-    chars = roles.map((prompt, i) => ({ prompt, negative: exclusions[i] || '', x: 0.5, y: 0.5 }))
+  let chars = []
+  if (cap.modern) {
+    const captions = prepareCharacterCaptions(basePrompt, baseNegative, d.characters, cap.chars)
+    basePrompt = captions.prompt
+    baseNegative = captions.negative
+    chars = captions.characters
+    check(basePrompt || chars.length, '请先输入正向提示词或角色描述。')
   }
-  check(chars.length <= cap.chars, '当前模型最多支持 ' + cap.chars + ' 个角色。')
   const medium = cap.medium && d.medium
   if (medium)
     check(
@@ -252,7 +268,7 @@ export function requestFor(d, basePrompt, baseNegative) {
     })
     p.v4_prompt = {
       caption: captions(prompt, 'prompt'),
-      use_coords: d.useCoords && d.characters.length > 0 && (cap.family !== 'v4' || chars.length > 1),
+      use_coords: d.useCoords && chars.length > 0 && (cap.family !== 'v4' || chars.length > 1),
       use_order: true,
     }
     p.v4_negative_prompt = {

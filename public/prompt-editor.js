@@ -4,7 +4,7 @@ import { foldExactChunks } from './prompt-match.js';
 
 // The textarea remains the raw-value/event adapter. Only this surface edits the
 // displayed document; macro leaves are atomic and count as their full raw source.
-export function mountPromptEditor(field, { runs, tone, getModel, signal }) {
+export function mountPromptEditor(field, { runs, paintWeight, getModel, signal }) {
   const proto = HTMLTextAreaElement.prototype;
   const valueProperty = Object.getOwnPropertyDescriptor(proto, 'value');
   const selectionProperties = Object.fromEntries(
@@ -187,12 +187,7 @@ export function mountPromptEditor(field, { runs, tone, getModel, signal }) {
     for (const part of runs(text, model)) {
       const run = document.createElement('span');
       run.className = 'pt-ink-' + part.kind;
-      run.dataset.tone = tone(part.weight);
-      run.dataset.weight = Number(part.weight.toFixed(3)).toString();
-      if (run.dataset.tone !== 'base') {
-        const distance = part.weight < 0 ? -part.weight : Math.abs(Math.log2(Math.max(part.weight, 0.001)));
-        run.style.setProperty('--pt-wash', Math.round(26 + 22 * Math.min(1, distance)) + '%');
-      }
+      paintWeight(run, part.weight);
       const key = part.kind + '\0' + part.value;
       nextWeights.set(key, part.weight);
       if (previousWeights.has(key) && previousWeights.get(key) !== part.weight)
@@ -242,8 +237,7 @@ export function mountPromptEditor(field, { runs, tone, getModel, signal }) {
             for (const piece of runs(expandChunks(part.value), model)) {
               const ink = document.createElement('span');
               ink.className = 'pt-ink-' + piece.kind;
-              ink.dataset.tone = tone(piece.weight * part.weight);
-              ink.dataset.weight = Number((piece.weight * part.weight).toFixed(3)).toString();
+              paintWeight(ink, piece.weight * part.weight);
               ink.textContent = piece.value;
               body.append(ink);
             }

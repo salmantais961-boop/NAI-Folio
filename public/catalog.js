@@ -92,10 +92,12 @@ function node(tag, className, text) {
 
 const compact = (value) => value.trim().toLowerCase().replaceAll('_', ' ').replace(/\s+/g, ' ');
 const delimiters = /[,，、\n|]/;
+const suggestionLimit = 20;
 const categoryNames = { 0: '标签', 1: '画师', 3: '作品', 4: '角色', 5: '元标签', 6: '词块' };
 const attached = new WeakSet();
 let popup,
   active,
+  opening,
   debounce,
   suggestionEpoch = 0,
   composing = false;
@@ -150,7 +152,7 @@ async function officialTags(region) {
     const body = await response.json();
     const rows = (body.tags || [])
       .filter((item) => typeof item?.tag === 'string')
-      .slice(0, 8)
+      .slice(0, suggestionLimit)
       .map((item) => [
         prefix && item.tag.startsWith(prefix) ? item.tag.slice(prefix.length) : item.tag,
         '',
@@ -165,21 +167,31 @@ async function officialTags(region) {
   }
 }
 
+const tagPrefix = /^\s*(?:(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)::|[\[{])\s*)*(?:(artist|character):\s*)?/i;
+const tagSuffix = /(?:[\]}]|::)*\s*$/;
+const usedTag = token => compact(token.replace(tagPrefix, '').replace(tagSuffix, ''));
+
 function tokenAt(input) {
   const caret = input.selectionStart;
   if (caret !== input.selectionEnd) return null;
   const text = input.value;
-  let start = caret,
-    end = caret;
+  let start = caret, end = caret;
   while (start > 0 && !delimiters.test(text[start - 1])) start--;
   while (end < text.length && !delimiters.test(text[end])) end++;
   const token = text.slice(start, end);
-  const prefix = token.match(/^\s*(?:(?:-?\d+(?:\.\d+)?::|[\[{])+\s*)?(?:(artist|character):\s*)?/i);
-  const trailing = token.match(/(?:[\]}]|::)*\s*$/)[0];
+  if (!token.trim()) {
+    if (!start || !/[,，、]/.test(text[start - 1])) return null;
+    let previous = start - 1;
+    while (previous > 0 && !delimiters.test(text[previous - 1])) previous--;
+    const related = usedTag(text.slice(previous, start - 1));
+    if (!related || related.includes('!macro:') || related.length > 100) return null;
+    return { from: caret, to: end, end, query: '', related };
+  }
+  const prefix = token.match(tagPrefix);
   const from = start + prefix[0].length;
-  const to = end - trailing.length;
+  const to = end - token.match(tagSuffix)[0].length;
   const query = compact(text.slice(from, Math.min(caret, to)));
-  if (!query || query.startsWith('!macro:') || caret < from || caret > to || query.length > 100) return null;
+  if (!query || token.includes('!macro:') || caret < from || query.length > 100) return null;
   const type = prefix[1]?.toLowerCase();
   return { from, to, end, query, category: type === 'artist' ? 1 : type === 'character' ? 4 : null };
 }
@@ -188,6 +200,7 @@ export function closeSuggestions() {
   clearTimeout(debounce);
   remoteController?.abort();
   suggestionEpoch++;
+  opening = null;
   if (active) {
     active.input.setAttribute('aria-expanded', 'false');
     active.input.removeAttribute('aria-activedescendant');
@@ -282,54 +295,59 @@ function anchorAt(input) {
 function positionPopup() {
   if (!popup || !active) return;
   const anchor = anchorAt(active.input);
+  if (anchor.bottom < 0 || anchor.top > window.innerHeight) return closeSuggestions();
   const gap = 5,
     margin = 10;
   const width = Math.min(350, window.innerWidth - margin * 2);
   const availableBelow = window.innerHeight - anchor.bottom - margin;
-  const above = availableBelow < 165 && anchor.top > availableBelow;
-  const available = Math.max(70, above ? anchor.top - margin : availableBelow);
+  const availableAbove = anchor.top - margin;
+  const above = availableBelow < 360 && availableAbove > availableBelow;
+  const available = above ? availableAbove : availableBelow;
   popup.style.width = width + 'px';
-  popup.style.maxHeight = Math.min(320, available - gap) + 'px';
+  popup.style.maxHeight = Math.max(0, Math.min(530, available - gap)) + 'px';
   const height = popup.getBoundingClientRect().height;
   popup.style.left = Math.max(margin, Math.min(anchor.left, window.innerWidth - width - margin)) + 'px';
   popup.style.top = Math.max(margin, above ? anchor.top - height - gap : anchor.bottom + gap) + 'px';
 }
 
-function highlight(index) {
+function highlight(index, scroll = true) {
   if (!active || !popup) return;
-  const list = Array.from(popup.querySelectorAll('[role="option"]'));
-  active.index = (index + list.length) % list.length;
-  for (const [i, option] of list.entries()) option.setAttribute('aria-selected', String(i === active.index));
-  const selected = list[active.index];
+  const options = active.options;
+  options[active.index]?.setAttribute('aria-selected', 'false');
+  active.index = ((index % options.length) + options.length) % options.length;
+  const selected = options[active.index];
+  selected.setAttribute('aria-selected', 'true');
   active.input.setAttribute('aria-activedescendant', selected.id);
-  const top = selected.offsetTop;
-  if (top < popup.scrollTop) popup.scrollTop = top;
-  if (top + selected.offsetHeight > popup.scrollTop + popup.clientHeight)
-    popup.scrollTop = top + selected.offsetHeight - popup.clientHeight;
+  if (!scroll) return;
+  const top = selected.offsetTop, bottom = top + selected.offsetHeight;
+  const header = popup.firstElementChild.offsetHeight;
+  if (top < popup.scrollTop + header) popup.scrollTop = Math.max(0, top - header - 4);
+  else if (bottom > popup.scrollTop + popup.clientHeight) popup.scrollTop = bottom - popup.clientHeight + 4;
+}
+
+function matchesCaret({ input, value, caret }) {
+  return input.value === value && input.selectionStart === caret && input.selectionEnd === caret;
 }
 
 function commitSuggestion(index) {
   if (!active) return;
-  const { input, results } = active;
-  const region = tokenAt(input);
+  const selection = active;
+  const { input, results, region, value } = selection;
   const row = results[index];
   closeSuggestions();
-  if (!region || !row) return;
-  const suffix = input.value.slice(region.to, region.end).trimEnd();
-  const next = input.value.slice(region.end);
+  // Commit the original token range only while the caret is still there.
+  if (!row || !matchesCaret(selection)) return;
+  const label = row[2] === 6 ? reference(row[0]) : row[0].trim().replace(/[,，、]+$/, '').trimEnd();
+  if (!label) return;
+  const suffix = value.slice(region.to, region.end).trimEnd();
+  const next = value.slice(region.end);
   const delimiter = /^[,，、][ \t]*/.exec(next);
-  const replacement =
-    (row[2] === 6 ? reference(row[0]) : row[0]) +
-    suffix +
-    (delimiter
-      ? next[delimiter[0].length] === '\n'
-        ? delimiter[0][0]
-        : ', '
-      : next.startsWith('|') || next.startsWith('\n')
-        ? ''
-        : ', ');
-  const to = region.end + (delimiter?.[0].length || 0);
-  typeValue(input, replacement, region.from, to);
+  const end = region.end + (delimiter?.[0].length || 0);
+  const leading = region.related && /[,，、]/.test(value[region.from - 1]) ? ' ' : '';
+  const replacement = leading + label + suffix + ', ';
+  typeValue(input, replacement, region.from, end);
+  // Native textarea input events can fire before setSelectionRange completes.
+  scheduleSuggestions(input);
 }
 
 function scheduleSuggestions(input) {
@@ -337,69 +355,89 @@ function scheduleSuggestions(input) {
   if (composing || (input !== document.activeElement && !input.promptEditor?.focused)) return;
   const region = tokenAt(input);
   if (!region) return;
-  const epoch = suggestionEpoch;
-  debounce = setTimeout(
-    async () => {
-      let result,
-        headingText = 'DANBOORU  /  LOCAL';
-      if (region.query.startsWith('@')) {
-        result = {
-          results: findChunks(region.query.slice(1))
-            .slice(0, 8)
-            .map((c) => [c.name, c.text.slice(0, 50), 6]),
-        };
-        headingText = 'FOLIO  /  PROMPT BLOCKS';
-      } else if (source === 'official') {
-        try {
-          const rows = await officialTags(region);
-          if (rows.length) {
-            result = { results: rows };
-            headingText = 'NOVELAI  /  LIVE';
-          } else headingText = '官方无匹配 · 本地联想';
-        } catch {
-          headingText = '官方暂不可用 · 本地联想';
-        }
-      }
-      if (epoch !== suggestionEpoch) return;
-      if (!result) {
-        try {
-          result = await request('tags', region.query, { category: region.category, limit: 8 });
-        } catch {
-          return;
-        }
-      }
-      if (
-        epoch !== suggestionEpoch ||
-        result.stale ||
-        (input !== document.activeElement && !input.promptEditor?.focused) ||
-        !result.results.length
-      )
+  const epoch = suggestionEpoch, value = input.value;
+  const search = { input, value, caret: input.selectionStart, moves: 0, related: region.related };
+  opening = search;
+  async function populate() {
+    let result,
+      headingText = 'DANBOORU  /  LOCAL';
+    if (region.related) {
+      const exclude = [...new Set(value.split(delimiters).map(usedTag).filter(Boolean))];
+      try {
+        result = await request('related-tags', region.related, { exclude, limit: suggestionLimit, channel: 'tags' });
+      } catch {
         return;
-      popup = node('div', 'cat-suggestions');
-      popup.id = 'folio-tag-suggestions';
-      popup.setAttribute('role', 'listbox');
-      popup.setAttribute('aria-label', 'Danbooru 标签建议');
-      const heading = node('div', 'cat-suggest-head', headingText);
-      heading.append(node('span', '', 'Tab 插入 · Shift Enter 换行'));
-      popup.append(heading);
-      active = { input, results: result.results, index: 0 };
-      result.results.forEach((row, i) => {
-        const option = node('div', 'cat-option');
-        option.id = 'folio-tag-option-' + i;
-        option.setAttribute('role', 'option');
-        const label = node('span', 'cat-option-text');
-        label.append(node('b', '', row[0]), node('small', '', row[1] || ''));
-        option.append(label, node('em', '', categoryNames[row[2] || 0] || '标签'));
-        option.addEventListener('pointerdown', (event) => event.preventDefault());
-        option.addEventListener('click', () => commitSuggestion(i));
-        popup.append(option);
+      }
+      headingText = '相关标签 · ' + region.related;
+    } else if (region.query.startsWith('@')) {
+      result = {
+        results: findChunks(region.query.slice(1))
+          .slice(0, suggestionLimit)
+          .map((c) => [c.name, c.text.slice(0, 50), 6]),
+      };
+      headingText = 'FOLIO  /  PROMPT BLOCKS';
+    } else if (source === 'official') {
+      try {
+        const rows = await officialTags(region);
+        if (rows.length) {
+          result = { results: rows };
+          headingText = 'NOVELAI  /  LIVE';
+        } else headingText = '官方无匹配 · 本地联想';
+      } catch {
+        headingText = '官方暂不可用 · 本地联想';
+      }
+    }
+    if (epoch !== suggestionEpoch) return;
+    if (!result) {
+      try {
+        result = await request('tags', region.query, { category: region.category, limit: suggestionLimit });
+      } catch {
+        return;
+      }
+    }
+    if (
+      epoch !== suggestionEpoch ||
+      result.stale || !matchesCaret(search) ||
+      (input !== document.activeElement && !input.promptEditor?.focused) ||
+      !result.results.length
+    )
+      return;
+    popup = node('div', 'cat-suggestions');
+    popup.id = 'folio-tag-suggestions';
+    popup.setAttribute('role', 'listbox');
+    popup.setAttribute('aria-label', region.related ? '相关标签建议' : '标签建议');
+    const heading = node('div', 'cat-suggest-head', headingText);
+    heading.append(node('span', '', '↑↓ 选择 · Tab / Enter 插入'));
+    popup.append(heading);
+    const results = result.results.slice(0, suggestionLimit);
+    active = { ...search, region, results, options: [], index: -1 };
+    results.forEach((row, i) => {
+      const option = node('div', 'cat-option');
+      option.id = 'folio-tag-option-' + i;
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', 'false');
+      active.options.push(option);
+      const label = node('span', 'cat-option-text');
+      label.append(node('b', '', row[0]), node('small', '', row[1] || ''));
+      option.append(label, node('em', '', categoryNames[row[2] || 0] || '标签'));
+      option.addEventListener('pointerdown', (event) => event.preventDefault());
+      option.addEventListener('pointermove', (event) => {
+        if (event.pointerType === 'mouse' && (event.movementX || event.movementY) && active?.index !== i)
+          highlight(i, false);
       });
-      (input.closest('dialog[open]') || document.body).append(popup);
-      input.setAttribute('aria-expanded', 'true');
-      highlight(0);
-      positionPopup();
-    },
-    source === 'official' && !region.query.startsWith('@') ? 320 : 65,
+      option.addEventListener('click', () => commitSuggestion(i));
+      popup.append(option);
+    });
+    (input.closest('dialog[open]') || document.body).append(popup);
+    input.setAttribute('aria-expanded', 'true');
+    positionPopup();
+    highlight(search.moves);
+  }
+  debounce = setTimeout(
+    () => populate().finally(() => {
+      if (opening === search) opening = null;
+    }),
+    source === 'official' && !region.related && !region.query.startsWith('@') ? 320 : 65,
   );
 }
 
@@ -428,9 +466,15 @@ export function attachAutocomplete(input) {
   input.addEventListener('scroll', () => {
     if (active?.input === input) positionPopup();
   });
+  let acceptedKey = '';
   input.addEventListener('keydown', (event) => {
+    if (!event.repeat) acceptedKey = '';
+    if (event.shiftKey && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+      closeSuggestions();
+      return;
+    }
     if (
-      event.isComposing ||
+      composing || event.isComposing ||
       event.keyCode === 229 ||
       event.ctrlKey ||
       event.altKey ||
@@ -438,16 +482,41 @@ export function attachAutocomplete(input) {
       event.shiftKey
     )
       return;
+    if (event.repeat && event.key === acceptedKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     if (!active || active.input !== input) {
       if (event.key === 'Escape') closeSuggestions();
+      // An arrow typed immediately after a letter belongs to the arriving list.
+      if (opening?.input === input && !opening.related && matchesCaret(opening) &&
+          (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+        event.preventDefault();
+        event.stopPropagation();
+        opening.moves += event.key === 'ArrowDown' ? 1 : -1;
+      }
+      return;
+    }
+    if (!matchesCaret(active)) {
+      closeSuggestions();
       return;
     }
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
+      event.stopPropagation();
       highlight(active.index + (event.key === 'ArrowUp' ? -1 : 1));
+    } else if (event.key === 'PageDown' || event.key === 'PageUp') {
+      event.preventDefault();
+      event.stopPropagation();
+      const rowHeight = active.options[active.index].offsetHeight || 36;
+      const step = Math.max(1, Math.floor((popup.clientHeight - popup.firstElementChild.offsetHeight) / rowHeight));
+      const target = active.index + (event.key === 'PageDown' ? step : -step);
+      highlight(Math.max(0, Math.min(active.options.length - 1, target)));
     } else if (event.key === 'Enter' || event.key === 'Tab') {
       event.preventDefault();
       event.stopPropagation();
+      acceptedKey = event.key;
       commitSuggestion(active.index);
     } else if (event.key === 'Escape') {
       event.preventDefault();
@@ -461,10 +530,13 @@ export function attachAutocomplete(input) {
 }
 
 window.addEventListener('resize', closeSuggestions);
+window.addEventListener('selectionchange', () => {
+  if (active && !matchesCaret(active)) closeSuggestions();
+}, true);
 window.addEventListener(
   'scroll',
   (event) => {
-    if (active && event.target !== active.input && !popup.contains(event.target)) closeSuggestions();
+    if (active && event.target.contains?.(active.input)) positionPopup();
   },
   true,
 );

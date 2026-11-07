@@ -12,10 +12,11 @@ const normalize = (value) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-function getFile(name) {
+function getFile(name, optional = false) {
   if (!files.has(name)) {
     const pending = fetch(new URL(name + '.json', catalogRoot))
       .then((response) => {
+        if (optional && response.status === 404) return {};
         if (!response.ok) throw new Error('本地索引暂时无法读取');
         return response.json();
       })
@@ -122,9 +123,42 @@ function relevance(needle, words, key, translation, aliases, series, translatedS
   return -1;
 }
 
+let tagRowsByName;
+
+async function relatedTags(query, exclude, limit) {
+  const seed = normalize(query);
+  if (!seed) return [];
+  const [relations, appearances] = await Promise.all([
+    getFile('related-tags', true), getFile('character-details', true),
+  ]);
+  const appearance = Object.hasOwn(appearances, seed) ? appearances[seed] : [];
+  const related = Object.hasOwn(relations, seed) ? relations[seed] : [];
+  if (!appearance.length && !related.length) return [];
+
+  const rows = await getFile('tags');
+  if (!tagRowsByName) {
+    tagRowsByName = new Map();
+    for (const row of rows) tagRowsByName.set(row[0], row);
+  }
+  const used = characterTokens(exclude);
+  used.add(seed);
+  const result = [];
+  for (const name of [...appearance, ...related]) {
+    const key = normalize(name);
+    if (!key || used.has(key)) continue;
+    used.add(key);
+    result.push(tagRowsByName.get(key) || [key, '', 0]);
+    if (result.length === limit) break;
+  }
+  return result;
+}
+
 const recent = new Map();
 self.onmessage = async ({ data }) => {
-  const { id, kind, query = '', offset = 0, limit = 8, channel = kind, category = null } = data;
+  const { id, kind, query = '', offset = 0, channel = kind, category = null } = data;
+  const limit = kind === 'tags' || kind === 'related-tags'
+    ? Math.min(20, Math.max(1, data.limit || 20))
+    : data.limit || 8;
   // Provenance requests are independent jobs: never cancel them when another
   // request arrives, and never let them invalidate the suggestion/picker lanes.
   if (kind === 'exact-characters') {
@@ -141,6 +175,11 @@ self.onmessage = async ({ data }) => {
   }
   recent.set(channel, id);
   try {
+    if (kind === 'related-tags') {
+      const results = await relatedTags(query, data.exclude, limit);
+      self.postMessage(recent.get(channel) === id ? { id, count: results.length, results } : { id, stale: true });
+      return;
+    }
     const rows = await getFile(kind);
     if (recent.get(channel) !== id) {
       self.postMessage({ id, stale: true });

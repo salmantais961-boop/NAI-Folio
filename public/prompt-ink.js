@@ -6,6 +6,17 @@ const tokenPattern = /\\[\s\S]|!macro:[^!\n]+!|-?(?:\d+(?:\.\d+)?|\.\d+)::|::|[{
 export const inkTone = (weight) =>
   weight < 0 ? 'negative' : Math.abs(weight - 1) < 1e-8 ? 'base' : weight > 1 ? 'strong' : 'weak';
 
+export function paintInkWeight(node, weight) {
+  const tone = inkTone(weight);
+  node.dataset.tone = tone;
+  node.dataset.weight = String(Number(weight.toFixed(3)));
+  // Give small, commonly used weights more of the gradient. Only the colour
+  // saturates at five; the prompt and its numeric value retain full precision.
+  const fraction = Math.max(0, Math.min(1, (Math.abs(weight) - 0.1) / 4.9));
+  const wash = tone === 'base' ? 15 : 20 + 76 * fraction ** (2 / 3);
+  node.style.setProperty('--pt-wash', wash.toFixed(1) + '%');
+}
+
 export function inkRuns(text, model = 'nai-diffusion-5-full') {
   const modern = !model || /nai-diffusion-(?:[4-9]|\d{2,})/.test(model);
   const signed = modern && !/^nai-diffusion-4-(?:curated|full)/.test(model);
@@ -65,5 +76,5 @@ export function inkRuns(text, model = 'nai-diffusion-5-full') {
 }
 
 export function bindInk(field, getModel, signal) {
-  return mountPromptEditor(field, { runs: inkRuns, tone: inkTone, getModel, signal });
+  return mountPromptEditor(field, { runs: inkRuns, paintWeight: paintInkWeight, getModel, signal });
 }

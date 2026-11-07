@@ -165,6 +165,25 @@ test('character picker supplements only its page with verified local appearance 
   assert.deepEqual(h.requests, ['character.json', 'character-details.json']);
 });
 
+test('text and next-tag suggestions cap at twenty, skip existing tags and require a recorded relation', async () => {
+  const tags = Array.from({ length: 30 }, (_, i) => ['ink ' + i, '墨' + i, 0, 60 - i]);
+  const h = harness(async name => {
+    if (name === 'tags.json') return tags;
+    if (name === 'related-tags.json') return { 'ink 0': tags.map(row => row[0]) };
+    return { 'ink 0': ['paper texture', 'ink 2'] };
+  });
+  const typed = await h.send({ id: 1, kind: 'tags', query: 'ink', limit: 50 });
+  assert.equal(typed.results.length, 20);
+  const next = await h.send({
+    id: 2, kind: 'related-tags', query: 'Ink_0', exclude: ['1.2::ink_1::'], limit: 50,
+  });
+  assert.equal(next.results.length, 20);
+  assert.deepEqual(next.results.slice(0, 3), [['paper texture', '', 0], tags[2], tags[3]]);
+  assert.equal(new Set(next.results.map(row => row[0])).size, 20);
+  const unknown = await h.send({ id: 3, kind: 'related-tags', query: 'ink' });
+  assert.deepEqual(unknown.results, []);
+});
+
 test('missing appearance supplement leaves canonical picker results usable and does not affect exact identity', async () => {
   const h = harness(async (name) => {
     if (name === 'character-details.json') throw Error('missing');

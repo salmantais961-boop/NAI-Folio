@@ -1,5 +1,7 @@
 import { attachAutocomplete, closeSuggestions } from './catalog.js';
-import { bindInk, inkTone } from './prompt-ink.js';
+import { bindInk, paintInkWeight } from './prompt-ink.js';
+import { promptMoveParts } from './prompt-move.js';
+import { formatWeight, unwrap, weightSelectedTags } from './prompt-weight.js';
 import { captureProofChrome, moveProofChrome } from './library-chrome-motion.js';
 import { mountAtlasPicker, openImagePicker } from './atlas-picker.js';
 import {
@@ -37,113 +39,20 @@ function button(text, label, fn) {
   b.onclick = fn;
   return b;
 }
-const sep = /[,，、\n|]/;
 const round = (n) => Math.round(n * 100) / 100;
 const readable = (n) => Number(n.toFixed(2)).toString();
 
-// Split only at top-level delimiters. A weighted group, random alternative,
-// nested macro or parenthesized character name stays intact during reordering.
 export function promptParts(text) {
-  let start = 0,
-    depth = 0,
-    numeric = false;
-  const parts = [];
-  function finish(end) {
-    const source = text.slice(start, end),
-      trim = source.trim();
-    if (trim) {
-      const from = start + source.indexOf(trim);
-      parts.push({ from, to: from + trim.length, text: trim });
-    }
-  }
-  for (let i = 0; i < text.length; i++) {
-    if (text[i] === '\\') {
-      i++;
-      continue;
-    }
-    if (text.startsWith('!macro:', i)) {
-      const end = text.indexOf('!', i + 7);
-      if (end >= 0) {
-        i = end;
-        continue;
-      }
-    }
-    if (text.startsWith('||', i)) {
-      const end = text.indexOf('||', i + 2);
-      if (end >= 0) {
-        i = end + 1;
-        continue;
-      }
-    }
-    if (text.startsWith('::', i)) {
-      let p = i - 1;
-      while (p >= start && /[.\d]/.test(text[p])) p--;
-      numeric = !numeric && p < i - 1 && /\d/.test(text[i - 1]);
-      if (!numeric) depth = 0;
-      i++;
-      continue;
-    }
-    if ('{[('.includes(text[i])) {
-      depth++;
-      continue;
-    }
-    if ('}])'.includes(text[i])) {
-      depth = Math.max(0, depth - 1);
-      continue;
-    }
-    if (!numeric && !depth && sep.test(text[i])) {
-      finish(i);
-      start = i + 1;
-    }
-  }
-  finish(text.length);
-  return parts;
+  return promptMoveParts(text).parts;
 }
 function profile(model) {
   if (!model) return { numeric: true, negative: true };
   const numeric = /nai-diffusion-(?:[4-9]|\d{2,})/.test(model);
   return { numeric, negative: numeric && !/^nai-diffusion-4-(?:full|curated)/.test(model) };
 }
-function unwrap(text) {
-  let body = text,
-    layers = 0,
-    weight = 1;
-  const num = /^(-?(?:\d+(?:\.\d*)?|\.\d+))::([\s\S]*)::$/.exec(body);
-  if (num && !num[2].includes('::')) {
-    weight = Number(num[1]);
-    body = num[2];
-  }
-  while ((body.startsWith('{') && body.endsWith('}')) || (body.startsWith('[') && body.endsWith(']'))) {
-    const left = body[0],
-      right = body.at(-1);
-    let depth = 0,
-      balanced = true;
-    for (let i = 0; i < body.length - 1; i++) {
-      if (body[i] === left) depth++;
-      else if (body[i] === right) depth--;
-      if (depth === 0) {
-        balanced = false;
-        break;
-      }
-    }
-    if (!balanced) break;
-    layers += left === '{' ? 1 : -1;
-    body = body.slice(1, -1);
-  }
-  return { body, weight: weight * 1.05 ** layers, layers, offset: text.indexOf(body) };
-}
-function formatWeight(body, value, cap) {
-  if (!body.trim() || value === 1) return body;
-  if (cap.numeric) return readable(value) + '::' + body + '::';
-  const depth = Math.max(-80, Math.min(80, Math.round(Math.log(value) / Math.log(1.05))));
-  return (
-    (depth > 0 ? '{' : '[').repeat(Math.abs(depth)) + body + (depth > 0 ? '}' : ']').repeat(Math.abs(depth))
-  );
-}
 function targetRange(field, parts = promptParts(field.value)) {
+  let a = field.selectionStart, b = field.selectionEnd;
   const text = field.value;
-  let a = field.selectionStart,
-    b = field.selectionEnd;
   if (a !== b) {
     while (a < b && /\s/.test(text[a])) a++;
     while (b > a && /\s/.test(text[b - 1])) b--;
@@ -160,14 +69,25 @@ function targetRange(field, parts = promptParts(field.value)) {
   if (atCaret) return atCaret;
   // The suggestion menu leaves a comma and a space after a completed tag.
   const previous = parts.findLast((part) => part.to < a);
-  return previous && /^[,， \t]*$/.test(text.slice(previous.to, a)) ? previous : null;
+  return previous && /^[,，、 \t]*$/.test(text.slice(previous.to, a)) ? previous : null;
 }
+// Keep an intentional group as the target of repeated adjustments without
+// leaving a live text selection that the next keystroke would overwrite.
+const weightRanges = new WeakMap();
+
+function caretAfterWeight(position, from, to, oldText, newText) {
+  if (position >= to) return position + newText.length - oldText.length;
+  if (position <= from) return position;
+  const before = unwrap(oldText), after = unwrap(newText);
+  const within = position - from - before.offset;
+  if (within > before.body.length) return from + newText.length;
+  return from + after.offset + Math.max(0, within);
+}
+
 function adjust(field, action, model, notify, value) {
-  const chosen = targetRange(field);
-  if (!chosen) {
-    notify?.('请把光标放在一个标签上，或先选中一段提示词。');
-    return;
-  }
+  const start = field.selectionStart, end = field.selectionEnd;
+  const previous = weightRanges.get(field);
+  const repeat = start === end && previous?.to === end && previous.value === field.value;
   const cap = profile(model);
   const nextWeight = (old) => {
     if (action === 'reset') return 1;
@@ -182,46 +102,31 @@ function adjust(field, action, model, notify, value) {
       )
     );
   };
-  function transform(text) {
-    const item = unwrap(text),
-      weight = nextWeight(item.weight);
-    return formatWeight(item.body, weight, cap);
+  const wasSelected = start !== end || repeat;
+  let from, to, replacement, caret, selectedFrom;
+  if (wasSelected) {
+    const edit = weightSelectedTags(field.value, repeat ? previous.from : start, end, nextWeight, cap);
+    if (!edit) return;
+    ({ from, to, replacement, selectedFrom, selectedTo: caret } = edit);
+  } else {
+    const part = targetRange(field);
+    if (!part) {
+      notify?.('请把光标放在一个标签上，或先选中提示词。');
+      return;
+    }
+    ({ from, to } = part);
+    const parsed = unwrap(part.text);
+    replacement = formatWeight(parsed.body, nextWeight(parsed.weight), cap);
+    caret = caretAfterWeight(end, from, to, part.text, replacement);
   }
-  let { from, to, text } = chosen,
-    replacement,
-    selStart = from,
-    selEnd;
-  const parent = chosen.outer && unwrap(chosen.outer.text);
-  if (
-    parent &&
-    parent.body !== chosen.outer.text &&
-    parent.weight !== 1 &&
-    from >= chosen.outer.from + parent.offset &&
-    to <= chosen.outer.from + parent.offset + parent.body.length
-  ) {
-    // Split a partial selection out of its old wrapper without nesting numeric
-    // emphasis, which NovelAI closes at the next bare double colon.
-    const a = from - chosen.outer.from - parent.offset,
-      b = to - chosen.outer.from - parent.offset;
-    const before = formatWeight(parent.body.slice(0, a), parent.weight, cap),
-      after = formatWeight(parent.body.slice(b), parent.weight, cap);
-    const changed = formatWeight(text, nextWeight(parent.weight), cap);
-    from = chosen.outer.from;
-    to = chosen.outer.to;
-    replacement = before + changed + after;
-    selStart = from + before.length;
-    selEnd = selStart + changed.length;
-  } else if (/::|\|/.test(text) && promptParts(text).length > 1) {
-    replacement = text;
-    for (const item of promptParts(text).reverse())
-      replacement = replacement.slice(0, item.from) + transform(item.text) + replacement.slice(item.to);
-  } else replacement = transform(text);
   if (field.value.slice(from, to) !== replacement)
-    replaceEditorRange(field, from, to, replacement, selStart, selEnd ?? from + replacement.length);
+    replaceEditorRange(field, from, to, replacement, caret, caret);
   else {
     field.focus({ preventScroll: true });
-    field.setSelectionRange(selStart, selEnd ?? to);
+    field.setSelectionRange(caret, caret);
   }
+  if (wasSelected) weightRanges.set(field, { from: selectedFrom, to: caret, value: field.value });
+  else weightRanges.delete(field);
   closeSuggestions();
 }
 function insertBlock(field, text) {
@@ -1296,6 +1201,12 @@ export function bindPromptField(field, options = {}) {
   const events = new AbortController(),
     { signal } = events;
   const clearInk = bindInk(field, options.getModel, signal);
+  const clearWeightRange = () => weightRanges.delete(field);
+  for (const type of ['input', 'click', 'blur']) field.addEventListener(type, clearWeightRange, { signal });
+  field.addEventListener('select', () => {
+    const range = weightRanges.get(field);
+    if (range && (field.selectionStart !== range.to || field.selectionEnd !== range.to)) clearWeightRange();
+  }, { signal });
   field.addEventListener('prompt-block-drag-start', closeSuggestions, { signal });
   field.addEventListener('prompt-editor-fold', closeSuggestions, { signal });
   field.addEventListener(
@@ -1472,7 +1383,7 @@ export function mountPromptTools(host, getField, options = {}) {
         pick(f, p);
         refresh();
       });
-      b.dataset.tone = inkTone(parsed.weight);
+      paintInkWeight(b, parsed.weight);
       b.append(element('em', '', readable(parsed.weight) + '×'));
       b.setAttribute('aria-pressed', String(index === i));
       return b;

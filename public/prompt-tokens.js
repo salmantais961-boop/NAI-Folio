@@ -1,4 +1,4 @@
-import { MODELS } from './controls-model.js'
+import { MODELS, capabilities, prepareCharacterCaptions } from './controls-model.js'
 import { UC } from './controls-presets.js'
 import { expandChunks, watchChunks } from './chunks.js'
 import { tokenizerSpec } from './prompt-tokenizer-core.js'
@@ -28,19 +28,14 @@ export function prepareTokenInputs(settings, positive, negative, expand = expand
     return body.split('|').reduce((longest, item) => item.length >= longest.length ? item : longest, '').trim()
   })
   let main = resolve(positive).trim(), excluded = resolve(negative).trim()
-  let characters = spec.characters ? (settings.characters || [])
-    .filter((char) => char.enabled !== false)
-    .map((char) => ({ prompt: resolve(char.prompt), negative: resolve(char.negative) }))
-    .filter((char) => char.prompt.trim()) : []
-  if (spec.characters && (main.includes('|') || excluded.includes('|'))) {
-    if (settings.characters?.length) throw Error('请将 | 分隔角色与独立角色栏择一使用。')
-    const [base, ...roles] = main.split('|').map((text) => text.trim())
-    const [baseUC, ...negatives] = excluded.split('|').map((text) => text.trim())
-    if (!roles.length || roles.some((text) => !text) || negatives.length > roles.length)
-      throw Error('角色分隔尚未完整，完成输入后显示 token。')
-    main = base
-    excluded = baseUC
-    characters = roles.map((prompt, i) => ({ prompt, negative: negatives[i] || '' }))
+  let characters = []
+  if (spec.characters) {
+    const slots = (settings.characters || []).filter((char) => char.enabled !== false)
+      .map((char) => ({ ...char, prompt: resolve(char.prompt), negative: resolve(char.negative) }))
+    const captions = prepareCharacterCaptions(main, excluded, slots, capabilities(settings).chars)
+    main = captions.prompt
+    excluded = captions.negative
+    characters = captions.characters
   }
   const modelIndex = MODELS.findIndex(([id]) => id === settings.model)
   const family = MODELS[modelIndex]?.[2]

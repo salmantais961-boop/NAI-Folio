@@ -23,7 +23,7 @@ node scripts/import-catalog.mjs "<你的目录>/public/catalog-data"
 
 启动工作台后，在地址末尾加上 `?catalog=local` 打开一次，例如 `http://127.0.0.1:4389/?catalog=local`。浏览器会记住此次选择，以后可直接打开首页。用 `?catalog=sample` 切回内置示例库。其他浏览器或端口需要单独选择。
 
-导入器读取 `tags.json`、`artist.json`、`character.json`，以及可选的 `character-details.json`。它会复制索引中引用的本地 PNG、JPEG、WebP、AVIF 封面，去掉远程预览地址。缺少本地封面的条目显示首字。源目录保持原样。
+导入器读取 `tags.json`、`artist.json`、`character.json`，以及可选的 `character-details.json` 和 `related-tags.json`。它会复制索引中引用的本地 PNG、JPEG、WebP、AVIF 封面，去掉远程预览地址。缺少本地封面的条目显示首字。源目录保持原样。
 
 导入成功后，新版本在 `public/catalog-data/local/` 下生效，刷新已打开的页面即可使用。原有页面仍可读取之前的版本。这个目录已被 Git 忽略，制作公开压缩包时也应排除它。导入失败时，上次成功的版本仍可用。
 
@@ -34,3 +34,4 @@ node scripts/import-catalog.mjs "<你的目录>/public/catalog-data"
 - `tags.json` 的每行依次为主键、中文名、类别、使用次数、竖线分隔的别名。通用标签类别为 0，画师为 1，角色为 4。
 - `artist.json` 和 `character.json` 的每行依次为主键、显示名、实际插入的提示词、中文名、作品名、使用次数、远程预览字段、本地封面路径、竖线分隔的别名、中文作品名。封面路径从 `covers/` 开始。
 - `character-details.json` 使用角色主键映射到外貌提示词数组。可直接参照随附的六条记录编写。
+- `related-tags.json` 将标签主键映射到按推荐顺序排列的关联标签数组。开始填写下一项时，联想列表使用本地关联和角色外貌记录，跳过已填写的标签，最多显示 20 个。

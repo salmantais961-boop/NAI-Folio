@@ -375,10 +375,14 @@
           </div>
           <input type="file" accept=".json,.png" id="recipe-file" hidden />
           <details class="syntax-help">
-            <summary>随机组合与权重 <small>SYNTAX</small></summary>
+            <summary>角色分段、随机组合与权重 <small>SYNTAX</small></summary>
             <p>
-              用 <code>||morning|sunset||</code> 随机选取一项，用 <code>1.2::soft light::</code> 调整权重。 V3
-              的 <code>cat|fox:0.4</code> 可混合提示词，V4 及以上可使用独立多角色。
+              V4 及以上支持 <code>2girls | girl, red hair | girl, blue hair</code>。第一段描述画面，后面每段对应一个角色。
+              竖线可以单独占一行。独立角色栏中的角色会依次接在后面。
+            </p>
+            <p>
+              用 <code>||morning|sunset||</code> 随机选取一项，用 <code>1.2::soft light::</code> 调整权重。
+              V3 的 <code>cat|fox:0.4</code> 可混合提示词。
             </p>
           </details>
         </div>

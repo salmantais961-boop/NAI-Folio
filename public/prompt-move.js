@@ -48,7 +48,7 @@ export function promptMoveParts(text) {
       depth = Math.max(0, depth - 1);
       continue;
     }
-    if (!numeric && !depth && /[,，、\n|]/.test(text[i])) {
+    if (!numeric && !depth && /[,，、\n|｜]/.test(text[i])) {
       finish(i);
       start = i + 1;
     }

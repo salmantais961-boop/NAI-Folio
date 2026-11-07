@@ -109,8 +109,35 @@ test('macros, roles, random previews, and V3 mixing retain their distinct counti
   assert.equal(random.positive[0], 'a long-haired dog')
   const mixed = prepareTokenInputs({ ...initial, model: 'nai-diffusion-3' }, 'a cat:0.5 | a dog:0.5', '', (text) => text)
   assert.deepEqual(summarizeTokenCounts(mixed, [5, 7, 0]).positive, { total: 7, base: 5, characters: 0, parts: [5, 7] })
-  assert.throws(() => prepareTokenInputs({ ...settings, characters: [{ prompt: 'role', negative: '' }] }, 'scene | person', '', (text) => text), /择一/)
   assert.equal(prepareTokenInputs({ ...initial, mode: 'upscale' }, 'cat', '').inactive, true)
+})
+
+test('pipe roles and independent roles share the same captions and budget as generation', () => {
+  const slots = [
+    { prompt: 'OC, red eyes', negative: 'hat', enabled: true, x: .2, y: .8 },
+    { prompt: 'hidden role', negative: 'hidden exclusion', enabled: false },
+    { prompt: '  ', negative: '' },
+  ]
+  const plain = text => text
+  for (const [model, , family] of MODELS.filter(([, , family]) => family !== 'v3')) {
+    const settings = { ...initial, model, characters: slots, seed: 1 }
+    for (const separator of [' | ', '\n|\n', ' ｜ ']) {
+      const positive = ['at a station', 'girl, hat', 'boy, scarf'].join(separator)
+      const negative = ['blurry', 'glasses', 'coat'].join(separator)
+      const prepared = prepareTokenInputs(settings, positive, negative, plain)
+      const { body } = requestFor(settings, positive, negative)
+      assert.deepEqual(prepared.positive, ['at a station', 'girl, hat', 'boy, scarf', 'OC, red eyes'])
+      assert.deepEqual(prepared.negative, ['blurry', 'glasses', 'coat', 'hat'])
+      assert.deepEqual(prepared.positive, [body.input, ...body.parameters.v4_prompt.caption.char_captions.map(c => c.char_caption)])
+      assert.deepEqual(prepared.negative, [body.parameters.negative_prompt, ...body.parameters.v4_negative_prompt.caption.char_captions.map(c => c.char_caption)])
+      assert.equal(prepared.characterCount, 3)
+    }
+    const max = family === 'v5' ? 22 : 6
+    const full = 'street' + ' | role'.repeat(max - 1)
+    assert.equal(prepareTokenInputs(settings, full, '', plain).characterCount, max)
+    assert.throws(() => prepareTokenInputs(settings, full + ' | extra', '', plain), new RegExp(String(max)))
+  }
+  assert.equal(prepareTokenInputs(initial, '', '', plain).characterCount, 0)
 })
 
 test('medium and enhance additions are counted and over-budget text is not truncated locally', async () => {
