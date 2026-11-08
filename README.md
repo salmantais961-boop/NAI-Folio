@@ -14,8 +14,10 @@
 
 | Windows x64 | 打开方式 | 下载 |
 | --- | --- | --- |
-| **Folio Desktop** · 桌面应用 | 从开始菜单打开 **Folio Desktop**，花标与 Folio 字标淡出后进入工作台。拖动导航留白可移动窗口，双击可最大化或还原。 | [安装 EXE · 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/desktop-v1.0.3/Folio-Desktop-1.0.3-windows-x64-setup.exe) · [桌面版说明与校验](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/desktop-v1.0.3) |
-| **Folio WebUI** · 浏览器工作台 | 完整解压便携包，双击 **启动工作台.cmd**，在浏览器中使用。 | [便携 ZIP · 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/NAI-Folio-1.0.3-windows-x64.zip) · [WebUI 说明与校验](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.3) |
+| **Folio Desktop** · 桌面应用 | 从开始菜单打开 **Folio Desktop**，花标与 Folio 字标淡出后进入工作台。拖动导航留白可移动窗口，双击可最大化或还原。 | [安装 EXE · 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/Folio-Desktop-1.0.3-windows-x64-setup.exe) |
+| **Folio WebUI** · 浏览器工作台 | 完整解压便携包，双击 **启动工作台.cmd**，在浏览器中使用。 | [便携 ZIP · 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/NAI-Folio-1.0.3-windows-x64.zip) |
+
+[1.0.3 更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.3) · [两个版本的 SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/SHA256SUMS.txt)
 
 两版分别在各自的本地配置中保存作品与账户。首次打开桌面版时，在右上角设置中连接自己的账号。桌面安装程序面向当前 Windows 用户，缺少 WebView2 时会下载微软运行时。
 
