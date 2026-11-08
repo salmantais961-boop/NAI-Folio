@@ -1,3 +1,5 @@
+mod shadow;
+
 use std::{io, ptr::null_mut, sync::Mutex};
 use windows_sys::Win32::{
     Foundation::{HWND, LPARAM, LRESULT, RECT, WPARAM},
@@ -12,10 +14,11 @@ use windows_sys::Win32::{
         HiDpi::GetDpiForWindow,
         Shell::{DefSubclassProc, RemoveWindowSubclass, SetWindowSubclass},
         WindowsAndMessaging::{
-            GetWindowLongW, GetWindowRect, IsIconic, IsZoomed, MessageBoxW, SetWindowLongW,
-            SetWindowPos, GWL_EXSTYLE, GWL_STYLE, MB_ICONERROR, MB_OK, MINMAXINFO, STYLESTRUCT,
-            SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER,
-            WM_GETMINMAXINFO, WM_NCDESTROY, WM_STYLECHANGING, WS_CAPTION, WS_EX_WINDOWEDGE,
+            DestroyWindow, GetWindowLongW, GetWindowRect, IsIconic, IsZoomed, MessageBoxW,
+            SetWindowLongW, SetWindowPos, GWL_EXSTYLE, GWL_STYLE, MB_ICONERROR, MB_OK, MINMAXINFO,
+            STYLESTRUCT, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER,
+            WM_DPICHANGED, WM_GETMINMAXINFO, WM_NCDESTROY, WM_STYLECHANGING, WM_WINDOWPOSCHANGED,
+            WS_CAPTION, WS_EX_WINDOWEDGE,
         },
     },
 };
@@ -34,7 +37,7 @@ unsafe extern "system" fn borderless_proc(
     wparam: WPARAM,
     lparam: LPARAM,
     id: usize,
-    _: usize,
+    shadow_handle: usize,
 ) -> LRESULT {
     if message == WM_STYLECHANGING {
         // Tao re-applies its complete style on visibility/maximize transitions.
@@ -59,6 +62,10 @@ unsafe extern "system" fn borderless_proc(
             limits.ptMaxSize.y = work.bottom - work.top;
         }
         return result;
+    } else if matches!(message, WM_WINDOWPOSCHANGED | WM_DPICHANGED) {
+        let result = DefSubclassProc(hwnd, message, wparam, lparam);
+        shadow::sync(hwnd, shadow_handle as HWND);
+        return result;
     } else if message == WM_NCDESTROY {
         RemoveWindowSubclass(hwnd, Some(borderless_proc), id);
     }
@@ -67,7 +74,11 @@ unsafe extern "system" fn borderless_proc(
 
 pub fn install(hwnd: HWND) -> io::Result<()> {
     unsafe {
-        if SetWindowSubclass(hwnd, Some(borderless_proc), 1, 0) == 0 {
+        let shadow = shadow::create(hwnd);
+        if SetWindowSubclass(hwnd, Some(borderless_proc), 1, shadow as usize) == 0 {
+            if !shadow.is_null() {
+                DestroyWindow(shadow);
+            }
             return Err(io::Error::other("无法初始化桌面窗口边框。"));
         }
         for index in [GWL_STYLE, GWL_EXSTYLE] {
@@ -128,7 +139,7 @@ impl Corners {
                 SetWindowRgn(hwnd, null_mut(), 1);
                 return;
             }
-            let diameter = ((36 * dpi + 48) / 96) as i32;
+            let diameter = ((2 * shadow::RADIUS_DIP as u32 * dpi + 48) / 96) as i32;
             let region = CreateRoundRectRgn(0, 0, width + 1, height + 1, diameter, diameter);
             if !region.is_null() && SetWindowRgn(hwnd, region, 1) == 0 {
                 // Windows owns the HRGN only when SetWindowRgn succeeds.
