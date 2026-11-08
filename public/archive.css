@@ -34,9 +34,27 @@
   font: 12px/1.6 var(--sans);
   overflow-wrap: anywhere;
 }
+#app {
+  --archive-inset: 6px;
+  --archive-radius: 12px;
+}
+/* Round the fixed viewing edge even when the middle of a tile scrolls beneath it. */
+.app-top:has(~ #archive:not([hidden]))::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  height: var(--archive-radius);
+  pointer-events: none;
+  --corner-stops: transparent calc(var(--archive-radius) - .5px), var(--paper) calc(var(--archive-radius) + .5px);
+  background:
+    radial-gradient(circle at right bottom, var(--corner-stops)) left top no-repeat,
+    radial-gradient(circle at left bottom, var(--corner-stops)) right top no-repeat;
+  background-size: calc(var(--archive-inset) + var(--archive-radius)) 100%;
+}
 .archive {
   max-width: none;
-  padding-inline: 6px;
+  padding-inline: var(--archive-inset);
 }
 .archive .studio-heading,
 .archive > .section-rule {
@@ -72,7 +90,6 @@
   margin: 0;
   padding: 0;
   min-width: 0;
-  --archive-radius: 12px;
 }
 .archive-card:hover,
 .archive-card:focus-within,
@@ -367,8 +384,8 @@
   }
 }
 @media (max-width: 639px) {
-  .archive {
-    padding-inline: 3px;
+  #app {
+    --archive-inset: 3px;
   }
   #archive-grid {
     --archive-columns: 2;

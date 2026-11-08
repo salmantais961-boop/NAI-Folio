@@ -17,6 +17,13 @@
   min-width: 0;
   overflow: visible;
 }
+.compose-scroll,
+.compose-panel.gd-column-scroll {
+  scrollbar-gutter: stable;
+}
+.compose-panel:not(.gd-column-scroll) .generate-foot {
+  margin-inline-end: calc(10px + var(--compose-scroll-gutter, 0px));
+}
 .compose-panel.gd-column-scroll {
   overflow-y: auto;
   overflow-x: hidden;

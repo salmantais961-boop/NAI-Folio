@@ -1126,6 +1126,7 @@ function createBlockLibrary(slot, studio) {
   changeView('browse');
   return {
     open,
+    close,
     setTarget,
     forget(field) {
       if (target === field) setTarget(null);
@@ -1136,6 +1137,9 @@ function createBlockLibrary(slot, studio) {
   };
 }
 
+export function closeBlockLibrary() {
+  blockLibrary?.close();
+}
 export function openBlockLibrary(field, options = {}) {
   if (!field?.isConnected) return;
   const slot = document.getElementById('block-library-slot'),

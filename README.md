@@ -8,10 +8,12 @@
 
 | Windows x64 | 怎么打开 |
 | --- | --- |
-| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/Folio-Desktop-1.0.3-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。拖动导航栏的空白处可以移动窗口，双击可以最大化。 |
-| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/NAI-Folio-1.0.3-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
+| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.10/Folio-Desktop-1.10-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
+| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.10/NAI-Folio-1.10-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
 
-两个下载都在 1.0.3 发布页，校验文件也放在那里。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.3) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/SHA256SUMS.txt)
+两个下载都在 1.10 发布页，校验文件也放在那里。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.10) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.10/SHA256SUMS.txt)
+
+在桌面版的 **Agent** 里试试「找一下这个角色，画一张雨夜的侧脸」。你可以锁定画风和负面词，Agent 会按当前 NAI 模型的 token 预算写提示词。想知道它查了什么，展开回复里的工具记录，就能看到查询和返回。需要上网查角色时，在设置里配置自己的官方 DeepSeek 连接，即可搜索和读取网页。[桌面 Agent 使用指南](docs/desktop-agent.md)
 
 第一次打开，点右上角 **连接 NovelAI**，填自己的 API Key。如果只想试画一次，选 **仅本次使用**。想下次接着用，就选 **保存并使用**。这里也能添加和切换多个账户。用中转站时选 **NAI API 中转站**，填服务商提供的兼容 NovelAI 原生协议的地址。
 

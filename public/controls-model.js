@@ -141,7 +141,40 @@ export function prepareCharacterCaptions(prompt, negative, slots = [], maxCharac
   return { prompt: base, negative: baseUC, characters }
 }
 
-export function requestFor(d, basePrompt, baseNegative) {
+export function formatImageBaseCaptions(d, basePrompt, baseNegative, { lockNegative = false } = {}) {
+  const cap = capabilities(d), medium = cap.medium && d.medium
+  const quality =
+    d.quality === 'off'
+      ? ''
+      : cap.v5 && d.quality === 'light'
+        ? 'very aesthetic, amazing quality, no text'
+        : qualityByModel[MODELS.findIndex(([id]) => id === d.model)]
+  const raw = basePrompt.trim()
+  const [first, ...mix] = cap.modern ? [raw] : raw.split('|')
+  const weight = mix.length ? first.match(/\s*:\s*-?(?:\d+(?:\.\d+)?|\.\d+)\s*$/)?.[0] || '' : ''
+  const weightedBase = weight ? first.slice(0, -weight.length) : first
+  const promptBase = [
+    cap.modern && d.dataset === 'furry'
+      ? 'fur dataset'
+      : cap.family !== 'v4' && cap.modern && d.dataset === 'background'
+        ? 'background dataset'
+        : '',
+    weightedBase,
+    quality,
+    cap.v5 && d.transparent ? 'transparent background' : '',
+    d.mode === 'img2img' && d.enhance === 'normal' && ['v45', 'v5'].includes(cap.family)
+      ? '-2::upscaled, blurry::'
+      : '',
+  ]
+    .filter(Boolean)
+    .join(', ')
+  const prompt = [promptBase + weight, ...mix].join('|')
+  const ucTag = UC[d.model][medium ? 'heavy' : d.uc] || ''
+  const negative = lockNegative ? baseNegative : [ucTag, baseNegative?.trim()].filter(Boolean).join(', ')
+  return { prompt, negative }
+}
+
+export function requestFor(d, basePrompt, baseNegative, { lockNegative = false } = {}) {
   const cap = capabilities(d),
     src = d.source
   if (d.mode !== 'generate') check(src && isPng(src.data), '请先导入底图。')
@@ -193,10 +226,19 @@ export function requestFor(d, basePrompt, baseNegative) {
   )
   let chars = []
   if (cap.modern) {
-    const captions = prepareCharacterCaptions(basePrompt, baseNegative, d.characters, cap.chars)
+    const lanes = lockNegative ? d.characters.map(c => ({ ...c, negative: '' })) : d.characters
+    const captions = prepareCharacterCaptions(basePrompt, baseNegative, lanes, cap.chars)
     basePrompt = captions.prompt
-    baseNegative = captions.negative
-    chars = captions.characters
+    if (lockNegative) {
+      // Preserve weights, repeated tags, punctuation and whitespace from the user's
+      // frozen text. An explicit pipe still addresses the corresponding NovelAI lane.
+      const [base, ...roleText] = baseNegative.split(/[|｜]/)
+      baseNegative = base
+      chars = captions.characters.map((c, i) => ({ ...c, negative: roleText[i] ?? '' }))
+    } else {
+      baseNegative = captions.negative
+      chars = captions.characters
+    }
     check(basePrompt || chars.length, '请先输入正向提示词或角色描述。')
   }
   const medium = cap.medium && d.medium
@@ -205,34 +247,7 @@ export function requestFor(d, basePrompt, baseNegative) {
       !baseNegative?.trim() && !chars.some((c) => c.negative.trim()),
       'Medium Effort 使用固定负面词，请清空自定义负面词，或将运算强度切回 High。',
     )
-  const quality =
-    d.quality === 'off'
-      ? ''
-      : cap.v5 && d.quality === 'light'
-        ? 'very aesthetic, amazing quality, no text'
-        : qualityByModel[MODELS.findIndex(([id]) => id === d.model)]
-  const raw = basePrompt.trim()
-  const [first, ...mix] = cap.modern ? [raw] : raw.split('|')
-  const weight = mix.length ? first.match(/\s*:\s*-?(?:\d+(?:\.\d+)?|\.\d+)\s*$/)?.[0] || '' : ''
-  const weightedBase = weight ? first.slice(0, -weight.length) : first
-  const promptBase = [
-    cap.modern && d.dataset === 'furry'
-      ? 'fur dataset'
-      : cap.family !== 'v4' && cap.modern && d.dataset === 'background'
-        ? 'background dataset'
-        : '',
-    weightedBase,
-    quality,
-    cap.v5 && d.transparent ? 'transparent background' : '',
-    d.mode === 'img2img' && d.enhance === 'normal' && ['v45', 'v5'].includes(cap.family)
-      ? '-2::upscaled, blurry::'
-      : '',
-  ]
-    .filter(Boolean)
-    .join(', ')
-  const prompt = [promptBase + weight, ...mix].join('|')
-  const ucTag = UC[d.model][medium ? 'heavy' : d.uc] || ''
-  const negative = [ucTag, baseNegative?.trim()].filter(Boolean).join(', ')
+  const { prompt, negative } = formatImageBaseCaptions(d, basePrompt, baseNegative, { lockNegative })
   const seed = d.seed ?? seedNumber()
   const p = {
     params_version: 4,

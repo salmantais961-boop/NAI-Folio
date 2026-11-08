@@ -73,6 +73,17 @@ async function request(kind, query, options = {}) {
   });
 }
 
+/** Use the same index, aliases and appearance tags as the local picker. */
+export async function searchAgentCatalog(kind, query) {
+  if (!['character', 'artist', 'tags'].includes(kind) || !query.trim()) return [];
+  const result = await request(kind, query, { limit: 6, includeDetails: kind === 'character', channel: 'agent-' + kind });
+  return result.results.map(row => {
+    if (kind === 'tags') return { tag: row[0], name: row[1] || row[0] };
+    const { id, name, displayName, series, prompt } = catalogSelection(row, kind, result.details?.[row[0]] || []);
+    return { id, name, displayName, series, prompt };
+  });
+}
+
 /** Resolve identities from expanded positive captions using the local catalog only. */
 export async function findReferencedCharacters(texts) {
   const captions = (Array.isArray(texts) ? texts : []).filter(

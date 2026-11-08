@@ -15,8 +15,8 @@ const zip = path.join(build, 'Folio-desktop-windows-x64.zip');
 const runtime = path.join(backend, 'runtime');
 const nodeVersion = 'v24.22.2';
 
-async function assertBuildFolder(folder) {
-  if (path.dirname(folder) !== build || await realpath(build) !== build)
+async function assertBuildFolder(folder, parent = build) {
+  if (path.dirname(folder) !== parent || await realpath(parent) !== parent)
     throw Error('桌面构建目录路径无效。');
   const existing = await lstat(folder).catch(error => {
     if (error.code !== 'ENOENT') throw error;
@@ -46,6 +46,8 @@ async function runtimeFile(name, url, expectedHash) {
 }
 
 async function prepare() {
+  await mkdir(build, { recursive: true });
+  await assertBuildFolder(backend);
   await mkdir(runtime, { recursive: true });
   await writeDesktopNotices(root, path.join(build, 'notices'));
   if (await assertBuildFolder(frontend)) await rm(frontend, { recursive: true });
@@ -62,10 +64,18 @@ async function prepare() {
   // The desktop shell presents its own opening on every launch.
   const desktopPage = markup.replace(/<!-- web-cover -->[\s\S]*?<!-- \/web-cover -->/g, '')
     .replace(charset, charset + '\n    <script src="/desktop-api.js"></script>')
-    .replace('</head>', '  <link rel="stylesheet" href="/desktop-workspace.css" />\n  </head>');
+    .replace('<button id="archive-nav"', '<button id="agent-nav" type="button">Agent</button><button id="archive-nav"')
+    .replace('<div class="compose-scroll" id="editor-scroll">', '<div id="desktop-agent" class="desktop-agent-host" hidden></div><div class="compose-scroll" id="editor-scroll">')
+    .replace('</head>', '  <link rel="stylesheet" href="/desktop-workspace.css" />\n  <link rel="stylesheet" href="/desktop-agent.css" />\n  </head>');
   await writeFile(index, desktopPage);
   await copyFile(path.join(root, 'desktop', 'api-client.js'), path.join(frontend, 'desktop-api.js'));
   await copyFile(path.join(root, 'desktop', 'bridge.mjs'), path.join(backend, 'bridge.mjs'));
+  // Make the packaged sidecar reflect the current source tree, including removed integrations.
+  const agent = path.join(backend, 'agent');
+  if (await assertBuildFolder(agent, backend)) await rm(agent, { recursive: true });
+  await cp(path.join(root, 'desktop', 'agent'), agent, { recursive: true });
+  await cp(path.join(root, 'desktop', 'frontend'), frontend, { recursive: true });
+  await copyFile(path.join(root, 'desktop', 'agent', 'providers', 'effort.mjs'), path.join(frontend, 'agent-effort.mjs'));
   await mkdir(path.join(backend, 'server'), { recursive: true });
   for (const file of ['novelai.mjs', 'image-response.mjs']) {
     await copyFile(path.join(root, 'server', file), path.join(backend, 'server', file));
@@ -91,6 +101,7 @@ async function packageApp(executable) {
   try {
     await mkdir(folder);
     await copyFile(executable, path.join(folder, 'Folio.exe'));
+    await cp(path.join(backend, 'agent'), path.join(folder, 'backend', 'agent'), { recursive: true });
     await cp(path.join(build, 'notices'), path.join(folder, 'notices'), { recursive: true });
     for (const file of ['bridge.mjs', 'runtime/node.exe', 'runtime/LICENSE', 'server/novelai.mjs', 'server/image-response.mjs']) {
       const dest = path.join(folder, 'backend', file);

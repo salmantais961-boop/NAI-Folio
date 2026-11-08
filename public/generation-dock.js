@@ -17,6 +17,10 @@ export function mountGenerationDock(host) {
     if (!panel.getClientRects().length) return;
     const available = panel.clientHeight;
     const flowing = panel.classList.contains('gd-column-scroll');
+    // Give the dock the same usable width whichever element owns the scrollbar.
+    if (!flowing && editor.offsetWidth) {
+      panel.style.setProperty('--compose-scroll-gutter', (editor.offsetWidth - editor.clientWidth) + 'px');
+    }
     const minimumEditor = Math.min(260, available * 0.42);
     const needsFlow = foot.offsetHeight + 20 + minimumEditor > available;
     if (needsFlow === flowing) return;

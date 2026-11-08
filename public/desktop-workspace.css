@@ -24,3 +24,13 @@
    close button when the image viewer covers the entire window. */
 dialog:modal:not(.pv-dialog) { max-height: calc(100dvh - 74px); }
 .pv-dialog:modal .pv-dialog-head { padding-inline-end: calc(var(--desktop-controls-right) + 92px); }
+
+#studio[data-agent] .compose-panel { overflow: hidden; }
+#studio[data-agent] .compose-panel > :is(.compose-scroll, .generate-foot) { display: none; }
+.desktop-agent-host:not([hidden]) {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}

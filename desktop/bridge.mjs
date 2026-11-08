@@ -54,7 +54,12 @@ function startBridge(token, signal) {
       if (req.method === 'OPTIONS') return preflight(req, res);
       if (!acceptsToken(req.headers[tokenHeader], expected))
         return json(res, 403, { error: '桌面会话已失效，请重新打开 Folio。' });
-      await handleApi(req, res, new URL(req.url, 'http://' + host));
+      const url = new URL(req.url, 'http://' + host);
+      if (url.pathname.startsWith('/api/agent-')) {
+        agentApi ??= import('./agent/api.mjs');
+        return await (await agentApi).handleAgent(req, res, url, signal, json);
+      }
+      await handleApi(req, res, url);
     } catch (error) {
       if (res.destroyed || res.writableEnded) return;
       if (res.headersSent) return res.destroy();
@@ -72,9 +77,11 @@ function startBridge(token, signal) {
 // stream when the parent crashes, without waiting for an upstream timeout.
 const lifetime = new AbortController();
 let server;
+let agentApi;
 function shutdown() {
   if (lifetime.signal.aborted) return;
   lifetime.abort();
+  void agentApi?.then(api => api.closeAgentSessions()).catch(() => {});
   // Destroy client streams first. The shared handler observes their close
   // event and aborts any active upstream request before Node releases libuv.
   server?.closeAllConnections();

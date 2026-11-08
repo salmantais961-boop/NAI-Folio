@@ -25,9 +25,6 @@ const parts = [
   '.pn-actions > *',
   '.pn-details',
   '.proof-progress',
-  '.pp-caption',
-  '.pp-label',
-  '.pp-label > *',
   '.pp-reading',
   '.pp-track',
   '.proof-dock-tools',
@@ -62,7 +59,12 @@ export function captureProofChrome(studio) {
 }
 
 export function moveProofChrome(studio, before, timing) {
+  // Read the dock's new natural height before the morph takes its rows out of flow.
+  // Keep that target for the hand-off back to its normal height transition.
+  studio.classList.add('blocks-chrome-morph');
   const after = captureProofChrome(studio);
+  const dock = studio.querySelector('.proof-foot');
+  dock.style.setProperty('--dock-height', getComputedStyle(dock).height);
   const originals = new Map(before.map((entry) => [entry.element, entry]));
   const stableContents = new Set(
     after
@@ -81,7 +83,6 @@ export function moveProofChrome(studio, before, timing) {
   );
   const cleanups = [],
     animations = [];
-  studio.classList.add('blocks-chrome-morph');
   for (const end of after) {
     const element = end.element,
       start = originals.get(element);

@@ -1,132 +1,93 @@
-/* A quiet running caption for the task, separate from the displayed image META. */
-.proof-progress {
+/* The rail lives in the dock's rounded top edge. The inner grid keeps its
+   intrinsic height while the dock and the canvas above it ease to new sizes. */
+.proof-foot {
+  position: relative;
+  align-content: start;
+  overflow: clip;
+  height: var(--dock-height, auto);
+  transition: height 300ms cubic-bezier(.22,.74,.28,1);
+}
+.blocks-chrome-morph .proof-foot {
+  height: auto;
+  transition: none;
+}
+.proof-foot-body {
   grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: inherit;
+  align-items: start;
+  align-self: start;
+  gap: inherit;
   min-width: 0;
-  padding-block: 1px 2px;
-  color: var(--mute);
+}
+.proof-progress {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: clip;
+  border-radius: inherit;
+  pointer-events: none;
 }
 .proof-progress[hidden] {
   display: none;
 }
-.pp-caption {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 7px;
-  font: 9px/1.5 var(--sans);
-}
-.pp-label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  min-width: 0;
-}
-.pp-title {
-  color: var(--ink);
-  white-space: nowrap;
-}
-.pp-context {
-  font: 8px/1.4 var(--mono);
-  color: var(--mute);
-}
-.pp-reading {
-  font: 9px/1.5 var(--mono);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-  white-space: nowrap;
-}
-.pp-signal {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex: none;
-  opacity: 0.7;
-}
 .pp-track {
   position: relative;
   height: 3px;
-  border-radius: 8px;
   overflow: hidden;
-  background: color-mix(in srgb, var(--ink) 9%, transparent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
 }
-.pp-fill {
+.pp-fill,
+.pp-glint {
   position: absolute;
   inset: 0;
+}
+.pp-fill {
   background: var(--accent);
-  border-radius: inherit;
   transform-origin: left;
   transform: scaleX(var(--pp-ratio, 0));
-  transition: transform 380ms cubic-bezier(0.2, 0.7, 0.25, 1);
+  transition: transform 380ms cubic-bezier(.2,.7,.25,1);
 }
 .proof-progress[data-measured='false'] .pp-fill {
   opacity: 0;
   transition: none;
 }
 .pp-glint {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--accent) 23%, transparent),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent 12%, var(--accent), transparent 88%);
+  opacity: .72;
   translate: -100% 0;
-  animation: pp-wait 2.6s ease-in-out infinite;
+  animation: pp-wait 2s ease-in-out infinite;
 }
 .proof-progress[data-measured='true'] .pp-glint {
-  opacity: 0.18;
-  background: linear-gradient(90deg, transparent, var(--white), transparent);
+  display: none;
 }
-.proof-progress[data-phase='complete'] .pp-signal {
-  width: 7px;
-  height: 4px;
-  border: solid var(--accent);
-  border-width: 0 0 1px 1px;
-  border-radius: 0;
-  background: none;
-  transform: rotate(-45deg);
-  opacity: 1;
+.pp-reading {
+  position: absolute;
+  inset: 4px 14px auto;
+  overflow: hidden;
+  color: var(--mute);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 9px/1 var(--mono);
+  font-variant-numeric: tabular-nums;
 }
 .proof-progress[data-phase='complete'] .pp-reading {
   color: var(--accent);
 }
-.proof-progress[data-phase='complete'] .pp-glint {
-  animation: none;
-  opacity: 0;
-}
 @keyframes pp-wait {
-  0%,
-  10% {
-    translate: -100% 0;
-  }
-  90%,
-  100% {
-    translate: 100% 0;
-  }
+  to { translate: 100% 0; }
 }
 @container proof (max-width: 650px) {
-  .pp-caption {
-    gap: 7px;
-    font-size: 8px;
-    margin-bottom: 5px;
-  }
   .pp-reading {
     font-size: 8px;
   }
-  .pp-context {
-    display: none;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pp-fill {
-    transition: none;
-  }
+  .proof-foot,
+  .pp-fill { transition: none; }
   .pp-glint {
     animation: none;
     translate: 0 0;
-    opacity: 0.35;
   }
 }

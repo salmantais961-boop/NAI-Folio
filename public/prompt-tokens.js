@@ -113,9 +113,13 @@ function counterClient() {
         worker.postMessage({ id, type, texts })
       })
     },
-    destroy() { fail('Token 计数已停止。') },
+    releaseIfIdle() { if (!pending.size) { worker?.terminate(); worker = null } },
   }
 }
+
+// The workbench and desktop Agent share one worker and one loaded vocabulary per model family.
+const sharedCounter = counterClient()
+export const countPromptTokens = (type, texts) => sharedCounter.count(type, texts)
 
 function createMeter(field, label) {
   const meter = document.createElement('div')
@@ -153,7 +157,6 @@ function createMeter(field, label) {
 export function mountPromptTokens({ positive, negative, getSettings, onResult } = {}) {
   if (!positive || !negative || typeof getSettings !== 'function') throw Error('缺少提示词计数挂载参数。')
   const meters = { positive: createMeter(positive, '正向'), negative: createMeter(negative, '负面') }
-  const client = counterClient()
   let timer, version = 0, disposed = false, lastKey = ''
   function status(message, state = 'unavailable') {
     for (const ui of Object.values(meters)) {
@@ -205,7 +208,7 @@ export function mountPromptTokens({ positive, negative, getSettings, onResult } 
       stamp = ++version
       lastKey = key
       for (const ui of Object.values(meters)) ui.meter.classList.add('is-counting')
-      const counts = await client.count(prepared.spec.type, [...prepared.positive, ...prepared.negative])
+      const counts = await countPromptTokens(prepared.spec.type, [...prepared.positive, ...prepared.negative])
       if (disposed || stamp !== version) return
       const result = summarizeTokenCounts(prepared, counts)
       paint('positive', result.positive, prepared)
@@ -232,7 +235,7 @@ export function mountPromptTokens({ positive, negative, getSettings, onResult } 
       disposed = true
       version++
       clearTimeout(timer)
-      client.destroy()
+      sharedCounter.releaseIfIdle()
       unwatch()
       for (const field of [positive, negative]) { field.removeEventListener('input', refresh); field.removeEventListener('change', refresh) }
       document.removeEventListener('chunkschange', refresh)

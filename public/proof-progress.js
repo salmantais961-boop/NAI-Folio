@@ -35,19 +35,41 @@ export function summarizeStepProgress(state) {
   };
 }
 
+// The notebook, tools and palette have different natural heights when the canvas
+// changes state. Measure the unconstrained content so an interrupted resize can
+// continue from the height currently on screen, without resizing our observer.
+function watchDockHeight(foot, body) {
+  const observer = new ResizeObserver(([entry]) => {
+    if (foot.closest('.blocks-chrome-morph')) return;
+    const { height } = entry.contentRect;
+    if (!height) {
+      foot.style.removeProperty('--dock-height');
+      return;
+    }
+    const style = getComputedStyle(foot);
+    const target = height + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) +
+      parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+    foot.style.setProperty('--dock-height', target + 'px');
+  });
+  observer.observe(body);
+}
+
 export function mountProofProgress(foot) {
+  const body = document.createElement('div');
+  body.className = 'proof-foot-body';
+  body.append(...foot.children);
+  foot.append(body);
   const root = document.createElement('section');
   root.className = 'proof-progress';
   root.hidden = true;
   root.setAttribute('aria-label', '当前生成任务进度');
-  root.innerHTML = `<div class="pp-caption"><span class="pp-label"><i class="pp-signal" aria-hidden="true"></i><span class="pp-title"></span><small class="pp-context"></small></span><span class="pp-reading"></span></div><div class="pp-track" role="progressbar" aria-label="已回传的采样步骤"><i class="pp-fill"></i><i class="pp-glint" aria-hidden="true"></i></div>`;
-  foot.insertBefore(root, foot.querySelector('.proof-dock-tools'));
-  const title = root.querySelector('.pp-title');
-  const context = root.querySelector('.pp-context');
+  root.innerHTML = `<div class="pp-track" role="progressbar" aria-label="已回传的采样步骤"><i class="pp-fill"></i><i class="pp-glint" aria-hidden="true"></i></div><span class="pp-reading" aria-hidden="true"></span>`;
+  foot.prepend(root);
   const reading = root.querySelector('.pp-reading');
   const track = root.querySelector('.pp-track');
   const fill = root.querySelector('.pp-fill');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  watchDockHeight(foot, body);
   let state = createStepProgress();
   let active = false,
     done = false,
@@ -68,7 +90,7 @@ export function mountProofProgress(foot) {
     root.dataset.phase = done ? 'complete' : progress.known ? 'sampling' : 'waiting';
     root.dataset.background = String(!viewing);
     root.dataset.measured = String(done || progress.ratio != null);
-    title.textContent = done
+    const title = done
       ? viewing
         ? '显影完成'
         : '后台任务已完成'
@@ -79,7 +101,7 @@ export function mountProofProgress(foot) {
           : mode === 'augment'
             ? '图像处理中'
             : '正在显影';
-    context.textContent = done
+    const context = done
       ? '新作已就绪'
       : stream
         ? '流式回传' + (state.samples > 1 ? ' · ' + state.samples + ' 张' : '')
@@ -107,7 +129,7 @@ export function mountProofProgress(foot) {
             : '等待连接';
     const ratio = done ? 1 : progress.ratio;
     root.style.setProperty('--pp-ratio', ratio ?? 0);
-    track.setAttribute('aria-valuetext', reading.textContent);
+    track.setAttribute('aria-valuetext', [title, context, reading.textContent].join(' · '));
     if (ratio != null) {
       track.setAttribute('aria-valuemin', '0');
       track.setAttribute('aria-valuemax', '100');
@@ -126,8 +148,8 @@ export function mountProofProgress(foot) {
     if (wasHidden && !reduced.matches) {
       motion = root.animate(
         [
-          { opacity: 0, translate: '0 4px' },
-          { opacity: 1, translate: '0 0' },
+          { opacity: 0 },
+          { opacity: 1 },
         ],
         {
           duration: 300,
@@ -189,7 +211,7 @@ export function mountProofProgress(foot) {
           clear();
           return;
         }
-        const animation = root.animate([{ opacity: 1 }, { opacity: 0, translate: '0 -3px' }], {
+        const animation = root.animate([{ opacity: 1 }, { opacity: 0 }], {
           duration: 320,
           easing: 'cubic-bezier(.3,0,.3,1)',
           fill: 'forwards',

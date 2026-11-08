@@ -1,6 +1,6 @@
 import { two } from './plates.js';
 import { createRatingBadge, loadIcons, setIcon } from './icons.js';
-import { openCatalog, mountSuggestionSource, findReferencedCharacters, configureCatalog } from './catalog.js';
+import { openCatalog, mountSuggestionSource, findReferencedCharacters, configureCatalog, searchAgentCatalog } from './catalog.js';
 import { mountControls } from './studio-controls.js';
 import { capabilities } from './controls-model.js';
 import {
@@ -20,7 +20,7 @@ import {
   reference,
   replaceEditorRange,
 } from './chunks.js';
-import { mountPromptTools, bindPromptField, configurePromptAtlas } from './prompt-tools.js';
+import { mountPromptTools, bindPromptField, configurePromptAtlas, closeBlockLibrary } from './prompt-tools.js';
 import { mountCharacterImport } from './character-import.js';
 import { planCharacterMigration } from './character-sections.js';
 import { mountAtlas } from './atlas.js';
@@ -136,6 +136,8 @@ const archiveScoring = mountArchiveScoring($('archive-score-controls'), {
 let archiveQuery = '',
   currentScreen = 'studio';
 const screenScroll = new Map();
+let desktopAgent;
+const screenNode = name => $(name === 'agent' ? 'studio' : name);
 const atlas = mountAtlas($('atlas'), {
   getWorks: () => works,
   onUse: async (entry) => {
@@ -329,8 +331,19 @@ function setScreen(target, viewTransition = false) {
   if (changed && currentScreen === 'archive') archiveBatch.close();
   if (changed) screenScroll.set(currentScreen, window.scrollY);
   currentScreen = screen;
+  const agentMode = screen === 'agent';
+  if ($('agent-nav')) {
+    $('studio').toggleAttribute('data-agent', agentMode);
+    $('desktop-agent').hidden = !agentMode;
+    $('agent-nav').removeAttribute('aria-current');
+    $('studio').querySelector('.compose-panel').setAttribute('aria-label', agentMode ? 'Agent 对话' : '创作参数');
+    $('studio').querySelector('[data-view="compose"]').textContent = agentMode ? '对话' : '创作';
+    if (agentMode) { closeBlockLibrary(); desktopAgent?.activate(); if (changed) setPanel('compose'); }
+    else desktopAgent?.deactivate();
+    if (changed && desktopAgent && (agentMode || screen === 'studio')) syncCanvasSettings();
+  }
   for (const id of ['studio', 'archive', 'atlas']) {
-    $(id).hidden = id !== screen;
+    $(id).hidden = $(id) !== screenNode(screen);
     $(id + '-nav').toggleAttribute('aria-current', id === screen);
   }
   $(screen + '-nav').setAttribute('aria-current', 'page');
@@ -340,9 +353,9 @@ function setScreen(target, viewTransition = false) {
   if (changed) {
     // Animate the content, keeping the shared masthead fixed and immediately usable.
     studioEntrance.cancel();
-    if (screen === 'studio') studioEntrance.play();
+    if (screen === 'studio' || agentMode) studioEntrance.play();
     else if (!viewTransition) finish.enter($(screen));
-    revealHeadings($(screen), viewTransition ? 120 : 40);
+    revealHeadings(screenNode(screen), viewTransition ? 120 : 40);
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         if (currentScreen === screen)
@@ -356,15 +369,16 @@ function navigateScreen(target) {
   studioEntrance.cancel();
   screenExit.cancel();
   if (currentScreen === screen) return;
+  if (screenNode(currentScreen) === screenNode(screen)) { setScreen(screen); return; }
   const scrollAfter = screenScroll.get(screen) || 0;
   const swapped = transitionScreen(
     () => {
       setScreen(screen, true);
       window.scrollTo({ top: scrollAfter, behavior: 'instant' });
     },
-    { scrollAfter, layered: screen === 'studio' },
+    { scrollAfter, layered: screenNode(screen) === $('studio') },
   );
-  if (!swapped) screenExit.play($(currentScreen), () => setScreen(screen));
+  if (!swapped) screenExit.play(screenNode(currentScreen), () => setScreen(screen));
 }
 function useOC(entry) {
   const chunk = listChunks().find((item) => item.id === entry.chunkId || item.atlasId === entry.id);
@@ -770,21 +784,21 @@ function displayGeneration() {
 }
 function returnToGeneration() {
   if (activeGeneration && request && !request.signal.aborted) {
-    setScreen(false);
+    if (currentScreen !== 'agent') setScreen(false);
     setPanel('canvas');
     if (!activeGeneration.viewing) displayGeneration();
     return;
   }
   if (completedInBackground && works.some((work) => work.id === completedInBackground.id)) {
     showWork(completedInBackground);
-    setScreen(false);
+    if (currentScreen !== 'agent') setScreen(false);
     setPanel('canvas');
   }
 }
 function showEmpty() {
   leaveGeneration();
   current = null;
-  const settings = controls?.getSettings();
+  const settings = canvasSettings();
   preview('empty', '', '', '画布待命', settings ? settings.width + ' × ' + settings.height : '');
   proofNotebook?.setWork(null);
   proofNotebook?.setDraft(settings);
@@ -990,8 +1004,15 @@ function showPreview(frame) {
   $('generation-status').textContent = '正在生成 · ' + info;
 }
 async function generate(job = {}) {
-  if (request) return;
+  if (request) {
+    if (job.agent) throw Error('画布上还有一项生成任务，请等它完成后再发送。');
+    return;
+  }
+  job.signal?.throwIfAborted();
   request = new AbortController();
+  const generationRequest = request;
+  const cancelJob = () => generationRequest.abort();
+  job.signal?.addEventListener('abort', cancelJob, { once: true });
   activeGeneration = {
     viewing: true,
     prepared: false,
@@ -1007,7 +1028,7 @@ async function generate(job = {}) {
     submitted = { prompt: job.prompt ?? prompt.value, negative: job.negative ?? negative.value };
   // Capture provenance at submission, independently of browsing or editing the next draft.
   const submittedSettings = { ...controls.getSettings({ includeMedia: true }), ...job.settings };
-  const submittedReuse = structuredClone(lineageReuse);
+  const submittedReuse = job.agent ? [] : structuredClone(lineageReuse);
   const consumedReuses = new Set(submittedReuse.map(reuseToken));
   const submittedAtlas = ensureChunkEntries().catch(() => {
     notify('万象集暂时无法读取，本次仍可生成，但不会自动记录例图。');
@@ -1050,15 +1071,15 @@ async function generate(job = {}) {
   try {
     // Resolve and choose every caption once, before account/network awaits. Only
     // macros in the chosen random branch can claim a role identity or example.
-    const positive = resolvePromptReferences(submitted.prompt);
-    const undesired = resolvePromptReferences(submitted.negative);
+    const positive = job.agent ? { text: submitted.prompt, chunks: job.agent.positiveChunks } : resolvePromptReferences(submitted.prompt);
+    const undesired = job.agent ? { text: submitted.negative, chunks: job.agent.negativeChunks } : resolvePromptReferences(submitted.negative);
     const positiveReferenceIds = new Set(positive.chunks.map((chunk) => chunk.id));
     const usageReferenceIds = new Set([...positive.chunks, ...undesired.chunks].map((chunk) => chunk.id));
     const cap = capabilities(submittedSettings);
     const resolvedSettings = {
       ...submittedSettings,
       characters: (submittedSettings.characters || []).map((character) => {
-        if (character.enabled === false || !cap.imageMode || !cap.chars) return character;
+        if (job.agent || character.enabled === false || !cap.imageMode || !cap.chars) return character;
         const p = resolvePromptReferences(character.prompt || ''),
           n = resolvePromptReferences(character.negative || '');
         for (const chunk of p.chunks) positiveReferenceIds.add(chunk.id);
@@ -1079,6 +1100,7 @@ async function generate(job = {}) {
       signal,
       settings: resolvedSettings,
       resolvedPrompts: true,
+      lockNegative: job.agent?.lockNegative === true,
       accountSession: job.accountSession,
     });
     if (!result?.images?.length) throw Error('未收到图像，请检查接口响应。');
@@ -1223,6 +1245,8 @@ async function generate(job = {}) {
     } catch {
       $('generation-status').textContent = '已生成，但浏览器存储空间不足。请下载本次结果。';
     }
+    if (job.agent) return { workIds: batch.filter(w => !isHiddenWork(w)).map(w => w.id),
+      text: firstVisible ? $('generation-status').textContent : '图像已生成，当前内容设置已隐藏预览。' };
   } catch (e) {
     proofProgress.clear();
     pendingHistory.cancel();
@@ -1238,7 +1262,9 @@ async function generate(job = {}) {
     $('generation-status').textContent = signal.aborted
       ? '已停止等待。本次任务的计费以所用服务的账户记录为准。'
       : e.message || '生成请求失败。';
+    if (job.agent) throw e;
   } finally {
+    job.signal?.removeEventListener('abort', cancelJob);
     clearInterval(timer);
     if (pendingHistory.active) {
       pendingHistory.cancel();
@@ -1284,9 +1310,16 @@ function syncSettings() {
   billing.setSettings(config);
   proofActions?.refresh();
   promptTokens?.refresh();
-  proofNotebook?.setDraft(activeGeneration?.viewing ? activeGeneration.settings : controls.getSettings());
-  if ($('canvas-stage').dataset.state === 'empty')
-    $('image-info').textContent = config.width + ' × ' + config.height;
+  syncCanvasSettings();
+}
+function canvasSettings() {
+  return currentScreen === 'agent' && desktopAgent ? desktopAgent.getImageSettings() : controls?.getSettings();
+}
+function syncCanvasSettings() {
+  const settings = activeGeneration?.viewing ? activeGeneration.settings : canvasSettings();
+  proofNotebook?.setDraft(settings);
+  if (settings && $('canvas-stage').dataset.state === 'empty')
+    $('image-info').textContent = settings.width + ' × ' + settings.height;
 }
 controls = mountControls($('controls'), {
   modelHost: $('model-controls'),
@@ -1372,6 +1405,10 @@ proofNotebook = mountProofNotebook({
   onReturnGeneration: returnToGeneration,
   onUseRecipe: (work) => metaReuse.open(work),
   onUseSeed: (seed) => {
+    if (currentScreen === 'agent' && desktopAgent?.useSeed(seed)) {
+      notify('Agent 下一次生成将沿用种子 ' + seed);
+      return;
+    }
     controls.restore({ ...controls.getSettings({ includeMedia: true }), seed });
     if (current) lineageReuse = appendReuse(lineageReuse, current, ['seed'], { settings: { seed } });
     saveDraft();
@@ -1433,6 +1470,28 @@ $('clear-preview').onclick = showEmpty;
 $('artists').onclick = () => openCatalog('artist', activePrompt);
 $('characters').onclick = () => openCatalog('character', activePrompt);
 $('studio-nav').onclick = $('brand').onclick = () => navigateScreen(false);
+if ($('agent-nav')) {
+  let opening;
+  $('agent-nav').onclick = async () => {
+    try {
+      opening ??= import('./desktop-agent-studio.js').then(({ mount }) =>
+        desktopAgent = mount($('desktop-agent'), {
+          controls, generate, search: searchAgentCatalog, onImageSettingsChange: syncCanvasSettings,
+          openWork(id) {
+            const work = works.find(w => w.id === id);
+            if (!work || isHiddenWork(work)) return notify('这张作品已移除，或已被内容设置隐藏。');
+            showWork(work);
+            setPanel('canvas');
+          },
+        }));
+      await opening;
+      navigateScreen('agent');
+    } catch (error) {
+      opening = null;
+      notify(error.message || 'Agent 未能打开，请重新启动桌面版。');
+    }
+  };
+}
 $('archive-nav').onclick = () => navigateScreen(true);
 $('atlas-nav').onclick = () => navigateScreen('atlas');
 let searchTimer,
@@ -1513,6 +1572,7 @@ document.addEventListener('keydown', (e) => {
     !e.target.closest('.ap-panel') &&
     !$('app').hidden &&
     !$('studio').hidden &&
+    currentScreen !== 'agent' &&
     !document.querySelector('dialog[open]')
   ) {
     e.preventDefault();

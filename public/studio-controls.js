@@ -762,6 +762,7 @@ export function mountControls(el, callbacks = {}) {
     settings: override,
     accountSession,
     resolvedPrompts = false,
+    lockNegative = false,
   } = {}) {
     if (busy) throw Error('上一项生成仍在进行。')
     busy = true
@@ -779,7 +780,7 @@ export function mountControls(el, callbacks = {}) {
         }))
       snapshot.characters = job.characters.map((c) => ({ ...c }))
       const composite = job.mode === 'inpaint' && job.focusInpaint ? await focusInpaint(job) : null
-      const { operation, body, seed } = requestFor(job, prompt, negative)
+      const { operation, body, seed } = requestFor(job, prompt, negative, { lockNegative })
       await session.ensure()
       signal?.throwIfAborted()
       const stream = operation === 'generate-stream'
