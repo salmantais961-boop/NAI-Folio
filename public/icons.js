@@ -1,4 +1,6 @@
 const paths = {
+  tag: '<path d="M3.5 4.5v6.2l9.1 9.1a1.8 1.8 0 0 0 2.5 0l5-5a1.8 1.8 0 0 0 0-2.5l-9.1-9.1H4.8a1.3 1.3 0 0 0-1.3 1.3Z"/><circle cx="7.7" cy="7.4" r="1"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
   bookmark: '<path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4Z"/>',
   search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/>',
   lineage:
@@ -22,6 +24,7 @@ const paths = {
   sliders:
     '<path d="M3 6h9m4 0h5M3 12h3m4 0h11M3 18h11m4 0h3"/><circle cx="14" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/>',
   spark: '<path d="m12 2 2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2Z"/>',
+  r18: '<use href="/rating-18.svg#mark" width="24" height="24"/>',
   x: '<path d="m6 6 12 12M6 18 18 6"/>',
 };
 export function setIcon(el, name) {
@@ -32,4 +35,13 @@ export function setIcon(el, name) {
 }
 export function loadIcons() {
   document.querySelectorAll('[data-icon]').forEach((el) => setIcon(el, el.dataset.icon));
+}
+export function createRatingBadge(matches) {
+  const badge = document.createElement('span');
+  badge.className = 'nsfw-badge';
+  badge.setAttribute('role', 'img');
+  badge.setAttribute('aria-label', 'R18 · NSFW 图像');
+  badge.title = 'R18 · META 命中 ' + matches.join('、');
+  setIcon(badge, 'r18');
+  return badge;
 }

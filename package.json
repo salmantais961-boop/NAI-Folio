@@ -1,6 +1,6 @@
 {
   "name": "nai-folio",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "type": "module",
   "description": "A local NovelAI illustration workbench, prompt library, and image archive.",

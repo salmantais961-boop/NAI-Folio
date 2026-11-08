@@ -1,4 +1,6 @@
 import { listChunks, readChunks, watchChunks, saveChunk, removeChunk, updateChunkLink } from './chunks.js';
+import { atlasImageMatches, trackStoredCover } from './atlas-image-meta.js';
+import { classifyWorkNSFW, NSFW_RULES_VERSION } from './nsfw-tags.js';
 
 export const ATLAS_TYPES = Object.freeze({ material: '素材', oc: 'OC', example: '例图' });
 export const DEFAULT_CATEGORIES = Object.freeze(Object.values(ATLAS_TYPES));
@@ -103,7 +105,22 @@ export function watchAtlas(fn) {
   events.addEventListener('change', fn);
   return () => events.removeEventListener('change', fn);
 }
-export const getEntry = (id) => read('entries', id);
+async function saveCoverRating(entry, matches) {
+  const db = await database();
+  return new Promise((resolve, reject) => {
+    const txn = db.transaction('entries', 'readwrite'), store = txn.objectStore('entries');
+    const request = store.get(entry.id);
+    request.onsuccess = () => {
+      const current = request.result;
+      if (current && current.updated === entry.updated && current.sourceWorkId === entry.sourceWorkId &&
+          (current.imageNsfwVersion || 0) < NSFW_RULES_VERSION)
+        store.put({ ...current, imageNsfwTags: matches, imageNsfwVersion: NSFW_RULES_VERSION });
+    };
+    txn.oncomplete = resolve;
+    txn.onabort = () => reject(txn.error);
+  });
+}
+export const getEntry = async (id) => trackStoredCover(await read('entries', id), saveCoverRating);
 
 async function imageInfo(blob) {
   if (blob == null) return { blob: null, width: undefined, height: undefined };
@@ -165,8 +182,11 @@ async function putEntry(entry, prepare) {
 async function persistEntry(data, restoredChunk) {
   const previous = data.id ? await getEntry(data.id) : undefined;
   const entry = normalizeAtlasEntry(data, previous);
-  if (Object.hasOwn(data, 'blob') && data.blob !== previous?.blob)
+  if (Object.hasOwn(data, 'blob') && data.blob !== previous?.blob) {
     Object.assign(entry, await imageInfo(data.blob));
+    entry.imageNsfwTags = await atlasImageMatches(data);
+    entry.imageNsfwVersion = NSFW_RULES_VERSION;
+  }
   let beforeChunk, writtenChunk;
   const prepareChunk = () => {
     if (entry.type === 'material') return;
@@ -310,7 +330,7 @@ export function ensureChunkEntries() {
       };
     });
     if (updates.length) changed({ type: 'chunks', ids: updates.map((entry) => entry.id) });
-    return result;
+    return result.map(entry => trackStoredCover(entry, saveCoverRating));
   }).finally(() => {
     synchronizing = null;
   });
@@ -417,6 +437,7 @@ export function restoreEntry(snapshot) {
 export function setEntryImage(id, blob, { origin = 'manual', workId } = {}) {
   return mutate(async () => {
     const image = await imageInfo(blob),
+      imageNsfwTags = await atlasImageMatches({ blob, sourceWorkId: workId }),
       db = await database();
     const entry = await new Promise((resolve, reject) => {
       const transaction = db.transaction('entries', 'readwrite'),
@@ -431,6 +452,8 @@ export function setEntryImage(id, blob, { origin = 'manual', workId } = {}) {
         saved = {
           ...request.result,
           ...image,
+          imageNsfwTags,
+          imageNsfwVersion: NSFW_RULES_VERSION,
           imageOrigin: origin,
           sourceWorkId: workId || undefined,
           updated: Date.now(),
@@ -455,6 +478,8 @@ export function adoptWork(work, options = {}) {
     width: work.width,
     height: work.height,
     imageOrigin: 'manual',
+    imageNsfwTags: classifyWorkNSFW(work).matches,
+    imageNsfwVersion: NSFW_RULES_VERSION,
     sourceWorkId: work.id,
     ...options,
   });
@@ -464,6 +489,7 @@ export function captureGenerated(work, usageIds) {
   if (!ids.length || !(work?.blob instanceof Blob)) return Promise.resolve([]);
   return mutate(async () => {
     const image = await imageInfo(work.blob),
+      imageNsfwTags = classifyWorkNSFW(work).matches,
       db = await database(),
       captured = [];
     await new Promise((resolve, reject) => {
@@ -477,6 +503,8 @@ export function captureGenerated(work, usageIds) {
           const saved = {
             ...entry,
             ...image,
+            imageNsfwTags,
+            imageNsfwVersion: NSFW_RULES_VERSION,
             imageOrigin: 'generated',
             sourceWorkId: work.id,
             updated: Date.now(),

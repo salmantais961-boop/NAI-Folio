@@ -157,10 +157,10 @@ button {
 .m-nav-ink {
   position: absolute;
   left: 0;
-  bottom: -1px;
+  bottom: var(--nav-rule-bottom);
   width: var(--m-ink-w, 0px);
-  height: 2px;
-  border-radius: 2px;
+  height: var(--nav-rule-height);
+  border-radius: var(--nav-rule-height);
   background: var(--accent);
   translate: var(--m-ink-x, 0px) 0;
   pointer-events: none;

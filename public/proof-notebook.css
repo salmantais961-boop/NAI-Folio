@@ -28,6 +28,12 @@
   grid-column: 2;
   line-height: 1.65;
 }
+.proof-title-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
 .proof-summary:has(.proof-activity[data-background='true']:not([hidden])) .proof-caption {
   display: grid;
   margin-top: 7px;

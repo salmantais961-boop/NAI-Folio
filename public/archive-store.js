@@ -1,5 +1,80 @@
 import { pruneLineage } from './lineage-core.js';
+import { parseWorkTags } from './archive-tags.js';
+import { classifyWorkNSFW, NSFW_RULES_VERSION } from './nsfw-tags.js';
 let opening;
+const unsavedRatings = new Map();
+function withSavedRating(work) {
+  const tags = unsavedRatings.get(work?.id);
+  return tags ? { ...work, sourceNsfwTags: tags } : work;
+}
+
+// An old pixel edit can have an empty caption. Follow only direct editing
+// parents, in order, so an upscale of a Director Tools result inherits both.
+function upgradeEditRatings(works, parents, traces) {
+  const changed = new Map(), visited = new Set();
+  for (const id of parents.keys()) {
+    const path = [], ancestors = new Set();
+    let cursor = id;
+    while (parents.has(cursor) && !visited.has(cursor) && !ancestors.has(cursor)) {
+      ancestors.add(cursor);
+      path.push(cursor);
+      cursor = parents.get(cursor);
+    }
+    for (const child of path.reverse()) {
+      visited.add(child);
+      if (ancestors.has(cursor)) continue; // Malformed cyclic lineage is not evidence.
+      const sourceId = parents.get(child), trace = traces.get(sourceId);
+      const source = works.get(sourceId) || (trace?.external && trace);
+      const work = works.get(child);
+      if (!work || !source) continue;
+      const previous = Array.isArray(work.sourceNsfwTags) ? work.sourceNsfwTags : [];
+      const added = classifyWorkNSFW(source).matches.filter(tag => !previous.includes(tag));
+      if (!added.length) continue;
+      work.sourceNsfwTags = [...previous, ...added];
+      changed.set(child, work);
+    }
+  }
+  return changed;
+}
+
+function migrateEditRatings(db) {
+  return new Promise(resolve => {
+    const txn = db.transaction(['works', 'lineage', 'recipes'], 'readwrite');
+    const recipes = txn.objectStore('recipes'), works = txn.objectStore('works');
+    const key = 'folio.content.edit-rules', version = recipes.get(key);
+    txn.oncomplete = () => { unsavedRatings.clear(); resolve(); };
+    // The gallery can still use this session's merged ratings if storage is full.
+    txn.onabort = () => resolve();
+    version.onsuccess = () => {
+      if (version.result >= NSFW_RULES_VERSION) return;
+      const rows = txn.objectStore('lineage').getAll();
+      rows.onsuccess = () => {
+        const traces = new Map(rows.result.map(row => [row.id, row]));
+        const parents = new Map();
+        for (const row of rows.result) {
+          if (!['upscale', 'augment'].includes(row.mode || row.settings?.mode)) continue;
+          const edge = row.edges?.find(e => e.type === 'edit' && e.target === row.id && e.source !== row.id);
+          if (edge) parents.set(row.id, edge.source);
+        }
+        const ids = new Set([...parents.keys(), ...parents.values()]);
+        if (!ids.size) { recipes.put(NSFW_RULES_VERSION, key); return; }
+        const related = new Map();
+        for (const id of ids) {
+          const read = works.get(id);
+          read.onsuccess = () => {
+            related.set(id, read.result);
+            if (related.size !== ids.size) return;
+            for (const [workId, work] of upgradeEditRatings(related, parents, traces)) {
+              unsavedRatings.set(workId, work.sourceNsfwTags);
+              works.put(work);
+            }
+            recipes.put(NSFW_RULES_VERSION, key);
+          };
+        }
+      };
+    };
+  });
+}
 function database() {
   return (opening ??= new Promise((resolve, reject) => {
     const request = indexedDB.open('nai-folio', 3);
@@ -11,7 +86,7 @@ function database() {
         request.result.createObjectStore('lineage', { keyPath: 'id' });
     };
     request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => migrateEditRatings(request.result).then(() => resolve(request.result), reject);
   }));
 }
 export async function listWorks() {
@@ -19,14 +94,14 @@ export async function listWorks() {
   return new Promise((resolve, reject) => {
     const req = db.transaction('works').objectStore('works').getAll();
     req.onerror = () => reject(req.error);
-    req.onsuccess = () => resolve(req.result.sort((a, b) => b.created - a.created || a.sequence - b.sequence));
+    req.onsuccess = () => resolve(req.result.map(withSavedRating).sort((a, b) => b.created - a.created || a.sequence - b.sequence));
   });
 }
 export async function getWork(id) {
   const db = await database();
   return new Promise((resolve, reject) => {
     const request = db.transaction('works').objectStore('works').get(id);
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => resolve(withSavedRating(request.result));
     request.onerror = () => reject(request.error);
   });
 }
@@ -68,6 +143,48 @@ export async function setWorkScore(id, score) {
       reject(failure || transaction.error || Error('评分暂时无法保存。'));
   });
 }
+export async function addWorkTags(ids, input) {
+  const targets = [...new Set(ids)];
+  const tags = parseWorkTags(input);
+  if (!targets.length) throw Error('请先选择作品。');
+  if (!tags.length) throw Error('请至少输入一个标签。');
+  const db = await database();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('works', 'readwrite');
+    const store = transaction.objectStore('works');
+    const updated = [];
+    let failure;
+    transaction.oncomplete = () => resolve(updated);
+    transaction.onabort = () => reject(failure || transaction.error || Error('暂时无法保存作品标签。'));
+
+    // Read one original at a time so a large selection never queues all its blobs in JS.
+    function updateNext() {
+      const id = targets[updated.length];
+      const request = store.get(id);
+      request.onsuccess = () => {
+        const work = request.result;
+        if (!work) {
+          failure = Error('所选作品中有图片已被移除，请重新选择。');
+          transaction.abort();
+          return;
+        }
+        const previous = work.galleryTags || [];
+        const galleryTags = parseWorkTags([...previous, ...tags]);
+        updated.push({ id, galleryTags });
+        const changed = galleryTags.length !== previous.length || galleryTags.some((tag, i) => tag !== previous[i]);
+        const next = () => {
+          if (updated.length < targets.length) updateNext();
+        };
+        if (changed) {
+          work.galleryTags = galleryTags;
+          store.put(work).onsuccess = next;
+        } else next();
+      };
+    }
+    updateNext();
+  });
+}
+
 export async function loadRecipe(key) {
   const db = await database();
   return new Promise((resolve, reject) => {

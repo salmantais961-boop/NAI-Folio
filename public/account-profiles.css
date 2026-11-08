@@ -76,6 +76,21 @@
   margin: 0;
   font: 650 13px/1.4 var(--sans);
 }
+.ap-panel .ap-preference {
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--cp-well);
+}
+.ap-preference-copy {
+  display: grid;
+  gap: 3px;
+}
+.ap-preference-copy strong { font: 550 13px/1.4 var(--sans); }
+.ap-preference-copy small { color: var(--mute); font: 11px/1.5 var(--sans); }
 .ap-section-head button,
 .ap-secret button {
   color: var(--mute);

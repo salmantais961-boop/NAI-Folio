@@ -1,5 +1,5 @@
 import { two } from './plates.js';
-import { loadIcons, setIcon } from './icons.js';
+import { createRatingBadge, loadIcons, setIcon } from './icons.js';
 import { openCatalog, mountSuggestionSource, findReferencedCharacters, configureCatalog } from './catalog.js';
 import { mountControls } from './studio-controls.js';
 import { capabilities } from './controls-model.js';
@@ -35,6 +35,10 @@ import { mountScreenExit } from './screen-exit.js';
 import { transitionScreen, transitionTheme, mountToast, revealHeadings } from './motion.js';
 import { mountGenerationAtmosphere } from './generation-atmosphere.js';
 import { mountArchiveLayout } from './archive-layout.js';
+import { mountArchiveBatch } from './archive-batch.js';
+import { archiveSearchText } from './archive-tags.js';
+import { classifyWorkNSFW } from './nsfw-tags.js';
+import { getHideNSFW } from './content-preferences.js';
 import { mountRemovalConfirmation } from './removal-confirmation.js';
 import { mountArchiveScoring } from './archive-scoring.js';
 import { mountArchiveAppreciation } from './archive-appreciation.js';
@@ -72,6 +76,18 @@ const stamp = new Intl.DateTimeFormat('zh-CN', {
   minute: '2-digit',
 });
 const imageURLs = new WeakMap();
+const contentRatings = new WeakMap();
+function ratingFor(work) {
+  // Saved positive captions are snapshots. Scoring and gallery tags don't change them.
+  if (!contentRatings.has(work)) contentRatings.set(work, classifyWorkNSFW(work));
+  return contentRatings.get(work);
+}
+function visibleWorks() {
+  return getHideNSFW() ? works.filter(work => !ratingFor(work).nsfw) : works;
+}
+function isHiddenWork(work) {
+  return Boolean(work && getHideNSFW() && ratingFor(work).nsfw);
+}
 let controls,
   promptTokens,
   proofNotebook,
@@ -93,6 +109,20 @@ const finish = mountStudioFinish({ notify });
 const studioEntrance = mountStudioEntrance($('studio'));
 const screenExit = mountScreenExit();
 const removal = mountRemovalConfirmation(deleteHistoryWork);
+const archiveBatch = mountArchiveBatch($('archive'), {
+  flushSearch: () => {
+    if (archiveQuery !== $('archive-search').value && !composingSearch) updateArchiveSearch();
+  },
+  onEnter: () => removal.cancel(null, true),
+  onTags(updated) {
+    const tagsById = new Map(updated.map(({ id, galleryTags }) => [id, galleryTags]));
+    for (const work of works) if (tagsById.has(work.id)) work.galleryTags = tagsById.get(work.id);
+    if (current && tagsById.has(current.id)) current.galleryTags = tagsById.get(current.id);
+    renderArchive();
+  },
+  download,
+  notify,
+});
 const archiveLayout = mountArchiveLayout($('archive-grid'), {
   createCard: createArchiveCard,
   updateCard: (card, work) => archiveScoring.decorate(card, work),
@@ -158,7 +188,10 @@ const lineageReady = listLineage()
 const lineageCanvas = mountLineageCanvas({
   getGraph: async (work) => {
     await lineageReady;
-    return buildLineageGraph(work, lineageRecords, works);
+    const records = getHideNSFW()
+      ? [...lineageRecords.values()].filter(node => !node.external || !ratingFor(node).nsfw)
+      : lineageRecords;
+    return buildLineageGraph(work, records, visibleWorks());
   },
   getImageUrl: itemUrl,
   onOpenWork: (work) => {
@@ -293,6 +326,7 @@ function setScreen(target, viewTransition = false) {
   screenExit.cancel();
   const screen = target === true ? 'archive' : target === false ? 'studio' : target;
   const changed = currentScreen !== screen;
+  if (changed && currentScreen === 'archive') archiveBatch.close();
   if (changed) screenScroll.set(currentScreen, window.scrollY);
   currentScreen = screen;
   for (const id of ['studio', 'archive', 'atlas']) {
@@ -477,7 +511,7 @@ function deleteHistoryWork(work) {
     const tile = historyTiles.get(work.id);
     const fromArchive = focused?.closest('.archive-card')?.dataset.workId === work.id;
     const keepFocus = fromArchive || tile?.contains(focused);
-    const order = fromArchive ? filteredArchiveWorks() : works;
+    const order = fromArchive ? filteredArchiveWorks() : visibleWorks();
     const index = order.findIndex((item) => item.id === work.id);
     const neighbor = order[index + 1] || order[index - 1];
     try {
@@ -567,21 +601,24 @@ undoButton.onclick = () => {
   });
 };
 function drawStrip(freshIds) {
-  $('strip-count').textContent = two(works.length);
+  const visible = visibleWorks();
+  $('strip-count').textContent = two(visible.length);
   const host = $('contact-strip');
-  const live = new Set(works.map((w) => w.id));
+  const live = new Set(visible.map((w) => w.id));
   for (const [id, tile] of historyTiles)
     if (!live.has(id)) {
       removal.forget(tile);
       tile.remove();
       historyTiles.delete(id);
     }
-  if (!works.length) {
+  if (!visible.length) {
     if (pendingHistory.active) {
       pendingHistory.sync();
       return;
     }
-    if (!host.querySelector('.history-empty')) host.append(make('span', 'history-empty', '暂无记录'));
+    const empty = host.querySelector('.history-empty') || make('span', 'history-empty');
+    empty.textContent = works.length ? 'NSFW 作品已隐藏' : '暂无记录';
+    if (!empty.isConnected) host.append(empty);
     return;
   }
   host.querySelector('.history-empty')?.remove();
@@ -591,8 +628,8 @@ function drawStrip(freshIds) {
     return element;
   };
   let cursor = nextWorkTile(host.firstElementChild);
-  works.forEach((work, i) => {
-    const num = two(works.length - i);
+  visible.forEach((work, i) => {
+    const num = two(visible.length - i);
     let tile = historyTiles.get(work.id);
     if (!tile) {
       tile = make('div', 'history-item');
@@ -634,7 +671,7 @@ function drawStrip(freshIds) {
       tile.append(open, trail, del);
       historyTiles.set(work.id, tile);
     }
-    const label = '作品 ' + num + ' · ' + shortPrompt(work);
+    const label = '作品 ' + num + (ratingFor(work).nsfw ? ' · NSFW' : '') + ' · ' + shortPrompt(work);
     const open = tile.querySelector('.history-open');
     if (!tile.hasAttribute('data-removal-armed')) {
       open.title = label;
@@ -653,6 +690,7 @@ function drawStrip(freshIds) {
   pendingHistory.sync();
 }
 function preview(state, url, alt, title, info, reveal = false, slide = 0) {
+  const visible = state === 'result' ? visibleWorks() : [];
   $('canvas-stage').dataset.state = state;
   viewer.show({
     url,
@@ -661,14 +699,15 @@ function preview(state, url, alt, title, info, reveal = false, slide = 0) {
     reveal,
     slide,
     historyKey: state === 'result' ? current?.id : null,
-    historyOrder: state === 'result' && slide ? works.map((work) => work.id) : [],
+    historyOrder: slide ? visible.map(work => work.id) : [],
   });
   finish.setProof(
     state === 'result' ? current : null,
     state === 'stream' ? 'LIVE' : null,
-    works.length - works.indexOf(current),
+    state === 'result' ? visible.length - visible.indexOf(current) : 0,
   );
   $('image-title').textContent = title;
+  $('proof-nsfw').hidden = !(state === 'result' && current && ratingFor(current).nsfw);
   $('image-info').textContent = info;
   $('expand').disabled = !url;
   for (const id of ['download-image', 'use-source', 'clear-preview', 'image-lineage', 'save-atlas'])
@@ -708,16 +747,19 @@ function displayGeneration() {
   pendingHistory.select(true);
   finish.viewingGeneration(true);
   viewer.prepare(run);
-  atmosphere.begin({ ...run, url: run.lastPreview?.url || run.referenceURL });
+  const hidePreview = getHideNSFW() && run.nsfw;
+  const referenceURL = !isHiddenWork(run.referenceWork) && run.referenceURL;
+  atmosphere.begin({ ...run, url: hidePreview ? '' : run.lastPreview?.url || referenceURL });
   finish.setProof(null);
-  $('image-title').textContent = '等待显影';
+  $('image-title').textContent = hidePreview ? 'NSFW 预览已隐藏' : '等待显影';
+  $('proof-nsfw').hidden = true;
   $('image-info').textContent = run.width + ' × ' + run.height;
   $('expand').disabled = true;
   for (const id of ['download-image', 'use-source', 'clear-preview', 'image-lineage', 'save-atlas'])
     $(id).hidden = true;
   proofNotebook?.setWork(null);
   proofNotebook?.setDraft(run.settings);
-  if (run.lastPreview) {
+  if (run.lastPreview && !hidePreview) {
     const { url, info } = run.lastPreview;
     preview('stream', url, 'NovelAI 中间预览', '流式预览', info);
     atmosphere.preview(url);
@@ -749,6 +791,10 @@ function showEmpty() {
   drawStrip();
 }
 function showWork(work, reveal = false, freshIds) {
+  if (isHiddenWork(work)) {
+    showEmpty();
+    return;
+  }
   const slide =
     !reveal && current?.id !== work.id ? (current && works.indexOf(work) < works.indexOf(current) ? -1 : 1) : 0;
   leaveGeneration(work);
@@ -782,42 +828,42 @@ function applyRecipe(recipe) {
   charCount();
   saveDraft();
 }
-function filteredArchiveWorks() {
-  return archiveScoring.sort(
-    searchItems(works, archiveQuery, (work) => [
-      work.prompt || '',
-      ...(work.settings?.characters || [])
-        .filter((character) => character.enabled !== false)
-        .map((character) => character.prompt || ''),
-    ]),
-  );
+function filteredArchiveWorks(visible = visibleWorks()) {
+  if (archiveQuery.trim().toLowerCase() === 'nsfw')
+    return archiveScoring.sort(visible.filter(work => ratingFor(work).nsfw));
+  return archiveScoring.sort(searchItems(visible, archiveQuery, work => [
+    ...archiveSearchText(work), ...(ratingFor(work).nsfw ? ['NSFW'] : []),
+  ]));
 }
 function renderArchive() {
-  $('nav-count').textContent = $('archive-total').textContent = two(works.length);
+  const visible = visibleWorks();
+  $('nav-count').textContent = $('archive-total').textContent = two(visible.length);
   if (currentScreen !== 'archive') return;
-  const filtered = filteredArchiveWorks();
+  const filtered = filteredArchiveWorks(visible);
+  archiveBatch.syncResults(filtered, visible);
   $('archive').querySelector('.section-rule > .micro').textContent = archiveScoring.enabled
     ? '完整画幅 / 高分优先 · 同分按原顺序'
     : '完整画幅 / 最新在前';
   $('archive-search-count').textContent = archiveQuery.trim()
-    ? filtered.length + ' / ' + works.length + ' 张匹配'
-    : '按正面提示词搜索 · 支持模糊匹配';
+    ? filtered.length + ' / ' + visible.length + ' 张匹配'
+    : '按提示词或作品标签搜索 · 支持模糊匹配';
   $('archive-search-clear').hidden = !archiveQuery;
   const grid = $('archive-grid');
   archiveLayout.setWorks(filtered);
   grid.querySelector('.archive-empty')?.remove();
   if (!filtered.length) {
+    const allHidden = works.length > 0 && !visible.length;
     const empty = make('div', 'archive-empty'),
-      button = make('button', '', works.length ? '清除搜索 ↗' : '返回工作台 ↗');
-    button.onclick = () => (works.length ? clearArchiveSearch() : setScreen(false));
+      button = make('button', '', allHidden ? '打开设置 ↗' : works.length ? '清除搜索 ↗' : '返回工作台 ↗');
+    button.onclick = () => (allHidden ? controls.openAccount() : works.length ? clearArchiveSearch() : setScreen(false));
     empty.append(
       Object.assign(make('i', 'flower folio-mark'), { ariaHidden: 'true' }),
-      make('h2', '', works.length ? 'A different phrase?' : 'First impressions'),
+      make('h2', '', allHidden ? '作品已隐藏' : works.length ? 'A different phrase?' : 'First impressions'),
       make(
         'p',
         '',
-        works.length
-          ? '没有找到匹配的正面提示词，试试更短的标签。'
+        allHidden ? '关闭设置中的「隐藏 NSFW」即可查看。' : works.length
+          ? '没有找到匹配的作品，试试更短的提示词或标签。'
           : '第一张生成图会出现在这里。作品和配方保存在当前浏览器。',
       ),
       button,
@@ -854,7 +900,9 @@ function createArchiveCard(work) {
     make('span', 'micro', stamp.format(work.created) + '  /  ' + (work.modelLabel || 'NOVELAI')),
     dimensions,
   );
-  button.onclick = () => appreciation.open(work);
+  button.onclick = () => {
+    if (!archiveBatch.pick(work.id)) appreciation.open(work);
+  };
   const actions = make('div', 'record-tools archive-actions');
   const action = (label, icon, name) => {
     const item = make('button');
@@ -918,12 +966,18 @@ function createArchiveCard(work) {
   };
   actions.append(collect, restore, trail, dl, del);
   card.append(button, caption, actions, more);
+  if (ratingFor(work).nsfw) {
+    button.append(createRatingBadge(ratingFor(work).matches));
+    button.setAttribute('aria-description', 'R18 · 成人内容');
+  }
   archiveScoring.decorate(card, work);
+  archiveBatch.decorate(card);
   return card;
 }
 function showPreview(frame) {
   if (!request || request.signal.aborted) return;
   proofProgress.frame(frame);
+  if (activeGeneration?.nsfw && getHideNSFW()) return;
   const { url, dataUrl, step, sample } = frame;
   if (!(url || dataUrl)) return;
   const info = '样本 ' + ((sample ?? 0) + 1) + (step != null ? ' · 第 ' + step + ' 步' : '');
@@ -942,6 +996,7 @@ async function generate(job = {}) {
     viewing: true,
     prepared: false,
     returnWork: current,
+    referenceWork: current,
     referenceURL: current ? itemUrl(current) : '',
     settings: structuredClone(job.settings || controls.getSettings()),
     lastPreview: null,
@@ -1012,6 +1067,11 @@ async function generate(job = {}) {
       }),
     };
     const actual = { prompt: positive.text, negative: undesired.text };
+    // Upscaling and Director Tools operate on the source pixels even if the
+    // current editor no longer contains the source's character captions.
+    const sourceNsfwTags = sourceWork && ['upscale', 'augment'].includes(submittedSettings.mode)
+      ? ratingFor(sourceWork).matches : [];
+    activeGeneration.nsfw = classifyWorkNSFW({ ...actual, settings: resolvedSettings, sourceNsfwTags }).nsfw;
     provenance.reuses = activeReuses(submittedReuse, { ...actual, settings: resolvedSettings });
     const recipeId = crypto.randomUUID();
     const result = await controls.generate({
@@ -1098,6 +1158,7 @@ async function generate(job = {}) {
           sequence: i,
           blob,
           ...actual,
+          ...(sourceNsfwTags.length ? { sourceNsfwTags } : {}),
           characterIds,
           characterLabels,
           atlasUsageIds: usageIds,
@@ -1128,21 +1189,31 @@ async function generate(job = {}) {
       reuses: provenance.reuses.filter((entry) => !deletedWorkIds.has(entry.id)),
     });
     for (const node of lineage) lineageRecords.set(node.id, node);
-    pendingHistory.complete(batch[0].id);
+    const firstVisible = batch.find(work => !isHiddenWork(work));
+    if (firstVisible) pendingHistory.complete(firstVisible.id);
+    else pendingHistory.cancel();
     works.unshift(...batch);
     const viewingResult = Boolean(activeGeneration?.viewing);
     proofProgress.complete();
     activeGeneration = null;
-    if (viewingResult) {
-      showWork(batch[0], true, new Set(batch.map((w) => w.id)));
-      atmosphere.complete(itemUrl(batch[0]));
+    if (!firstVisible) {
+      if (viewingResult) {
+        atmosphere.cancel();
+        showEmpty();
+      }
+      notify('NSFW 作品已按设置隐藏');
+      drawStrip();
+      syncNotebookGeneration();
+    } else if (viewingResult) {
+      showWork(firstVisible, true, new Set(batch.map((w) => w.id)));
+      atmosphere.complete(itemUrl(firstVisible));
     } else {
-      completedInBackground = batch[0];
+      completedInBackground = firstVisible;
       drawStrip(new Set(batch.map((w) => w.id)));
       syncNotebookGeneration();
       notify('新图已完成 · 点击历史首图或「查看新作」即可查看');
     }
-    finish.complete(result.mode === 'upscale' ? '超分完成' : '显影完成', { reveal: viewingResult });
+    finish.complete(result.mode === 'upscale' ? '超分完成' : '显影完成', { reveal: Boolean(firstVisible && viewingResult) });
     renderArchive();
     void captureGenerated(batch[0], usageIds).catch(() => notify('作品已生成，但例图未能保存到万象集。'));
     try {
@@ -1255,7 +1326,8 @@ controls = mountControls($('controls'), {
   onAccount(info) {
     $('account').classList.toggle('connected', info.connected);
     $('account').querySelector('span').textContent = info.label;
-    $('account').title = info.label + ' · 管理账户与连接';
+    $('account').title = '打开设置 · ' + info.label;
+    $('account').setAttribute('aria-label', $('account').title);
     billing.setAccount(info);
     latestAccount = info;
     proofActions?.refresh();
@@ -1351,7 +1423,7 @@ mountCharacterImport(prompt, {
   notify,
 });
 mountSuggestionSource($('suggestion-source'), getModel);
-configurePromptAtlas({ getWorks: () => works, notify, onUseOC: useOC });
+configurePromptAtlas({ getWorks: visibleWorks, notify, onUseOC: useOC });
 configureCatalog({
   onCharacter: (entry, selection) => useCharacterPrompt(entry.prompt || entry.tag, entry.name, selection),
 });
@@ -1397,6 +1469,33 @@ $('archive-search').addEventListener('keydown', (event) => {
   }
 });
 $('archive-search-clear').onclick = clearArchiveSearch;
+window.addEventListener('folio:content-preferences', () => {
+  const hiding = getHideNSFW();
+  if (hiding) {
+    archiveBatch.close();
+    pendingHistory.clearPreview();
+    if (isHiddenWork(completedInBackground)) completedInBackground = null;
+    // A history slide may still contain the outgoing work after selection changed.
+    if (isHiddenWork(current)) {
+      atmosphere.cancel();
+      showEmpty();
+    } else if (current && ($('canvas-image').getAttribute('src') !== itemUrl(current) ||
+        document.querySelector('.pv-history-track, .pv-before'))) {
+      void viewer.show({ state: 'empty' });
+      atmosphere.cancel();
+      showWork(current);
+    }
+    if ($('utility').open && !current) {
+      $('recipe-preview').removeAttribute('src');
+      $('recipe-preview').hidden = true;
+      $('recipe-blank').hidden = false;
+    }
+  }
+  if (activeGeneration?.prepared && activeGeneration.viewing) displayGeneration();
+  syncNotebookGeneration();
+  drawStrip();
+  renderArchive();
+});
 $('theme').onclick = () =>
   transitionTheme($('theme'), () =>
     setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'),

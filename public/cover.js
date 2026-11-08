@@ -1,4 +1,5 @@
 import { plates, two } from './plates.js';
+import { getShowOpening, setShowOpening } from './content-preferences.js';
 
 const $ = (id) => document.getElementById(id);
 const cover = $('cover');
@@ -46,13 +47,11 @@ let paused = reduced.matches,
 let seen = false;
 try {
   seen = sessionStorage.getItem('folio.entered') === '1';
-  $('opening-pref').checked = localStorage.getItem('folio.show-opening') === '1';
 } catch {}
-$('opening-pref').onchange = () => {
-  try {
-    localStorage.setItem('folio.show-opening', $('opening-pref').checked ? '1' : '0');
-  } catch {}
-};
+const openingPref = $('opening-pref');
+openingPref.checked = getShowOpening();
+openingPref.onchange = () => setShowOpening(openingPref.checked);
+window.addEventListener('folio:opening-preference', () => { openingPref.checked = getShowOpening(); });
 function syncPause() {
   const label = paused ? '继续播放' : '暂停播放';
   $('pause-cover').textContent = paused ? '▷' : 'Ⅱ';

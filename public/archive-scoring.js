@@ -66,7 +66,7 @@ export function mountArchiveScoring(host, { onChange = () => {}, notify = () => 
       if (!badge) {
         badge = document.createElement('span');
         badge.className = 'archive-score-badge';
-        card.append(badge);
+        card.querySelector('.archive-open').append(badge);
       }
       card.dataset.score = String(score);
       badge.textContent = '★ ' + score;

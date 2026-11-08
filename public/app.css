@@ -569,6 +569,8 @@ svg {
   margin-left: -7px;
 }
 .app-top nav {
+  --nav-rule-bottom: -1px;
+  --nav-rule-height: 2px;
   display: flex;
   align-self: stretch;
   gap: 27px;
@@ -587,10 +589,11 @@ svg {
 .app-top nav button[aria-current='page']:after {
   content: '';
   position: absolute;
-  bottom: -1px;
+  bottom: var(--nav-rule-bottom);
   left: 0;
   right: 0;
-  height: 2px;
+  height: var(--nav-rule-height);
+  border-radius: var(--nav-rule-height);
   background: var(--accent);
 }
 .app-top nav small,

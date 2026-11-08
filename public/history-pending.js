@@ -151,6 +151,15 @@ export function mountPendingHistory(host, { onOpen } = {}) {
   return {
     begin,
     preview,
+    clearPreview() {
+      previewRevision++;
+      clearHandoffs();
+      if (!previewImage) return;
+      previewImage.hidden = true;
+      previewImage.removeAttribute('src');
+      delete tile.dataset.preview;
+      delete surface.dataset.preview;
+    },
     complete,
     sync,
     cancel,

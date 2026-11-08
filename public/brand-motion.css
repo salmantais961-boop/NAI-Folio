@@ -39,8 +39,6 @@
   color: var(--ink);
 }
 .proof-mast .folio-mark[data-brand-static] {
-  width: clamp(32px, 2.6vw, 40px);
-  height: clamp(32px, 2.6vw, 40px);
   color: var(--ink);
 }
 #generate .folio-mark[data-brand-static] {
@@ -81,10 +79,6 @@
   .cover-mast .folio-mark[data-brand-static] {
     width: 34px;
     height: 34px;
-  }
-  .proof-mast .folio-mark[data-brand-static] {
-    width: 32px;
-    height: 32px;
   }
 }
 @media (max-width: 380px) {

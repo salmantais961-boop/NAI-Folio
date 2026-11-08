@@ -1,4 +1,5 @@
 import { mountDotGrid } from './vendor/dot-grid.js';
+import { getHideNSFW } from './content-preferences.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const GROUP_HEADER = 50,
@@ -1287,6 +1288,9 @@ export function mountLineageCanvas({ getGraph, getImageUrl, onOpenWork, notify =
   size.observe(viewport);
   listener(reduced, 'change', () => {
     if (reduced.matches) stopMotion();
+  });
+  listener(window, 'folio:content-preferences', () => {
+    if (dialog.open && getHideNSFW()) close();
   });
   return {
     open,

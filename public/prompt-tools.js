@@ -4,6 +4,7 @@ import { promptMoveParts } from './prompt-move.js';
 import { formatWeight, unwrap, weightSelectedTags } from './prompt-weight.js';
 import { captureProofChrome, moveProofChrome } from './library-chrome-motion.js';
 import { mountAtlasPicker, openImagePicker } from './atlas-picker.js';
+import { atlasImageMatches, markAtlasImage } from './atlas-image-meta.js';
 import {
   ensureChunkEntries,
   getEntry,
@@ -352,6 +353,7 @@ function createBlockLibrary(slot, studio) {
   }
   function releaseExample() {
     exampleVersion++;
+    markAtlasImage(examplePlate, []);
     if (exampleURL) URL.revokeObjectURL(exampleURL);
     exampleURL = null;
     exampleImage.removeAttribute('src');
@@ -383,6 +385,13 @@ function createBlockLibrary(slot, studio) {
       const entry = await entryForChunk(chunk, ensure);
       if (token !== exampleVersion || slot.hidden || panel.dataset.view !== 'edit') return;
       if (entry?.blob instanceof Blob) {
+        const matches = await atlasImageMatches(entry);
+        if (token !== exampleVersion || slot.hidden || panel.dataset.view !== 'edit') return;
+        if (markAtlasImage(examplePlate, matches)) {
+          exampleEmpty.textContent = 'NSFW · 例图已隐藏';
+          exampleClear.hidden = false;
+          return;
+        }
         exampleURL = URL.createObjectURL(entry.blob);
         exampleImage.src = exampleURL;
         exampleImage.alt = '词块「' + chunk.name + '」的真实例图';
@@ -443,6 +452,11 @@ function createBlockLibrary(slot, studio) {
   };
   watchAtlas(() => {
     if (!slot.hidden && panel.dataset.view === 'edit') void renderExample(false);
+  });
+  window.addEventListener('folio:content-preferences', () => {
+    if (slot.hidden) return;
+    releaseExample();
+    if (panel.dataset.view === 'edit') void renderExample(false);
   });
   let target,
     options = {},

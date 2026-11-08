@@ -1,4 +1,7 @@
 import { listEntries, watchAtlas } from './atlas-store.js';
+import { atlasImageMatches, markAtlasImage } from './atlas-image-meta.js';
+import { getHideNSFW } from './content-preferences.js';
+import { classifyWorkNSFW } from './nsfw-tags.js';
 
 const node = (tag, className, text) => {
   const el = document.createElement(tag);
@@ -93,15 +96,20 @@ function createChooser({ getItems, onChoose, notify = () => {}, imageMode = fals
         if (!isIntersecting) continue;
         const item = target._atlasItem;
         if (item?.blob instanceof Blob) {
-          const image = target.querySelector('img');
-          const url = URL.createObjectURL(item.blob);
-          urls.set(target, url);
-          image.src = url;
-          image.onload = () => (target.dataset.loaded = 'true');
-          image.onerror = () => {
-            image.hidden = true;
-            target.dataset.loaded = 'error';
+          const show = (matches) => {
+            if (!dialog.open || !grid.contains(target) || markAtlasImage(target.querySelector('.ax-card-media'), matches)) return;
+            const image = target.querySelector('img');
+            const url = URL.createObjectURL(item.blob);
+            urls.set(target, url);
+            image.src = url;
+            image.onload = () => (target.dataset.loaded = 'true');
+            image.onerror = () => {
+              image.hidden = true;
+              target.dataset.loaded = 'error';
+            };
           };
+          if (imageMode) show(classifyWorkNSFW(item).matches);
+          else void atlasImageMatches(item).then(show).catch(() => {});
         }
         visibility.unobserve(target);
       }
@@ -141,14 +149,15 @@ function createChooser({ getItems, onChoose, notify = () => {}, imageMode = fals
   function render() {
     release();
     const query = search.value.trim().toLocaleLowerCase();
-    const filtered = items.filter((item) =>
+    const visible = imageMode && getHideNSFW() ? items.filter(item => !classifyWorkNSFW(item).nsfw) : items;
+    const filtered = visible.filter((item) =>
       [item.name, item.filename, item.prompt, item.category, ...(item.tags || [])]
         .filter(Boolean)
         .join(' ')
         .toLocaleLowerCase()
         .includes(query),
     );
-    count.textContent = `${filtered.length} / ${items.length} 项`;
+    count.textContent = `${filtered.length} / ${visible.length} 项`;
     const cards = filtered.map((item) => {
       const card = button('', 'ax-card', () => choose(item));
       card._atlasItem = item;
@@ -235,6 +244,8 @@ function createChooser({ getItems, onChoose, notify = () => {}, imageMode = fals
     }
   }
   search.oninput = render;
+  const preferencesChanged = () => { if (dialog.open) render(); };
+  window.addEventListener('folio:content-preferences', preferencesChanged);
   file.onchange = async () => {
     const selected = file.files[0];
     file.value = '';
@@ -305,6 +316,7 @@ function createChooser({ getItems, onChoose, notify = () => {}, imageMode = fals
       request++;
       release();
       resizing.disconnect();
+      window.removeEventListener('folio:content-preferences', preferencesChanged);
       dialog.remove();
     },
   };

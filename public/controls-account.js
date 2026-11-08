@@ -1,5 +1,6 @@
 import { paintAccountDetails } from './billing.js'
 import { normalizeProfile, readProfiles, writeProfiles, profileHeaders } from './account-profiles.js'
+import { getHideNSFW, setHideNSFW, getShowOpening, setShowOpening } from './content-preferences.js'
 import { leave } from './motion.js'
 import { setIcon } from './icons.js'
 
@@ -143,10 +144,24 @@ export function connection({ onAccount, notify }) {
     d.setAttribute('aria-modal', 'false')
     d.setAttribute('aria-labelledby', 'ap-title')
     d.innerHTML = `<header class="ap-header">
-      <h2 id="ap-title">账户与连接 <em aria-hidden="true">Connections</em></h2>
-      <button type="button" data-close aria-label="关闭账户面板"></button>
+      <h2 id="ap-title">设置 <em aria-hidden="true">Settings</em></h2>
+      <button type="button" data-close aria-label="关闭设置"></button>
     </header>
     <div class="ap-body">
+      <section class="ap-card" aria-labelledby="ap-display-title">
+        <div class="ap-section-head"><h3 id="ap-display-title">内容显示</h3></div>
+        <label class="fc-transport ap-preference">
+          <span class="ap-preference-copy"><strong id="ap-nsfw-name">隐藏 NSFW</strong>
+            <small id="ap-nsfw-note">隐藏正向提示词或角色提示词命中敏感标签的图像。</small></span>
+          <input type="checkbox" role="switch" aria-labelledby="ap-nsfw-name" aria-describedby="ap-nsfw-note" data-hide-nsfw>
+          <span class="fc-switch" aria-hidden="true"></span>
+        </label>
+        <label class="fc-transport ap-preference">
+          <span class="ap-preference-copy"><strong id="ap-opening-name">入场时播放封面画刊</strong></span>
+          <input type="checkbox" role="switch" aria-labelledby="ap-opening-name" data-show-opening>
+          <span class="fc-switch" aria-hidden="true"></span>
+        </label>
+      </section>
       <section class="ap-card ap-overview" aria-label="当前连接">
         <div class="ap-section-head"><h3>当前连接</h3><button type="button" data-disconnect>断开连接</button></div>
         <div class="ap-current" aria-live="polite">
@@ -179,6 +194,19 @@ export function connection({ onAccount, notify }) {
     </div>`
     setIcon(d.querySelector('[data-close]'), 'x')
     document.body.append(d)
+    const preferenceListeners = new AbortController()
+    for (const [selector, eventName, get, set] of [
+      ['[data-hide-nsfw]', 'folio:content-preferences', getHideNSFW, setHideNSFW],
+      ['[data-show-opening]', 'folio:opening-preference', getShowOpening, setShowOpening],
+    ]) {
+      const input = d.querySelector(selector)
+      const sync = () => { input.checked = get() }
+      sync()
+      window.addEventListener(eventName, sync, { signal: preferenceListeners.signal })
+      input.onchange = () => {
+        if (!set(input.checked)) notify?.('设置已用于本页，但浏览器未能记住此选项。')
+      }
+    }
     const form = d.querySelector('form'),
       field = (name) => form.elements.namedItem(name),
       note = d.querySelector('.ap-error'),
@@ -438,6 +466,7 @@ export function connection({ onAccount, notify }) {
       editToken = ''
       panel = null
       paintPanel = null
+      preferenceListeners.abort()
       document.removeEventListener('keydown', escape)
       leave(d)
       if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true })

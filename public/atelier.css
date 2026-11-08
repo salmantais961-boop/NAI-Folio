@@ -17,8 +17,9 @@
 .app-top nav button::before {
   content: '';
   position: absolute;
-  inset: auto 0 8px;
-  height: 1px;
+  inset: auto 0 var(--nav-rule-bottom);
+  height: var(--nav-rule-height);
+  border-radius: var(--nav-rule-height);
   background: var(--accent);
   transform: scaleX(0);
   transform-origin: left;
@@ -27,7 +28,7 @@
     opacity 0.26s;
   opacity: 0;
 }
-.app-top nav button:hover:not([aria-current])::before {
+.app-top nav button:is(:hover, :focus-visible):not([aria-current])::before {
   transform: scaleX(1);
   opacity: 0.55;
 }
@@ -430,15 +431,18 @@
   padding: clamp(17px, 2.5vh, 31px) clamp(17px, 2.15vw, 44px) 0;
 }
 .proof-mast {
-  display: flex;
+  --mast-type-size: clamp(33px, 3.15vw, 57px);
+  display: grid;
+  grid-template-areas: ". chapter" "mark title";
   align-items: center;
-  gap: 11px;
+  gap: 3px 11px;
   min-width: 0;
 }
 .iris-mark {
-  width: clamp(32px, 2.7vw, 43px);
+  grid-area: mark;
+  /* The ink occupies 85% of the square SVG viewBox. */
+  width: calc(var(--mast-type-size) * 1.12);
   aspect-ratio: 1;
-  flex: none;
   display: block;
   background: var(--ink);
   mask: url('/mark.svg') center/contain no-repeat;
@@ -448,6 +452,7 @@
   animation: iris-turn 18s linear infinite;
 }
 .proof-mast .chapter {
+  grid-area: chapter;
   font-size: 8px;
   letter-spacing: 0.11em;
   gap: 6px;
@@ -458,8 +463,9 @@
   background: var(--rule);
 }
 .proof-head h2 {
-  font-size: clamp(33px, 3.15vw, 57px);
-  margin-top: 3px;
+  grid-area: title;
+  font-size: var(--mast-type-size);
+  margin: 0;
   line-height: 0.93;
   white-space: nowrap;
 }
@@ -781,13 +787,8 @@ dialog:is(.utility-dialog, .fc-dialog)::backdrop {
     align-items: flex-start;
   }
   .proof-mast {
-    gap: 6px;
-  }
-  .iris-mark {
-    width: 32px;
-  }
-  .proof-head h2 {
-    font-size: 29px;
+    --mast-type-size: 29px;
+    column-gap: 6px;
   }
   .proof-foot {
     gap: 3px 9px;
@@ -858,11 +859,8 @@ dialog:is(.utility-dialog, .fc-dialog)::backdrop {
   .proof-head {
     padding-top: 11px;
   }
-  .proof-head h2 {
-    font-size: 29px;
-  }
-  .iris-mark {
-    width: 34px;
+  .proof-mast {
+    --mast-type-size: 29px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

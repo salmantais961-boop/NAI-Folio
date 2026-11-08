@@ -43,6 +43,7 @@
     <link rel="stylesheet" href="/generation-dock.css" />
     <link rel="stylesheet" href="/proof-progress.css" />
     <link rel="stylesheet" href="/motion.css" />
+    <link rel="stylesheet" href="/archive-batch.css" />
   </head>
   <body>
     <section class="cover" id="cover" aria-label="入场画刊" hidden>
@@ -106,7 +107,7 @@
           ><button id="archive-nav">作品集 <small id="nav-count">00</small></button
           ><button id="atlas-nav">万象集</button><button id="replay">封面画刊 <span>↗</span></button>
         </nav>
-        <div class="header-actions account-island" role="group" aria-label="账户与界面主题">
+        <div class="header-actions account-island" role="group" aria-label="设置与界面主题">
           <button
             id="theme"
             class="icon-btn"
@@ -114,7 +115,7 @@
             aria-label="切换深浅色"
             data-icon="moon"
           ></button
-          ><button id="account" class="account">
+          ><button id="account" class="account" title="打开设置" aria-label="打开设置" aria-haspopup="dialog">
             <i></i><span>连接 NovelAI</span><span data-icon="arrow-up-right"></span>
           </button>
         </div>
@@ -210,13 +211,9 @@
             <div id="background-grid" class="folio-dot-background" aria-hidden="true"></div>
             <header class="proof-head">
               <div class="proof-mast">
+                <span class="chapter">02 / CANVAS <i class="mast-dash"></i> <span id="proof-edition">STUDIO</span></span>
                 <span class="iris-mark folio-mark" aria-hidden="true"></span>
-                <div>
-                  <span class="chapter"
-                    >02 / CANVAS <i class="mast-dash"></i> <span id="proof-edition">STUDIO</span></span
-                  >
-                  <h2>Image <em>Atelier</em><b>.</b></h2>
-                </div>
+                <h2>Image <em>Atelier</em><b>.</b></h2>
               </div>
               <div id="proof-actions"></div>
             </header>
@@ -228,8 +225,9 @@
                 <div class="proof-summary">
                   <div id="proof-status-slot" aria-live="polite"></div>
                   <div class="proof-caption">
-                    <span class="state-led"></span><b id="image-title">画布待命</b
-                    ><span id="image-info" class="micro"></span>
+                    <span class="state-led"></span>
+                    <span class="proof-title-line"><b id="image-title">画布待命</b><span id="proof-nsfw" class="nsfw-badge" data-icon="r18" role="img" aria-label="R18 · NSFW 图像" hidden></span></span>
+                    <span id="image-info" class="micro"></span>
                   </div>
                 </div>
                 <div
@@ -326,14 +324,38 @@
               id="archive-search"
               type="search"
               autocomplete="off"
-              placeholder="寻找画面中的某个词…"
-              aria-label="搜索作品正面提示词"
+              placeholder="搜索提示词或作品标签…"
+              aria-label="搜索作品正面提示词或标签"
             />
             <button id="archive-search-clear" type="button" aria-label="清除搜索" hidden data-icon="x"></button>
           </label>
           <div id="archive-score-controls"></div>
-          <span id="archive-search-count" aria-live="polite">按正面提示词搜索 · 支持模糊匹配</span>
+          <button type="button" id="archive-batch-toggle" aria-expanded="false" aria-controls="archive-batch-panel">
+            <span data-icon="tag" aria-hidden="true"></span>批量打标
+          </button>
+          <span id="archive-search-count" aria-live="polite">按提示词或作品标签搜索 · 支持模糊匹配</span>
         </div>
+        <section id="archive-batch-panel" aria-label="批量打标与打包" inert>
+          <div class="batch-clip">
+            <div class="batch-sheet">
+              <div class="batch-selection">
+                <output id="batch-count" aria-live="polite">已选 <b>0</b> 张</output>
+                <div class="batch-scope" role="group" aria-label="选择范围">
+                  <button type="button" id="batch-manual" aria-pressed="true">自选图片</button>
+                  <button type="button" id="batch-matches" aria-pressed="false">全部命中 <span>0</span></button>
+                </div>
+              </div>
+              <form id="batch-tag-form">
+                <input id="batch-tags" aria-label="作品标签，多个用逗号分隔" placeholder="输入标签，多个用逗号分隔" autocomplete="off" />
+                <button id="batch-apply" type="submit" disabled>添加标签</button>
+              </form>
+              <div class="batch-actions">
+                <button id="batch-zip" type="button" disabled><span data-icon="download"></span><span>打包 ZIP</span></button>
+                <button id="batch-close" type="button" title="退出批量模式（Esc）" aria-label="退出批量模式" data-icon="x"></button>
+              </div>
+            </div>
+          </div>
+        </section>
         <div class="section-rule">
           <span><b id="archive-total" class="index-no">00</b> 已生成作品</span
           ><span class="micro">完整画幅 &nbsp; / &nbsp; 最新在前</span>

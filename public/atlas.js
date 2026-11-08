@@ -15,6 +15,9 @@ import {
 import { openImagePicker } from './atlas-picker.js';
 import { searchItems } from './fuzzy-search.js';
 import { setIcon } from './icons.js';
+import { atlasImageMatches, markAtlasImage } from './atlas-image-meta.js';
+import { getHideNSFW } from './content-preferences.js';
+import { classifyWorkNSFW } from './nsfw-tags.js';
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -202,11 +205,17 @@ export function mountAtlas(
         if (!entry) continue;
         const image = change.target.querySelector('img');
         if (change.isIntersecting && change.intersectionRatio > 0 && !host.hidden) {
-          if (!image.hasAttribute('src')) {
+          change.target.dataset.inView = '';
+          void atlasImageMatches(entry).then(matches => {
+            if (host.hidden || observedImages.get(change.target) !== entry || !change.target.hasAttribute('data-in-view')) return;
+            if (markAtlasImage(change.target, matches) || image.hasAttribute('src')) return;
             if (!urls.has(entry.id)) urls.set(entry.id, URL.createObjectURL(entry.blob));
             image.src = urls.get(entry.id);
-          }
-        } else image.removeAttribute('src');
+          }).catch(() => image.removeAttribute('src'));
+        } else {
+          delete change.target.dataset.inView;
+          image.removeAttribute('src');
+        }
       }
     },
     { rootMargin: '0px', threshold: 0 },
@@ -276,7 +285,7 @@ export function mountAtlas(
         image.onload = () => {
           image.dataset.loaded = '';
           if (!motion.matches)
-            image.animate(
+            open.animate(
               [
                 { opacity: 0, translate: '0 12px' },
                 { opacity: 1, translate: '0 0' },
@@ -337,6 +346,8 @@ export function mountAtlas(
   });
   async function useEntry(entry) {
     try {
+      if (entry.type === 'material' && getHideNSFW() && (await atlasImageMatches(entry)).length)
+        return notify('这张素材已按 NSFW 设置隐藏。');
       await onUse(entry);
     } catch (error) {
       notify(error.message);
@@ -358,11 +369,16 @@ export function mountAtlas(
         { duration: 260, easing: 'cubic-bezier(.2,.75,.2,1)' },
       );
   }
-  function picture(blob, name, hostNode) {
+  async function picture(entry, hostNode) {
+    const { blob, name } = entry;
     if (dialogURL) URL.revokeObjectURL(dialogURL);
     dialogURL = null;
     hostNode.replaceChildren();
+    markAtlasImage(hostNode, []);
     if (blob) {
+      const matches = await atlasImageMatches(entry);
+      if (currentDialogEntry !== entry || entry.blob !== blob || !hostNode.isConnected) return;
+      if (markAtlasImage(hostNode, matches)) return;
       const image = el('img');
       image.alt = name || '条目图像';
       dialogURL = URL.createObjectURL(blob);
@@ -399,7 +415,7 @@ export function mountAtlas(
       currentDialogEntry = entry;
       const { visual, image, sheet, title } = spread(entry.name);
       title.dataset.entryType = entry.type;
-      picture(entry.blob, entry.name, image);
+      await picture(entry, image);
       const change = button(entry.blob ? '替换图像' : '添加图像', 'at-secondary', 'image-plus');
       change.onclick = () =>
         openImagePicker({
@@ -471,7 +487,10 @@ export function mountAtlas(
       const original = Array.isArray(works) && works.find((work) => work.id === entry.sourceWorkId);
       if (original && onOpenWork) {
         const source = button('查看来源作品', 'at-source-link');
+        source.dataset.sensitive = String(classifyWorkNSFW(original).nsfw);
+        source.hidden = getHideNSFW() && source.dataset.sensitive === 'true';
         source.onclick = () => {
+          if (getHideNSFW() && classifyWorkNSFW(original).nsfw) return;
           dialog.close();
           onOpenWork(original);
         };
@@ -498,7 +517,7 @@ export function mountAtlas(
       currentDialogEntry = draft;
       categories = await listCategories();
       const { visual, image, sheet, title } = spread(draft.id ? '编辑条目' : 'A new impression.');
-      picture(draft.blob, draft.name, image);
+      await picture(draft, image);
       const replace = button(draft.blob ? '替换图像' : '添加图像', 'at-secondary', 'image-plus');
       replace.onclick = () =>
         openImagePicker({
@@ -508,7 +527,8 @@ export function mountAtlas(
             draft.blob = blob;
             draft.imageOrigin = 'manual';
             draft.sourceWorkId = info.workId;
-            picture(blob, draft.name, image);
+            delete draft.imageNsfwTags;
+            await picture(draft, image);
             replace.querySelector('span:last-child').textContent = '替换图像';
             if (!name.value.trim()) name.value = fileName(info.filename || info.work?.filename || blob.name);
           },
@@ -636,6 +656,7 @@ export function mountAtlas(
       width: work.width,
       height: work.height,
       sourceWorkId: work.id,
+      imageNsfwTags: classifyWorkNSFW(work).matches,
       imageOrigin: 'manual',
     });
   }
@@ -706,6 +727,15 @@ export function mountAtlas(
     );
     if (!categoryDialog.open) categoryDialog.showModal();
   }
+  window.addEventListener('folio:content-preferences', () => {
+    draw();
+    const image = dialog.querySelector('.at-detail-image');
+    if (dialog.open && currentDialogEntry && image) {
+      void picture(currentDialogEntry, image).catch(() => {});
+      const source = dialog.querySelector('.at-source-link');
+      if (source) source.hidden = getHideNSFW() && source.dataset.sensitive === 'true';
+    }
+  }, { signal: abort.signal });
   void refresh();
   return {
     refresh,

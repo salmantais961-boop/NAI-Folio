@@ -1,7 +1,9 @@
 import { getWork, setWorkScore } from './archive-store.js';
 import { workScore } from './archive-scoring.js';
 import { MODELS, SAMPLERS, MODES, TOOLS } from './controls-model.js';
-import { setIcon } from './icons.js';
+import { createRatingBadge, setIcon } from './icons.js';
+import { classifyWorkNSFW } from './nsfw-tags.js';
+import { getHideNSFW } from './content-preferences.js';
 
 const labels = {
   model: '模型',
@@ -339,6 +341,23 @@ export function mountArchiveAppreciation({
     content.replaceChildren();
     content.scrollTop = 0;
     if (selectedTab === 'meta') {
+      const { matches } = classifyWorkNSFW(work);
+      if (matches.length) {
+        const notice = el('div', 'av-content-rating');
+        notice.append(createRatingBadge(matches), el('span', '', 'META 命中 · ' + matches.join('、')));
+        content.append(notice);
+      }
+      if (work.galleryTags?.length) {
+        const tagList = el('div', 'av-tags');
+        tagList.setAttribute('role', 'list');
+        tagList.setAttribute('aria-label', '作品标签');
+        for (const tag of work.galleryTags) {
+          const chip = el('span', '', tag);
+          chip.setAttribute('role', 'listitem');
+          tagList.append(chip);
+        }
+        content.append(el('h3', 'av-tags-heading', '作品标签'), tagList);
+      }
       const facts = el('dl', 'av-facts');
       function fact(label, value) {
         const row = el('div');
@@ -400,6 +419,10 @@ export function mountArchiveAppreciation({
       const latest = (await getWork(selected.id)) || selected;
       const meta = await getRecipe(latest);
       if (disposed || version !== ticket) return;
+      if (getHideNSFW() && classifyWorkNSFW(latest).nsfw) {
+        if (dialog.open) dialog.close();
+        return;
+      }
       work = latest;
       recipe = meta || latest;
       if (!options.keepTab) selectedTab = 'meta';
@@ -440,10 +463,17 @@ export function mountArchiveAppreciation({
       if (version === ticket) notify(error.message || '作品暂时无法打开。');
     }
   }
+  const refreshVisibility = () => {
+    if (!dialog.open) return;
+    if (work && getHideNSFW() && classifyWorkNSFW(work).nsfw) dialog.close();
+    else renderNavigation();
+  };
+  window.addEventListener('folio:content-preferences', refreshVisibility);
   return {
     open,
     close: () => dialog.close(),
     destroy() {
+      window.removeEventListener('folio:content-preferences', refreshVisibility);
       disposed = true;
       ticket++;
       dialog.close();

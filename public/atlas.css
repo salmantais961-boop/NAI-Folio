@@ -227,6 +227,32 @@
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+.at-card-visual[data-sensitive-image],
+.at-detail-image[data-sensitive-image],
+.pt-example-plate[data-sensitive-image],
+.ax-card-media[data-sensitive-image] {
+  position: relative;
+}
+:is(.at-card-visual, .at-detail-image, .pt-example-plate, .ax-card-media) > .nsfw-badge {
+  position: absolute;
+  inset: auto auto 8px 8px;
+}
+:is(.at-card-visual, .at-detail-image, .ax-card-media)[data-sensitive-hidden] {
+  min-height: 70px;
+  background: var(--soft);
+  border-radius: 12px;
+}
+:is(.at-card-visual, .at-detail-image, .ax-card-media)[data-sensitive-hidden]::after {
+  content: 'NSFW · 图像已隐藏';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  color: var(--mute);
+  font: 600 10px/1.25 var(--mono);
+  letter-spacing: .06em;
+  pointer-events: none;
+}
 .at-card-empty {
   position: relative;
   min-height: 220px;

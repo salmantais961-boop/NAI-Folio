@@ -1,4 +1,6 @@
 import { MODELS, SAMPLERS, TOOLS } from './controls-model.js';
+import { getHideNSFW } from './content-preferences.js';
+import { classifyWorkNSFW } from './nsfw-tags.js';
 
 const own = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
 const clone = (value) => structuredClone(value);
@@ -241,6 +243,21 @@ export function mountMetaReuse({ getRecipe, getImageUrl, onApply, notify = () =>
     if (ownedUrl) URL.revokeObjectURL(ownedUrl);
     ownedUrl = null;
   }
+  function displayPreview() {
+    releaseImage();
+    image.hidden = true;
+    placeholder.hidden = false;
+    const hidden = getHideNSFW() && (classifyWorkNSFW(currentWork).nsfw || classifyWorkNSFW(currentRecipe).nsfw);
+    placeholder.querySelector('small').textContent = hidden ? 'NSFW · 图像已隐藏' : '该配方未附带预览图';
+    if (hidden || !currentWork || !currentRecipe) return;
+    try {
+      let url = getImageUrl?.(currentWork);
+      if (!url && currentWork.blob instanceof Blob) url = ownedUrl = URL.createObjectURL(currentWork.blob);
+      if (url) image.src = url;
+    } catch { /* The recipe is still usable when its preview is unavailable. */ }
+  }
+  const preferencesChanged = () => { if (dialog.open) displayPreview(); };
+  window.addEventListener('folio:content-preferences', preferencesChanged);
   function selection() {
     return [...boxes].filter(([, input]) => input.checked && !input.disabled).map(([key]) => key);
   }
@@ -465,11 +482,6 @@ export function mountMetaReuse({ getRecipe, getImageUrl, onApply, notify = () =>
         image.hidden = false;
         placeholder.hidden = true;
       };
-      try {
-        let url = getImageUrl?.(work);
-        if (!url && work?.blob instanceof Blob) url = ownedUrl = URL.createObjectURL(work.blob);
-        if (url) image.src = url;
-      } catch {}
       boxes.clear();
       list.replaceChildren(element('p', 'mr-loading', '正在读取图像 META…'));
       message.textContent = '';
@@ -488,6 +500,7 @@ export function mountMetaReuse({ getRecipe, getImageUrl, onApply, notify = () =>
         const loaded = recipe ?? (await getRecipe?.(work)) ?? work;
         if (token !== epoch || !dialog.open) return;
         currentRecipe = loaded || {};
+        displayPreview();
         render(currentRecipe);
         list.scrollTop = 0;
       } catch (error) {
@@ -499,6 +512,7 @@ export function mountMetaReuse({ getRecipe, getImageUrl, onApply, notify = () =>
     close,
     destroy() {
       epoch++;
+      window.removeEventListener('folio:content-preferences', preferencesChanged);
       releaseImage();
       dialog.remove();
     },
