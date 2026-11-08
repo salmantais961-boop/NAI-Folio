@@ -1,0 +1,144 @@
+@font-face {
+  font-family: Instrument;
+  src: url('/fonts/instrument-italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 400;
+  font-display: block;
+}
+:root {
+  color-scheme: light;
+  --paper: #f8f8f5;
+  --ink: #202123;
+  --muted: #656760;
+  --edge: #d4d5cf;
+  --highlight: #e7e7e1;
+  --accent: #393ecb;
+  --close-bg: #823a37;
+  --window-radius: 18px;
+  --ease: cubic-bezier(.22,.72,.2,1);
+  font-family: var(--sans);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #17191d;
+  --ink: #f4f3ee;
+  --muted: #aaaead;
+  --edge: #393c40;
+  --highlight: #35383f;
+  --accent: #afb4ff;
+  --close-bg: #994b46;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+.window-frame {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--window-radius);
+  color: var(--ink);
+  background: var(--paper);
+}
+:root[data-maximized] .window-frame { border-radius: 0; }
+.desktop-opening {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  background: var(--paper);
+  border-radius: inherit;
+  touch-action: none;
+  user-select: none;
+}
+.desktop-signature {
+  display: inline-flex;
+  align-items: center;
+  gap: .11em;
+  opacity: 0;
+  font: italic 400 clamp(64px, 7.4vw, 104px)/1 Instrument, Georgia, serif;
+  letter-spacing: -.045em;
+}
+.signature-flower {
+  inline-size: .84em;
+  block-size: .84em;
+  background: currentColor;
+  mask: url('/mark.svg') center / contain no-repeat;
+}
+.window-controls {
+  position: absolute;
+  top: var(--controls-center, 28px);
+  right: var(--controls-right, 14px);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  user-select: none;
+}
+.window-controls button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 9px;
+  color: var(--muted);
+  background: transparent;
+  transition: background-color 140ms, color 140ms, transform 180ms var(--ease);
+}
+.window-controls button:is(:hover, :focus-visible) { color: var(--ink); background: var(--highlight); }
+.window-controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.window-controls button:active { transform: scale(.92); }
+.window-controls button[data-window-action="close"]:is(:hover, :focus-visible) { color: #fff; background: var(--close-bg); }
+.window-controls svg {
+  display: block;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.window-controls svg, .window-controls svg :is(g, path) {
+  transform-origin: center;
+  transition: transform 220ms var(--ease), opacity 180ms;
+}
+.min-tray, .restore-glyph { opacity: 0; }
+.min-tray { transform: translateY(1.4px); }
+[data-window-action="minimize"]:is(:hover, :focus-visible) .min-tray { opacity: .55; transform: none; }
+[data-window-action="minimize"]:is(:hover, :focus-visible) .min-line { transform: translateY(1.6px) scaleX(.72); }
+[data-window-action="maximize"]:is(:hover, :focus-visible) .max-ne { transform: translate(1px,-1px); }
+[data-window-action="maximize"]:is(:hover, :focus-visible) .max-sw { transform: translate(-1px,1px); }
+.restore-glyph, :root[data-maximized] .max-glyph { transform: scale(.72); opacity: 0; }
+:root[data-maximized] .restore-glyph { transform: none; opacity: 1; }
+[data-window-action="close"]:is(:hover, :focus-visible) svg { transform: rotate(90deg); }
+:root[data-unfocused] .window-controls { opacity: .7; }
+.window-frame:has(.window-controls[data-on-backdrop]) .window-controls {
+  background: var(--paper);
+  border-radius: 10px;
+}
+#desktop-workspace { border: none; display: block; width: 100%; height: 100%; background: var(--paper); }
+.window-feedback {
+  position: absolute; top: 42px; right: 10px; margin: 0; padding: 8px 12px;
+  border: 1px solid var(--edge); border-radius: 10px; color: var(--ink); background: var(--paper);
+  font-size: 12px;
+}
+.window-resizers { position: absolute; inset: 0; pointer-events: none; }
+:root[data-maximized] .window-resizers { display: none; }
+.window-resizers > i { position: absolute; pointer-events: auto; touch-action: none; }
+[data-edge="North"], [data-edge="South"] { left: 12px; right: 12px; height: 4px; cursor: ns-resize; }
+[data-edge="West"], [data-edge="East"] { top: 12px; bottom: 12px; width: 4px; cursor: ew-resize; }
+[data-edge^="North"] { top: 0; }
+[data-edge^="South"] { bottom: 0; }
+[data-edge$="West"] { left: 0; }
+[data-edge$="East"] { right: 0; }
+[data-edge="NorthWest"], [data-edge="SouthEast"] { width: 12px; height: 12px; cursor: nwse-resize; }
+[data-edge="NorthEast"], [data-edge="SouthWest"] { width: 12px; height: 12px; cursor: nesw-resize; }
+@media (prefers-reduced-motion: reduce) {
+  .desktop-signature { opacity: 1; }
+  .window-controls *, .window-controls svg :is(g, path) { transition: none; }
+  .window-controls button:active { transform: none; }
+}

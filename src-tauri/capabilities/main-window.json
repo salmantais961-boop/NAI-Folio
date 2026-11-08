@@ -1,0 +1,11 @@
+{
+  "identifier": "main-window",
+  "description": "Native title bar for the local Folio window",
+  "windows": ["main"],
+  "permissions": [
+    "core:window:allow-minimize", "core:window:allow-toggle-maximize",
+    "core:window:allow-is-maximized", "core:window:allow-close",
+    "core:window:allow-start-dragging", "core:window:allow-start-resize-dragging",
+    "core:event:allow-listen", "core:event:allow-unlisten"
+  ]
+}

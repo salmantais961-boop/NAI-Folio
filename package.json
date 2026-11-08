@@ -10,5 +10,14 @@
     "url": "https://github.com/salmantais961-boop/NAI-Folio.git"
   },
   "engines": { "node": ">=22.2" },
-  "scripts": { "start": "node server.mjs", "dev": "node --watch server.mjs", "test": "node --test" }
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "test": "node --test",
+    "fonts:prepare": "node scripts/prepare-misans.mjs",
+    "prestart": "npm run fonts:prepare",
+    "predev": "npm run fonts:prepare",
+    "desktop:build": "node desktop/build.mjs",
+    "desktop:installer": "npm run desktop:build && npx --yes --package=@tauri-apps/cli@2.12.4 tauri bundle --bundles nsis --ci --no-binary-patching"
+  }
 }

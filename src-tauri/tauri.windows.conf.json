@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Folio Desktop",
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "Folio",
+    "resources": {
+      "../desktop-build/backend/": "backend/",
+      "../desktop-build/notices/": "notices/"
+    },
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper", "silent": true },
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["SimpChinese", "English"],
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+/*
+ * MiSans · Copyright © 2020–2023 Beijing Xiaomi Mobile Software Co., Ltd.
+ * Official font binaries. See LICENSE.pdf for Xiaomi's MiSans license.
+ * Limit these faces to Chinese type so the surrounding Latin type keeps its own family.
+ */
+@font-face {
+  font-family: MiSans;
+  src: url('./MiSans-VF.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 150 700;
+  font-display: swap;
+  unicode-range: U+00B7, U+2013-2014, U+2016, U+2018-2019, U+201C-201D, U+2025-2026,
+    U+2E80-2EFF, U+2FF0-303F, U+3100-312F, U+31A0-31EF, U+3200-9FFF,
+    U+F900-FAFF, U+FE10-FE1F, U+FE30-FE6F, U+FF01-FF60, U+FFE0-FFE6, U+20000-2FFFF;
+}
+
+/* The Level 3 face adds Kangxi radicals and supplementary Han characters. */
+@font-face {
+  font-family: MiSans;
+  src: url('./MiSans-L3.otf') format('opentype');
+  font-style: normal;
+  font-weight: 150 700;
+  font-display: swap;
+  unicode-range: U+2F00-2FD5, U+20000-30EDE;
+}

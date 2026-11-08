@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createFolioServer } from './server.mjs';
+import { prepareMiSans } from './scripts/prepare-misans.mjs';
 
 const port = Number(process.env.PORT || 4389);
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw Error('PORT 必须是有效端口号。');
@@ -13,6 +14,12 @@ function openBrowser() {
   });
   proc.on('error', () => console.log('请在浏览器中打开上面的地址。'));
   proc.unref();
+}
+try {
+  await prepareMiSans();
+} catch (error) {
+  console.error('MiSans 字体未能准备好：' + error.message);
+  process.exit(1);
 }
 const server = createFolioServer();
 server.on('error', async (error) => {

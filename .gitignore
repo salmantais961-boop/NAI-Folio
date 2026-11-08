@@ -12,5 +12,11 @@ Thumbs.db
 /playwright-report/
 /test-results/
 /browser-profile/
+/desktop-build/
+/src-tauri/target/
+/src-tauri/gen/
+/public/fonts/misans/*.ttf
+/public/fonts/misans/*.otf
+/public/fonts/misans/*.tmp
 __pycache__/
 *.pyc

@@ -45,7 +45,7 @@
 .bill-chevron {
   font-size: 12px;
   color: var(--mute);
-  font-family: Arial;
+  font-family: var(--sans);
   transform-origin: center;
 }
 .bill-usage[open] .bill-chevron,

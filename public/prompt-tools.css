@@ -267,7 +267,7 @@
   flex: none;
   border-radius: 4px;
   color: var(--mute);
-  font: 22px/1 Arial;
+  font: 22px/1 var(--sans);
 }
 .pt-x:hover,
 .pt-back:hover {

@@ -5,6 +5,7 @@
 | 资源 | 用途与许可 |
 | --- | --- |
 | Instrument Serif、Italiana | 本地排版字体，使用 SIL Open Font License 1.1。[Instrument Serif](public/fonts/instrument-LICENSE.txt) · [Italiana](public/fonts/italiana-LICENSE.txt) |
+| MiSans、MiSans L3 | 中文界面使用小米原版字体，版权归小米所有。安装版嵌入字体，设置中附有署名和许可；源码构建时从官方获取。[小米官方下载](https://hyperos.mi.com/font/download) · [MiSans 字体许可](public/fonts/misans/LICENSE.pdf) |
 | Three.js、Meshoptimizer | 本地图形与模型解码，使用 MIT 许可。[Three.js](public/vendor/three-LICENSE.txt) · [Meshoptimizer](public/vendor/meshoptimizer-LICENSE.txt) |
 | Draco | WebAssembly 解码器及包装代码，使用随附的 Apache 2.0 许可和附录声明。[Draco 声明](public/vendor/draco/LICENSE.txt) |
 | React Bits · Dot Grid | 点阵背景作为工作台的一部分分发。该组件使用附 Commons Clause 条件的许可，单独分发及商业使用范围以原文为准。[组件许可](public/vendor/react-bits-LICENSE.txt) |
@@ -13,6 +14,8 @@
 ## 便携包运行时
 
 Windows x64 便携包另附官方 Node.js v24.22.2，可执行文件与完整许可位于包内的 `runtime/`。[Node.js 官方发行目录](https://nodejs.org/dist/v24.22.2/)
+
+Folio Desktop 使用 Tauri 2、Rust 和系统 WebView2。桌面安装目录的 `notices/` 包含项目许可、Rust 依赖及前端资源的许可信息，Node.js 许可位于 `backend/runtime/LICENSE`。[Tauri 源码与许可](https://github.com/tauri-apps/tauri)
 
 ## 示例插画
 

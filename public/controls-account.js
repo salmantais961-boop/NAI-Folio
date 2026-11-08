@@ -156,11 +156,11 @@ export function connection({ onAccount, notify }) {
           <input type="checkbox" role="switch" aria-labelledby="ap-nsfw-name" aria-describedby="ap-nsfw-note" data-hide-nsfw>
           <span class="fc-switch" aria-hidden="true"></span>
         </label>
-        <label class="fc-transport ap-preference">
+        ${document.getElementById('cover') ? `<label class="fc-transport ap-preference">
           <span class="ap-preference-copy"><strong id="ap-opening-name">入场时播放封面画刊</strong></span>
           <input type="checkbox" role="switch" aria-labelledby="ap-opening-name" data-show-opening>
           <span class="fc-switch" aria-hidden="true"></span>
-        </label>
+        </label>` : ''}
       </section>
       <section class="ap-card ap-overview" aria-label="当前连接">
         <div class="ap-section-head"><h3>当前连接</h3><button type="button" data-disconnect>断开连接</button></div>
@@ -191,6 +191,9 @@ export function connection({ onAccount, notify }) {
         <div class="ap-error" role="status" aria-live="polite"></div>
         <div class="ap-submit"><button type="button" data-once>仅本次使用</button><button type="submit" class="ap-primary">保存并使用 <span aria-hidden="true">↗</span></button></div>
       </form>
+      <footer class="ap-font-credit">中文字体 · MiSans
+        <a href="/fonts/misans/LICENSE.pdf" download="MiSans 字体许可协议.pdf">字体许可 <span aria-hidden="true">↓</span></a>
+      </footer>
     </div>`
     setIcon(d.querySelector('[data-close]'), 'x')
     document.body.append(d)
@@ -200,6 +203,7 @@ export function connection({ onAccount, notify }) {
       ['[data-show-opening]', 'folio:opening-preference', getShowOpening, setShowOpening],
     ]) {
       const input = d.querySelector(selector)
+      if (!input) continue
       const sync = () => { input.checked = get() }
       sync()
       window.addEventListener(eventName, sync, { signal: preferenceListeners.signal })

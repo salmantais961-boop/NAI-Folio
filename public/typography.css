@@ -1,0 +1,10 @@
+/* MiSans supplies Chinese glyphs. Its CJK unicode ranges leave Latin titles,
+   UI labels and tabular values to their respective Folio typefaces. */
+:root {
+  --sans: MiSans, Arial, sans-serif;
+  --display: MiSans, Instrument, Georgia, serif;
+  --mono: MiSans, 'Cascadia Mono', Consolas, monospace;
+  --masthead: MiSans, Italiana, 'Times New Roman', serif;
+}
+code, kbd, pre, samp { font-family: var(--mono); }
+::file-selector-button { font-family: inherit; }

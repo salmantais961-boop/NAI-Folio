@@ -9,6 +9,8 @@
     <title>Folio — NovelAI 图像工作台</title>
     <link rel="icon" href="/mark.svg?v=petal" type="image/svg+xml" />
     <link rel="preload" href="/fonts/italiana.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/fonts/misans/font-face.css" />
+    <link rel="stylesheet" href="/typography.css" />
     <link rel="stylesheet" href="/app.css" />
     <link rel="stylesheet" href="/catalog.css" />
     <link rel="stylesheet" href="/controls.css" />
@@ -46,6 +48,7 @@
     <link rel="stylesheet" href="/archive-batch.css" />
   </head>
   <body>
+    <!-- web-cover -->
     <section class="cover" id="cover" aria-label="入场画刊" hidden>
       <header class="cover-top">
         <div class="cover-brand">
@@ -97,6 +100,7 @@
       </footer>
       <div class="cover-progress"><i id="progress-line"></i></div>
     </section>
+    <!-- /web-cover -->
     <div id="app">
       <header class="app-top">
         <button id="brand" class="wordmark" aria-label="Folio 首页">
@@ -105,7 +109,7 @@
         <nav aria-label="主导航">
           <button id="studio-nav" aria-current="page">工作台</button
           ><button id="archive-nav">作品集 <small id="nav-count">00</small></button
-          ><button id="atlas-nav">万象集</button><button id="replay">封面画刊 <span>↗</span></button>
+          ><button id="atlas-nav">万象集</button><!-- web-cover --><button id="replay">封面画刊 <span>↗</span></button><!-- /web-cover -->
         </nav>
         <div class="header-actions account-island" role="group" aria-label="设置与界面主题">
           <button
@@ -413,7 +417,7 @@
     </dialog>
     <div id="toast" role="status"></div>
     <noscript>请启用 JavaScript 进入图像工作台。</noscript>
-    <script type="module" src="/cover.js"></script>
+    <!-- web-cover --><script type="module" src="/cover.js"></script><!-- /web-cover -->
     <script type="module" src="/studio.js"></script>
     <script type="module" src="/background-grid.js"></script>
     <script type="module" src="/brand-motion.js"></script>

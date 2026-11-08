@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Folio — NovelAI 图像工作台</title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/instrument-italic.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/fonts/misans/font-face.css" />
+    <link rel="stylesheet" href="/typography.css" />
+    <link rel="stylesheet" href="/desktop-window.css" />
+    <script type="module" src="/desktop-window.js"></script>
+  </head>
+  <body>
+    <div class="window-frame">
+      <iframe id="desktop-workspace" title="Folio 工作区" allow="clipboard-read; clipboard-write"></iframe>
+      <div class="desktop-opening" aria-hidden="true">
+        <div class="desktop-signature"><span class="signature-flower"></span><i lang="en">Folio</i></div>
+      </div>
+      <div class="window-controls" role="group" aria-label="窗口控制">
+          <button type="button" data-window-action="minimize" aria-label="最小化" title="最小化">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path class="min-line" d="M4.7 11h10.6"/>
+              <path class="min-tray" d="M4.5 13.3v1.4h11v-1.4"/>
+            </svg>
+          </button>
+          <button type="button" data-window-action="maximize" aria-label="最大化" title="最大化">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <g class="max-glyph"><path class="max-ne" d="M8.8 4.6h5.5q1.1 0 1.1 1.1v5.5"/><path class="max-sw" d="M11.2 15.4H5.7q-1.1 0-1.1-1.1V8.8"/></g>
+              <g class="restore-glyph"><rect x="4.7" y="7.2" width="8.4" height="8.2" rx="1.25"/><path d="M7.3 4.8h6.8q1.2 0 1.2 1.2v6.6"/></g>
+            </svg>
+          </button>
+          <button type="button" data-window-action="close" aria-label="关闭窗口" title="关闭窗口">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5.7 5.7 8.6 8.6m0-8.6-8.6 8.6"/></svg>
+          </button>
+      </div>
+      <div class="window-resizers" aria-hidden="true"></div>
+      <p class="window-feedback" role="status" hidden></p>
+    </div>
+  </body>
+</html>

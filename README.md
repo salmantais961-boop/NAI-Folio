@@ -12,11 +12,16 @@
 
 ## 快速开始
 
-**Windows x64**　下载便携包，完整解压后双击 **启动工作台.cmd**。包内已附 Node.js 运行时。[下载 Folio 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/NAI-Folio-1.0.3-windows-x64.zip) · [版本与校验文件](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.3)
+| Windows x64 | 打开方式 | 下载 |
+| --- | --- | --- |
+| **Folio Desktop** · 桌面应用 | 从开始菜单打开 **Folio Desktop**，花标与 Folio 字标淡出后进入工作台。拖动导航留白可移动窗口，双击可最大化或还原。 | [安装 EXE · 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/desktop-v1.0.3/Folio-Desktop-1.0.3-windows-x64-setup.exe) · [桌面版说明与校验](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/desktop-v1.0.3) |
+| **Folio WebUI** · 浏览器工作台 | 完整解压便携包，双击 **启动工作台.cmd**，在浏览器中使用。 | [便携 ZIP · 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/NAI-Folio-1.0.3-windows-x64.zip) · [WebUI 说明与校验](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.3) |
+
+两版分别在各自的本地配置中保存作品与账户。首次打开桌面版时，在右上角设置中连接自己的账号。桌面安装程序面向当前 Windows 用户，缺少 WebView2 时会下载微软运行时。
 
 ### 从源码运行
 
-准备 **Node.js 22.2 或更高版本**。前端、字体与运行所需的库已随仓库提供，克隆后即可启动。
+准备 **Node.js 22.2 或更高版本**。首次 `npm start` 会从小米官方获取并校验 MiSans 字体，再启动 WebUI；以后复用本地字体。
 
 ```sh
 git clone https://github.com/salmantais961-boop/NAI-Folio.git
@@ -25,6 +30,8 @@ npm start
 ```
 
 打开 [本地工作台](http://127.0.0.1:4389/)。Windows 用户也可以双击根目录的 **启动工作台.cmd**。
+
+在 Windows x64 上构建桌面安装程序还需 Rust MSVC 工具链、Visual Studio C++ 生成工具和 Windows SDK。执行 `npm run desktop:installer`，安装程序位于 `src-tauri/target/release/bundle/nsis/`。执行 `npm run desktop:build` 可生成供本机运行的 `desktop-build/Folio/Folio.exe`。
 
 1. 点右上角 **连接 NovelAI**，填入自己的 API Key。可以仅在本次使用，也可以在当前浏览器保存多个账号。使用中转站时，选择 **NAI API 中转站** 并填入兼容 NovelAI 原生协议的地址。
 2. 在正向提示词里试试 `portrait, short hair, cardigan, white background`，选择模型和画幅。生成按钮会显示本次预计消耗，余额与 V5 配额取决于所连服务提供的信息。

@@ -23,9 +23,6 @@
   --rule: #d7d8d3;
   --accent: #393ecb;
   --accent-soft: #e9e9fa;
-  --sans: Arial, 'Microsoft YaHei', sans-serif;
-  --display: Instrument, Georgia, serif;
-  --mono: 'Cascadia Mono', Consolas, monospace;
   --margin: clamp(22px, 4.4vw, 90px);
   color-scheme: light;
 }
@@ -207,9 +204,7 @@ svg {
   font-size: 10px;
 }
 .cover-brand b {
-  font:
-    800 15px/0.9 Arial,
-    sans-serif;
+  font: 800 15px/0.9 var(--sans);
   letter-spacing: 0.07em;
 }
 .cover-brand .flower {
@@ -269,10 +264,7 @@ svg {
   letter-spacing: 0.13em;
 }
 .cover-mast h1 {
-  font:
-    400 clamp(60px, min(9.4vw, 14.4vh), 170px)/0.93 Italiana,
-    'Times New Roman',
-    serif;
+  font: 400 clamp(60px, min(9.4vw, 14.4vh), 170px)/0.93 var(--masthead);
   letter-spacing: -0.095em;
   margin-left: -0.045em;
   margin-top: 6px;
@@ -414,7 +406,7 @@ svg {
   display: block;
   font-size: 45px;
   margin-top: clamp(16px, 5vh, 54px);
-  font-family: Georgia;
+  font-family: var(--display);
   line-height: 1;
 }
 .portrait .spread-picture:after,
@@ -477,7 +469,7 @@ svg {
   border-bottom: 2px solid #171917;
 }
 .cover-index .pause {
-  font: 13px Arial;
+  font: 13px var(--sans);
   min-width: 25px;
 }
 .cover-colophon {

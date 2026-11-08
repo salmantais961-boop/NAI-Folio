@@ -1,0 +1,26 @@
+/* Loaded only by the desktop shell. The web app's masthead is the titlebar. */
+:root { --desktop-controls-right: 14px; }
+@media (max-width: 760px) { :root { --desktop-controls-right: 8px; } }
+.app-top {
+  padding-inline: 15px calc(var(--desktop-controls-right) + 92px + 7px);
+  gap: clamp(6px, .75vw, 12px);
+  user-select: none;
+}
+.app-top .wordmark {
+  flex: none;
+  font-size: clamp(40px, 3.3vw, 48px);
+  gap: 6px;
+}
+.app-top .wordmark .folio-mark[data-brand-static] { width: .9em; height: .9em; }
+.app-top .wordmark-dot { margin-left: -5px; }
+.app-top nav { margin-inline-start: 10px; gap: clamp(14px, 1.45vw, 23px); }
+.app-top nav button { font-size: clamp(15px, 1.12vw, 18px); }
+@media (max-width: 760px) {
+  .app-top { padding-inline-start: 13px; }
+  .app-top .wordmark { font-size: 37px; gap: 4px; }
+  .app-top nav { gap: 12px; }
+}
+/* Put window controls above a floating dialog, or alongside the viewer's own
+   close button when the image viewer covers the entire window. */
+dialog:modal:not(.pv-dialog) { max-height: calc(100dvh - 74px); }
+.pv-dialog:modal .pv-dialog-head { padding-inline-end: calc(var(--desktop-controls-right) + 92px); }

@@ -91,6 +91,16 @@
 }
 .ap-preference-copy strong { font: 550 13px/1.4 var(--sans); }
 .ap-preference-copy small { color: var(--mute); font: 11px/1.5 var(--sans); }
+.ap-font-credit {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 12px 2px;
+  color: var(--mute);
+  font: 11px/1.6 var(--sans);
+}
+.ap-font-credit a { color: inherit; text-underline-offset: 3px; }
+.ap-font-credit a:hover { color: var(--ink); }
 .ap-section-head button,
 .ap-secret button {
   color: var(--mute);
