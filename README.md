@@ -1,29 +1,53 @@
-<p align="center">
-  <img src="docs/media/folio-masthead.svg" width="100%" alt="Folio · NovelAI 图像工作台">
-</p>
+# <img src="docs/media/edition/cover.png" width="100%" alt="Folio · NovelAI 图像工作台。五瓣花和黑色 Folio 字标印在米白纸面上，右边的蓝发角色托着两颗心。">
 
-**Folio 是一座在本机运行的 NovelAI 插画工作台。** 左手写提示词，中间看画面逐步成形，右手翻看刚刚生成的版本。走进作品集，还能沿着一张图找回它的配方、角色，以及后来做过的每一次修改。
+**Folio 是一个在自己电脑上用的 NovelAI 画图工具。** 当你画出一张喜欢的图，想再试试别的光线，可以把角色和种子留下，只改光线。过几天想起这张画，搜当初写过的词，就能把原图和那次用的设置一起翻出来。
 
-[快速开始](#快速开始)　／　[创作与归档](#创作与归档)　／　[本地数据](#本地数据)　／　[许可](#许可)
+[下载和连接](#下载和连接)　/　[画第一张图](#画第一张图)　/　[把图留下来](#把图留下来)　/　[从源码运行](#从源码运行)
 
-![Folio 工作台实景，中央画布完整展示浅金短发的人物习作，左侧为提示词，右侧为历史](docs/media/workbench-preview.png)
+## 下载和连接
 
-<sub>工作台实景 · 示例插画由项目维护者提供。　<a href="public/art/portrait-study.png">查看原图 ↗</a></sub>
+| Windows x64 | 怎么打开 |
+| --- | --- |
+| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/Folio-Desktop-1.0.3-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。拖动导航栏的空白处可以移动窗口，双击可以最大化。 |
+| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/NAI-Folio-1.0.3-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
 
-## 快速开始
+两个下载都在 1.0.3 发布页，校验文件也放在那里。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.3) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/SHA256SUMS.txt)
 
-| Windows x64 | 打开方式 | 下载 |
-| --- | --- | --- |
-| **Folio Desktop** · 桌面应用 | 从开始菜单打开 **Folio Desktop**，花标与 Folio 字标淡出后进入工作台。拖动导航留白可移动窗口，双击可最大化或还原。 | [安装 EXE · 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/Folio-Desktop-1.0.3-windows-x64-setup.exe) |
-| **Folio WebUI** · 浏览器工作台 | 完整解压便携包，双击 **启动工作台.cmd**，在浏览器中使用。 | [便携 ZIP · 1.0.3](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/NAI-Folio-1.0.3-windows-x64.zip) |
+第一次打开，点右上角 **连接 NovelAI**，填自己的 API Key。如果只想试画一次，选 **仅本次使用**。想下次接着用，就选 **保存并使用**。这里也能添加和切换多个账户。用中转站时选 **NAI API 中转站**，填服务商提供的兼容 NovelAI 原生协议的地址。
 
-[1.0.3 更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.0.3) · [两个版本的 SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.0.3/SHA256SUMS.txt)
+<img src="docs/media/edition/atelier.png" width="100%" alt="Atelier 工作台篇。灰发角色站在淡蓝色弧面前，旁边是深蓝底的斜体刊名。">
 
-两版分别在各自的本地配置中保存作品与账户。首次打开桌面版时，在右上角设置中连接自己的账号。桌面安装程序面向当前 Windows 用户，缺少 WebView2 时会下载微软运行时。
+## 画第一张图
+
+在左边的正向提示词里试试 `portrait, window light, watercolor`，选一个竖画幅，点 **生成图像**。按钮旁会估算这次要花多少 Anlas，支持额度查询的账户还能看到 V5 用量。打开 **流式预览** 后，支持流式的服务会把中间画面一步步送回来。等图的这段时间，可以点右侧历史翻看前几张。
+
+![工作台实景，左栏编辑提示词和画幅，中间显示人物原图，右栏可切换历史作品](docs/media/workbench-preview.png)
+
+**提示词不用每次从头写。** 记得中文、不记得英文时，输入「柔光」也能找出 `soft lighting`。用上下方向键挑词，按 Tab 插入。常用的一整串画风可以存成词块。下次点一下就能插进提示词，拖动可以换位置，展开还能看里面写了什么。调权重时，每个 tag 的底色会跟着变，输入框下方也能看到当前用了多少 token。
+
+**两个人物可以各写各的。** 在支持多角色的模型里，把场景写进正向提示词，再分别给两个人物写发色和衣服。习惯一行写完，也可以输入 `2girls | girl, red hair | girl, blue hair`，发送时会自动拆成两个角色。点角色图鉴或引用自己的 OC，同样会进独立的角色栏。
+
+**想保留这张图的构图，再换个细节？** 在画布上打开重绘，涂出想改的那一块。想顺着原图多试几个版本，可以生成变体。只想把成图放大，点 **超分** 就能直接做 2× 放大。复用老图时也可以单独勾选提示词、种子、尺寸或采样参数。
+
+<img src="docs/media/edition/archive.png" width="100%" alt="Archive 作品集与万象集篇。浅金发角色的半身像和脸部特写并排印在暖灰纸面上。">
+
+## 把图留下来
+
+**作品集里放着每一张成图。** 按原图比例往下翻，点开一张，左边看大图，右边看提示词、种子和生成参数。可以给它打 0 到 5 分，打开搜索框旁的 **高分优先**，喜欢的几张就会排到前面。要带走一组图，搜一个当初用过的词，选全部命中或自己勾几张，就能统一打标、把原图和标签清单一起下载。
+
+**万象集里放下次还想用的东西。** 从作品集收藏一张图，或者把电脑里的参考图导进来都行。素材可以拿去做图生图。OC 可以记名字和外貌，用时直接加进多角色。例图可以跟一组固定提示词绑在一起，下次挑词块时就知道它大概能画出什么感觉。分类、标签和配图都可以自己改。
+
+**忘了哪张是超分前的原图？** 从成图打开 **线索**。画布上的连线会标出哪张经过放大或重绘，也能找到复用过元数据、角色相同或只改了几个词的版本。把卡片拖开，就能对着看这张画是怎么一路改过来的。
+
+### 换电脑前，记得把作品带走
+
+桌面版和 WebUI 各有一份本地工作区。浏览器换配置、换端口或清理站点数据，都会影响能看到哪一份作品。准备迁移时，可以在作品集打包要留的原图，在工作台用 **配方** 导出要留的生成设置。选择保存的 API Key 留在当前工作区的本地存储里。
+
+点生成时，提示词和选中的参考图会发给你连接的 NovelAI 或中转站，最终扣费以该服务为准。设置里的 **隐藏 NSFW** 根据正向提示词和角色标签在本机筛选，打开后也会避开相关预览和批量导出项。
 
 ### 从源码运行
 
-准备 **Node.js 22.2 或更高版本**。首次 `npm start` 会从小米官方获取并校验 MiSans 字体，再启动 WebUI；以后复用本地字体。
+准备 Node.js 22.2 或更新版本，执行下面三行。第一次启动会从小米官方获取并校验 MiSans 字体，以后复用本地文件。
 
 ```sh
 git clone https://github.com/salmantais961-boop/NAI-Folio.git
@@ -31,46 +55,19 @@ cd NAI-Folio
 npm start
 ```
 
-打开 [本地工作台](http://127.0.0.1:4389/)。Windows 用户也可以双击根目录的 **启动工作台.cmd**。
-
-在 Windows x64 上构建桌面安装程序还需 Rust MSVC 工具链、Visual Studio C++ 生成工具和 Windows SDK。执行 `npm run desktop:installer`，安装程序位于 `src-tauri/target/release/bundle/nsis/`。执行 `npm run desktop:build` 可生成供本机运行的 `desktop-build/Folio/Folio.exe`。
-
-1. 点右上角 **连接 NovelAI**，填入自己的 API Key。可以仅在本次使用，也可以在当前浏览器保存多个账号。使用中转站时，选择 **NAI API 中转站** 并填入兼容 NovelAI 原生协议的地址。
-2. 在正向提示词里试试 `portrait, short hair, cardigan, white background`，选择模型和画幅。生成按钮会显示本次预计消耗，余额与 V5 配额取决于所连服务提供的信息。
-3. 开启 **流式预览**，按 <kbd>Ctrl</kbd> + <kbd>Enter</kbd> 生成。支持流式的模型会逐步回传画面，最终图像自动进入历史和作品集。
-
-## 创作与归档
-
-| | 在 Folio 里可以做什么 |
-| --- | --- |
-| **工作台** · *Atelier* | 用中英文搜索标签，以颜色读出权重。把常用提示词收成词块，在句子中拖动、展开或合并。OC 和图鉴角色进入独立角色栏，正负提示词分别计算 token。 |
-| **画布** · *Canvas* | 从草稿做图生图、重绘和扩图，也可以在成图上直接超分、打开导演工具。按模型使用参考图、Vibe 或角色位置。 |
-| **作品集** · *Archive* | 按提示词或标签搜索，给喜欢的图评分，在鉴赏页查看和复用 META。可以给全部命中或手选的作品统一打标，连同标签清单一起打包下载原图。 |
-| **万象集** · *Atlas* | 从作品集收藏或从本机导入，把素材、OC 和词块例图分门别类。下次需要同一角色或画风时，可以直接引用。 |
-
-想看一张图是怎么改出来的？在成图上打开 **线索**。超分和重绘保留来源，轻微改词或沿用角色的作品也能在画布上找到关联。相同提示词的图片放在同一组，可以拖动整理。
-
-## 本地数据
-
-- **内容显示**　在右上角设置中可开启「隐藏 NSFW」。Folio 在本机检查正向提示词和启用的角色提示词，鉴赏页会列出命中词。隐藏设置也适用于流式预览和批量导出。
-- **作品与账号**　作品、评分和万象集保存在当前浏览器的 IndexedDB。选择保存的 API Key 存在该浏览器的本地存储中。切换端口、浏览器或浏览器配置会进入另一份工作空间，清理站点数据前请导出重要作品。
-- **请求与费用**　工作台只监听 `127.0.0.1`。生成时，提示词和选中的参考素材会发往所选 NovelAI 服务或中转站。Anlas 与配额在提交前显示估算，实际扣费以所连服务为准。
-- **词库与分词**　公开版附带小型离线示例图鉴。可将有权使用的完整索引导入本机，提示词计数也在本地完成。[图鉴导入指南](docs/catalog.md) · [分词数据来源](public/tokenizers/README.md)
+启动后用浏览器打开 [本地工作台](http://127.0.0.1:4389/)。
 
 <details>
-<summary><strong>开发与运行</strong></summary>
+<summary><strong>自己改代码、构建桌面版或换图鉴</strong></summary>
 
-页面使用原生 ES 模块，本地代理使用 Node.js 内置 HTTP 服务。`public/` 是前端，`server/` 负责 NovelAI 协议，`test/` 包含接口与创作流程用例。
+网页界面在 `public/`，NovelAI 请求处理在 `server/`。运行 `npm run dev` 可以监听修改，`npm test` 运行测试。WebUI 支持用 `PORT` 指定端口，也可以用环境变量 `NOVELAI_TOKEN` 连接官方服务。
 
-```sh
-npm run dev
-npm test
-```
+桌面壳使用 Rust 和 Tauri。要在 Windows x64 构建，先装好 Rust MSVC 工具链、Visual Studio C++ 生成工具和 Windows SDK。运行 `npm run desktop:build` 得到 `desktop-build/Folio/Folio.exe`。运行 `npm run desktop:installer` 制作安装包，输出在 `src-tauri/target/release/bundle/nsis/`。
 
-`PORT` 可以修改监听端口。也可在启动进程的环境中设置 `NOVELAI_TOKEN` 供官方连接使用。中转站使用各自的账号配置。
+公开版带有 60 个通用标签、6 位历史画师、6 位示例角色和 6 个起步词块。源码版可以导入自己有权使用的图鉴。提示词计数也在本机完成。[图鉴与导入方法](docs/catalog.md) · [分词数据来源](public/tokenizers/README.md)
 
 </details>
 
-## 许可
+画刊里的三张人物插画由项目维护者提供。想单独看透明底原画，可以打开[蓝发角色](docs/media/edition/cutouts/tide.webp)、[灰发角色](docs/media/edition/cutouts/graphite.webp)或[浅金发角色](docs/media/edition/cutouts/linen.webp)。
 
-Folio 自有代码采用 MIT。字体、分词数据、第三方组件和展示插画的授权分别列出。Folio 是独立社区工具，图像生成由用户所选服务提供。[MIT 许可](LICENSE) · [素材与第三方声明](THIRD_PARTY_NOTICES.md)
+Folio 是独立的社区项目。代码采用 MIT 许可，插画、字体和第三方组件各有自己的使用条款。[MIT 许可](LICENSE) · [素材与第三方声明](THIRD_PARTY_NOTICES.md)
