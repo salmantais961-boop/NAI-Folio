@@ -61,7 +61,7 @@ function mountWindow(appWindow) {
 
   function enableTitleDrag(header) {
     let held = null;
-    const isGrip = target => !target.closest('button, a, input, select, textarea, label, [role="button"], [contenteditable]');
+    const isGrip = target => !target.closest('.fw-viewport, button, a, form, input, select, textarea, label, [role="button"], [contenteditable]');
     header.addEventListener('pointerdown', (event) => {
       if (event.button !== 0 || !event.isPrimary || !isGrip(event.target)) return;
       held = { id: event.pointerId, x: event.clientX, y: event.clientY };
@@ -126,28 +126,37 @@ function mountWindow(appWindow) {
   }
   try { root.dataset.theme = localStorage.getItem('folio.theme') || 'light'; } catch {}
   const opening = document.querySelector('.desktop-opening');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const duration = reduced ? 260 : 1840;
   frame.inert = true;
   enableTitleDrag(opening);
-  if (!reduced) {
-    opening.querySelector('.desktop-signature').animate([
-      { opacity: 0, filter: 'blur(12px)', transform: 'translateY(5px) scale(.975)', easing: 'cubic-bezier(.16,.72,.24,1)' },
-      { offset: .4, opacity: 1, filter: 'blur(0px)', transform: 'none' },
-      { offset: .64, opacity: 1, filter: 'blur(0px)', transform: 'none', easing: 'cubic-bezier(.45,0,.8,.6)' },
-      { opacity: 0, filter: 'blur(9px)', transform: 'translateY(-3px) scale(1.018)' },
-    ], { duration, fill: 'both' });
+  frame.addEventListener('load', followWorkspace);
+  let workspaceReady;
+  function loadWorkspace() {
+    if (!workspaceReady) {
+      workspaceReady = new Promise(resolve => {
+        const ready = () => {
+          if (frame.contentDocument?.URL === 'about:blank') return;
+          frame.removeEventListener('load', ready);
+          resolve();
+        };
+        frame.addEventListener('load', ready);
+      });
+      frame.src = '/index.html';
+    }
+    return workspaceReady;
   }
-  const reveal = opening.animate([
-    { opacity: 1 },
-    { offset: reduced ? .5 : .73, opacity: 1, easing: 'cubic-bezier(.3,0,.3,1)' },
-    { opacity: 0 },
-  ], { duration, fill: 'both' });
-  function enter() {
+  async function open() {
+    try {
+      const { playDesktopOpening } = await import('./desktop-first-run-startup.js');
+      await playDesktopOpening(opening, loadWorkspace);
+    } catch {
+      feedback.textContent = '启动引导暂时无法显示，可在设置中连接账户。';
+      feedback.hidden = false;
+      clearTimeout(feedbackTimer);
+      feedbackTimer = setTimeout(() => { feedback.hidden = true; }, 4000);
+    }
+    await loadWorkspace();
     opening.remove();
     frame.inert = false;
   }
-  reveal.finished.then(enter, enter);
-  frame.addEventListener('load', followWorkspace);
-  frame.src = '/index.html';
+  void open();
 }

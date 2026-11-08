@@ -2,10 +2,30 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 import { assembleFolioPlan, createAgentRunner } from '../desktop/frontend/desktop-agent-run.js';
+import { emptyThread } from '../desktop/frontend/desktop-agent-store.js';
 import { initial, requestFor } from '../public/controls-model.js';
 import { traceFormatter } from '../desktop/frontend/agent-call-log.js';
 import { createAgentPromptBudget } from '../public/agent-prompt-budget.js';
 import { loadTokenizer } from '../public/prompt-tokenizer-core.js';
+
+test('a new conversation inherits independent snapshots of both lock lanes', () => {
+  const original = { ...emptyThread(), title: '第一张图', draft: '旧草稿' };
+  original.locks.push(
+    { id: 'style', name: '纸面', text: '!macro:墨线!', resolvedText: '1.2::ink::',
+      resolvedChunks: [{ id: 'ink', name: '墨线', text: '1.2::ink::' }] },
+    { id: 'folio-current-negative', name: '工作台负面提示词', lane: 'negative', text: ' blurry,  text  ' },
+  );
+  const next = emptyThread(original.locks);
+  assert.notEqual(next.id, original.id);
+  assert.equal(next.title, '');
+  assert.equal(next.draft, '');
+  assert.deepEqual(next.locks, original.locks);
+  next.locks[0].resolvedChunks[0].text = 'changed';
+  next.locks.pop();
+  assert.equal(original.locks[0].resolvedChunks[0].text, '1.2::ink::');
+  assert.equal(original.locks[1].text, ' blurry,  text  ');
+  assert.deepEqual(emptyThread().locks, []);
+});
 
 const encoders = new Map();
 async function count(type, texts) {

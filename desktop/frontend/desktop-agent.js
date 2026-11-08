@@ -297,7 +297,7 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
       !thread.title &&
       !turns.length &&
       !thread.draft &&
-      !thread.locks.length &&
+      !thread.locks?.length &&
       (!thread.reasoningEffort || thread.reasoningEffort === 'auto')
     ) {
       if (view !== 'chat') showChat();
@@ -306,7 +306,7 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
       return;
     }
     ++selection;
-    const record = store.emptyThread();
+    const record = store.emptyThread(thread?.locks ?? []);
     const created = store.newThread(record);
     navigating = created;
     input = null;

@@ -51,6 +51,25 @@ export function getPreferences() {
 export function savePreferences(value) {
   return write('settings', (tx) => tx.objectStore('settings').put(value, 'connections'));
 }
+export function saveSetupProfile(profile) {
+  return write('settings', (tx) => {
+    const store = tx.objectStore('settings');
+    const request = store.get('connections');
+    request.onsuccess = () => {
+      const config = request.result || {};
+      const profiles = config.profiles || [];
+      const existing = profiles.find((p) => p.id === profile.id ||
+        (p.protocol === profile.protocol && p.baseUrl === profile.baseUrl &&
+         p.model === profile.model && p.apiKey === profile.apiKey));
+      const saved = existing && existing.id !== profile.id ? existing : { ...existing, ...profile, remember: true };
+      store.put({
+        ...config,
+        activeId: saved.id,
+        profiles: existing ? profiles.map((p) => p.id === saved.id ? saved : p) : [...profiles, saved],
+      }, 'connections');
+    };
+  });
+}
 export async function listThreads() {
   const items = await read('threads', (store) => store.getAll());
   return items.sort((a, b) => b.updated - a.updated);
@@ -60,9 +79,9 @@ export async function getTurns(id) {
   const turns = await read('turns', (store) => store.index('thread').getAll(id));
   return turns.sort((a, b) => a.created - b.created || a.id.localeCompare(b.id));
 }
-export function emptyThread() {
+export function emptyThread(locks = []) {
   const time = Date.now();
-  return { id: crypto.randomUUID(), title: '', created: time, updated: time, locks: [], draft: '' };
+  return { id: crypto.randomUUID(), title: '', created: time, updated: time, locks: structuredClone(locks), draft: '' };
 }
 export async function newThread(thread = emptyThread()) {
   await write('threads', (tx) => tx.objectStore('threads').add(thread));
