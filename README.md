@@ -8,10 +8,10 @@
 
 | Windows x64 | 怎么打开 |
 | --- | --- |
-| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/Folio-Desktop-1.11.1-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
-| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/NAI-Folio-1.11.1-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
+| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.12.0/Folio-Desktop-1.12.0-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
+| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.12.0/NAI-Folio-1.12.0-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
 
-上方两个下载包对应 **1.11.1**。实验室和 Agent 看图已加入 `main` 源码，想先试实验室可以从源码启动 WebUI，想试 Agent 看图则需构建桌面版。[从源码运行](#从源码运行) · [更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.11.1) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/SHA256SUMS.txt)
+**1.12.0** 的两个版本都能打开实验室，批量比较画师权重和采样参数。想把参考图发给 Agent，或让它看看刚生成的作品，请下载桌面版。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.12.0) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.12.0/SHA256SUMS.txt)
 
 第一次打开桌面版，跟着引导先选 NovelAI 官方账户或中转站，再选 Agent 对话用的语言模型。只想先看看界面，可以跳过，之后到设置里补填。使用 WebUI 时，点右上角 **连接 NovelAI** 即可添加账户。
 
