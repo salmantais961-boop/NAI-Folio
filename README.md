@@ -2,7 +2,7 @@
 
 **Folio 是一个在自己电脑上用的 NovelAI 画图工具。** 当你画出一张喜欢的图，想再试试别的光线，可以把角色和种子留下，只改光线。过几天想起这张画，搜当初写过的词，就能把原图和那次用的设置一起翻出来。
 
-[下载和连接](#下载和连接)　/　[画第一张图](#画第一张图)　/　[对话画图](#对话画图)　/　[把图留下来](#把图留下来)　/　[从源码运行](#从源码运行)
+[下载和连接](#下载和连接)　/　[画第一张图](#画第一张图)　/　[对话画图](#对话画图)　/　[实验室](#实验室)　/　[把图留下来](#把图留下来)　/　[从源码运行](#从源码运行)
 
 ## 下载和连接
 
@@ -11,7 +11,7 @@
 | [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/Folio-Desktop-1.11.1-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
 | [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/NAI-Folio-1.11.1-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
 
-两个下载都在 1.11.1 发布页，校验文件也放在那里。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.11.1) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/SHA256SUMS.txt)
+上方两个下载包对应 **1.11.1**。实验室和 Agent 看图已加入 `main` 源码，想先试实验室可以从源码启动 WebUI，想试 Agent 看图则需构建桌面版。[从源码运行](#从源码运行) · [更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.11.1) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/SHA256SUMS.txt)
 
 第一次打开桌面版，跟着引导先选 NovelAI 官方账户或中转站，再选 Agent 对话用的语言模型。只想先看看界面，可以跳过，之后到设置里补填。使用 WebUI 时，点右上角 **连接 NovelAI** 即可添加账户。
 
@@ -40,6 +40,18 @@
 展开回复里的配方，就能看到 Agent 写的提示词。用支持多角色的模型时，人物和场景会分开写。想改构图，接着说「镜头近一点，保留手和眼镜，现在出图」。新图会进右侧历史和作品集。下次另开对话，锁定的正向和负面词块也会跟过去。
 
 **有名字的角色也可以直接点名。** Agent 会先查本地图鉴。启用 DeepSeek 联网检索后，它还能核对英文名、别名和 Danbooru 标签，再补需要的服装或外观细节。展开工具记录就能看到它查了什么、找到了什么。写好的提示词会按当前 NAI 模型重新计数，超出预算就先精简。[桌面 Agent 使用指南](docs/desktop-agent.md)
+
+桌面 Agent 也可以看图。选一个支持视觉输入的模型，粘贴参考图，就能问它画面里的光从哪边来。想让它看自己刚生成的作品，出图前点 **生成后看图**，或直接说「画完后看看她的手有没有扶住眼镜」。复看成图会额外调用一次语言模型。
+
+<img src="docs/media/edition/laboratory.png" width="100%" alt="Laboratory 实验室篇。戴宽檐魔女帽的女孩举起一支试管。">
+
+## 实验室
+
+想知道哪组画师更影响帽檐的线条？可以拿刊头里的魔女做一次对照，把角色固定为 `1girl, witch hat, holding test tube`，背景填 `white background`。
+
+- **画师权重**　每行写一组画师，再填通用负面词。十个方案共用角色、背景和种子，曲线显示每组画师的权重怎样变化。挑几组出图，或者点「再取 10 组」继续选。开始前可以看整批预计消耗，中途停止也会保留已完成的图。
+- **采样对照**　固定正负提示词和种子，勾选 Euler、DPM++ 等采样器，再填想试的步数和 CFG。可以逐组比较，也可以随机抽取几种组合。点成图就能看实际用的是哪套参数。
+- **标签简写**　粘贴一串反复改过的提示词，重复的画师和普通标签都能归并。例如，同一段里的 `0.8::lineart::` 和 `0.6::lineart::` 会合成权重为 1 的 `lineart`。这个权重是近似值，可以把简写结果送回画师实验看看效果。
 
 <img src="docs/media/edition/archive.png" width="100%" alt="Archive 作品集与万象集篇。浅金发角色的半身像和脸部特写并排印在暖灰纸面上。">
 
@@ -80,6 +92,6 @@ npm start
 
 </details>
 
-画刊里的四张人物插画由项目维护者提供，透明底素材也一并收录。[蓝发角色](docs/media/edition/cutouts/tide.webp) · [灰发角色](docs/media/edition/cutouts/graphite.webp) · [抱书的眼镜女孩](docs/media/edition/cutouts/agent.webp) · [浅金发角色](docs/media/edition/cutouts/linen.webp)
+画刊里的五张人物插画由项目维护者提供，透明底素材也一并收录。[蓝发角色](docs/media/edition/cutouts/tide.webp) · [灰发角色](docs/media/edition/cutouts/graphite.webp) · [抱书的眼镜女孩](docs/media/edition/cutouts/agent.webp) · [拿试管的魔女](docs/media/edition/cutouts/laboratory.webp) · [浅金发角色](docs/media/edition/cutouts/linen.webp)
 
 Folio 是独立的社区项目。代码采用 MIT 许可，插画、字体和第三方组件各有自己的使用条款。[MIT 许可](LICENSE) · [素材与第三方声明](THIRD_PARTY_NOTICES.md)

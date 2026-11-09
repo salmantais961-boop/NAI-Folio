@@ -355,3 +355,32 @@ test('legacy image models flatten roles, medium effort respects its fixed negati
   assert.equal(medium.characters[0].negative, '');
   assert.throws(() => assembleFolioPlan(brief, { ...ctx, identities: new Map() }), /搜索/);
 });
+
+test('generated pixels require a one-turn request and the review excludes past/current uploads and tools', async () => {
+  const create = response('compose_folio',{...brief,characters:[]});
+  let reads=0;
+  const workImage=async id=>{ assert.equal(id,'work-1');reads++;return 'generated-pixels'; };
+  const ordinary=harness([create],{workImage});
+  await ordinary.send({images:['user-upload']});
+  assert.equal(reads,0);
+  assert.equal(ordinary.log.filter(([action])=>action==='chat').length,1);
+  const requested=harness([create,{content:'I see the actual image.',toolCalls:[]}],{workImage});
+  const result=await requested.send({images:['user-upload'],reviewAfter:true,history:[{role:'user',content:'old',images:['old-upload']}]});
+  assert.equal(reads,1);
+  assert.equal(requested.renders.length,1);
+  const [first,review]=requested.log.filter(([action])=>action==='chat').map(([,body])=>body);
+  assert.deepEqual(first.messages.at(-1).images,['user-upload']);
+  assert(!JSON.stringify(first.messages).includes('old-upload'));
+  assert.deepEqual(review.messages,[{role:'user',content:'画鸢尾在港口',images:['generated-pixels']}]);
+  assert.deepEqual(review.tools,[]);
+  assert.equal(result.text,'I see the actual image.');
+  assert.deepEqual(result.workIds,['work-1']);
+});
+
+test('failed generated-image review keeps the paid result and never repeats image generation',async()=>{
+  const failure=harness([response('compose_folio',{...brief,characters:[]})],{workImage:async()=>{throw Error('已移除');}});
+  const answer=await failure.send({reviewAfter:true});
+  assert.deepEqual(answer.workIds,['work-1']);
+  assert.match(answer.text,/成图已保存.*已移除/);
+  assert.equal(failure.renders.length,1);
+});

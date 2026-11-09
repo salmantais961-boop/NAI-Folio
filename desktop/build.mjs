@@ -64,7 +64,7 @@ async function prepare() {
   // The desktop shell presents its own opening on every launch.
   const desktopPage = markup.replace(/<!-- web-cover -->[\s\S]*?<!-- \/web-cover -->/g, '')
     .replace(charset, charset + '\n    <script src="/desktop-api.js"></script>')
-    .replace('<button id="archive-nav"', '<button id="agent-nav" type="button">Agent</button><button id="archive-nav"')
+    .replace('<button id="lab-nav"', '<button id="agent-nav" type="button">Agent</button><button id="lab-nav"')
     .replace('<div class="compose-scroll" id="editor-scroll">', '<div id="desktop-agent" class="desktop-agent-host" hidden></div><div class="compose-scroll" id="editor-scroll">')
     .replace('</head>', '  <link rel="stylesheet" href="/desktop-workspace.css" />\n  <link rel="stylesheet" href="/desktop-agent.css" />\n  </head>');
   await writeFile(index, desktopPage);

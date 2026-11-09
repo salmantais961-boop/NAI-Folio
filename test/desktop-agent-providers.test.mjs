@@ -247,3 +247,35 @@ test('cross-origin redirects cannot receive credentials; canceled requests do no
   await assert.rejects(listModels(config, { signal: AbortSignal.abort() }), { name: 'AbortError' });
   assert.equal(relay.seen.length, 1);
 });
+
+test('all five protocols send actual pixels in their native user image field', async t => {
+  const encoded = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC';
+  const url = 'data:image/png;base64,' + encoded;
+  for (const [protocol, f] of Object.entries(fixtures)) {
+    const { base, seen } = await service(t, () => ({ body: f.final }));
+    await chat({ preset: 'custom', protocol, model: 'vision', baseUrl: base + f.base },
+      { messages: [{ role: 'user', content: 'image request', images: [url] }] });
+    const b = seen[0].body;
+    const part = protocol === 'responses' ? b.input[0].content[0] : protocol === 'gemini'
+      ? b.contents[0].parts[0] : b.messages[0].content[0];
+    switch (protocol) {
+      case 'chat-completions': assert.deepEqual(part, { type: 'image_url', image_url: { url } }); break;
+      case 'responses': assert.deepEqual(part, { type: 'input_image', image_url: url }); break;
+      case 'anthropic': assert.deepEqual(part.source, { type: 'base64', media_type: 'image/png', data: encoded }); break;
+      case 'gemini': assert.deepEqual(part.inlineData, { mimeType: 'image/png', data: encoded }); break;
+      case 'ollama': assert.deepEqual(b.messages[0].images, [encoded]); assert.equal(b.messages[0].content, 'image request'); break;
+      default: assert.fail('Unverified protocol ' + protocol);
+    }
+  }
+});
+
+test('vision errors preserve attachments, report model rejection, and reject external image URLs before forwarding', async t => {
+  const {base,seen} = await service(t, () => ({status:400,body:{error:{message:'Image input is not supported by this model: private sample'}}}));
+  const provider = {preset:'custom',baseUrl:base,model:'text'};
+  const image = 'data:image/jpeg;base64,/9j/2Q==';
+  const send = images => chat(provider, {messages:[{role:'user',content:'review',images}], tools:[tool]});
+  await assert.rejects(send([image]), e => e.message.includes('未接受图片') && !e.message.includes('private'));
+  for (const invalid of [['https://example.invalid/private.png'],Array(5).fill(image),['data:image/png;base64,QUJD']])
+    await assert.rejects(send(invalid), /图片|附件/);
+  assert.equal(seen.length,1);
+});

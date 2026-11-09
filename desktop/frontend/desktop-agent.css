@@ -1536,3 +1536,28 @@
     padding-inline: 4px;
   }
 }
+
+.da-vision { min-width: 0; }
+.da-vision-shelf[hidden] { display: none; }
+.da-vision-bar, .da-attachments { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.da-vision-bar { margin: 1px 2px 0; }
+.da-shell :is(.da-vision-add, .da-review-toggle) {
+  display: inline-flex; align-items: center; gap: 5px; min-height: 27px; padding: 4px 9px;
+  color: var(--mute); background: var(--da-surface); border: 0; border-radius: 9px;
+  font: 11px/1.35 var(--sans);
+}
+.da-shell .da-review-toggle { background: transparent; }
+.da-shell .da-review-toggle[aria-pressed="true"],
+.da-shell :is(.da-vision-add,.da-review-toggle):hover { color: var(--da-accent); background: var(--accent-soft); }
+.da-vision-bar .da-icon { width: 13px; height: 13px; }
+.da-attachments { gap: 5px; margin: 3px 0 6px; }
+.da-question .da-attachments { justify-content: flex-end; margin-top: 8px; }
+.da-attachment { position: relative; display: inline-grid; place-items: center; width: 62px; height: 62px;
+  border-radius: 10px; overflow: hidden; color: var(--mute); background: var(--da-surface);
+  font: 10px/1.3 var(--sans); }
+.da-attachment > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.da-attachment > .da-icon { align-self: end; width: 18px; height: 18px; }
+.da-shell .da-remove-image { position: absolute; inset: 2px 2px auto auto; display: grid; place-items: center;
+  width: 22px; height: 22px; min-height: 0; border-radius: 50%; color: var(--ink); background: var(--paper); }
+.da-remove-image .da-icon { width: 12px; height: 12px; }
+.da-work-links { flex-wrap: wrap; }

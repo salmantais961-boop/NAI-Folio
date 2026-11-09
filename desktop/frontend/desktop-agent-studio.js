@@ -3,11 +3,18 @@ import { listChunks, reference, resolvePromptReferences } from './chunks.js';
 import { mountDesktopAgent } from './desktop-agent.js';
 import { createAgentRunner } from './desktop-agent-run.js';
 import { createImageSettings } from './desktop-agent-image-settings.js';
+import { imageForModel } from './desktop-agent-vision.js';
 import { createAgentPromptBudget, agentImageSettings } from './agent-prompt-budget.js';
 
-export function mount(host, { controls, generate, search, openWork, onImageSettingsChange }) {
+export function mount(host, { controls, generate, search, openWork, readWorkImage, onImageSettingsChange }) {
   const imageSettings = createImageSettings(() => controls.getSettings(), onImageSettingsChange);
+  async function workImage(id) {
+    const blob = await readWorkImage?.(id);
+    if (!blob) throw Error('这张成图已移除或隐藏，无法交给模型查看。');
+    return imageForModel(blob);
+  }
   const run = createAgentRunner({
+    workImage,
     getSettings: imageSettings.current,
     getMaxCharacters: (settings) => capabilities({ ...settings, mode: 'generate' }).chars,
     createPromptBudget: createAgentPromptBudget,
@@ -48,6 +55,7 @@ export function mount(host, { controls, generate, search, openWork, onImageSetti
     run,
     imageSettings,
     openWork,
+    workImage,
     getNegativeSnapshot,
     openConnection: () => controls.openAccount(),
   });

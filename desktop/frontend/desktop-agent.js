@@ -6,6 +6,7 @@ import { reasoningEfforts } from './agent-effort.mjs';
 import { createToolTrace, endToolEvents, recordToolEvent } from './desktop-agent-trace.js';
 import { replyFooter, signature } from './desktop-agent-reply.js';
 import { webSearchProviderFor } from './agent-web-search.js';
+import { attachmentStrip, visionComposer } from './desktop-agent-vision.js';
 import * as store from './desktop-agent-store.js';
 
 const emptyConfig = () => ({
@@ -114,7 +115,7 @@ function promptPlan(plan, locks, open) {
   }
   return details;
 }
-export function mountDesktopAgent(host, { run, openWork, openConnection, getNegativeSnapshot, imageSettings }) {
+export function mountDesktopAgent(host, { run, openWork, workImage, openConnection, getNegativeSnapshot, imageSettings }) {
   host.classList.add('desktop-agent-host');
   const shell = element('section', 'da-shell');
   shell.setAttribute('aria-label', 'Agent 创作对话');
@@ -141,7 +142,7 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
     modelMenu,
     menuAnchor,
     renderCutoff = 0;
-  let dest, input, send, modelButton, effortButton, locksButton, lockBand, composer, welcome;
+  let dest, input, send, modelButton, effortButton, locksButton, lockBand, composer, welcome, vision;
   const replyHosts = new Map();
   let navigating;
   const channel =
@@ -208,6 +209,7 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
     closeMenu();
     view = name;
     input = null;
+    vision = null;
     dest = null;
     composer = null;
     replyHosts.clear();
@@ -297,6 +299,7 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
       !thread.title &&
       !turns.length &&
       !thread.draft &&
+      !thread.draftImages?.length &&
       !thread.locks?.length &&
       (!thread.reasoningEffort || thread.reasoningEffort === 'auto')
     ) {
@@ -699,7 +702,10 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
         viewCleanup = imageSettings.open(body, showChat);
       }));
     }
-    composer.append(lockBand, input, tools);
+    const owner = thread, editor = input;
+    vision = visionComposer({ owner, input, isCurrent: () => input === editor && thread === owner,
+      persist: store.editThread, changed: paintSend, notice });
+    composer.append(lockBand, vision.panel, input, tools);
     composer.onsubmit = (e) => {
       e.preventDefault();
       void safe(submit)();
@@ -707,7 +713,7 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
     input.oninput = () => {
       resizeInput();
       queueDraft();
-      paintSend();
+      vision.paint();
     };
     input.onkeydown = (e) => {
       if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
@@ -730,7 +736,8 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
     for (const retry of dest.querySelectorAll('.da-retry')) retry.disabled = Boolean(activeJob);
     const mine = activeJob?.threadId === thread?.id;
     const label = mine ? '停止本次任务' : activeJob ? '另一段对话正在运行' : '发送消息';
-    send.disabled = mine ? activeJob.controller.signal.aborted : Boolean(activeJob) || !input.value.trim();
+    send.disabled = mine ? activeJob.controller.signal.aborted : Boolean(activeJob) || vision?.pending ||
+      (!input.value.trim() && !thread.draftImages?.length);
     send.setAttribute('aria-label', label);
     send.title = label;
     if (send.dataset.stopping !== String(mine)) {
@@ -779,7 +786,7 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
       'aria-label',
       '锁定提示词块' + (thread?.locks?.length ? '，已选 ' + thread.locks.length + ' 个' : ''),
     );
-    paintSend();
+    vision?.paint();
   }
   function welcomePage() {
     welcome = element('div', 'da-welcome');
@@ -855,6 +862,8 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
             'da-work-link',
             true,
           ),
+          button('附上成图' + (ids.length > 1 ? ' ' + (i + 1) : ''), 'image-plus',
+            () => vision?.addWork(id, '对话成图 ' + (i + 1)), 'da-work-link', true),
         ),
       );
       reply.append(links);
@@ -883,6 +892,7 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
     const meta = element('div', 'da-user-meta');
     meta.append(element('time', '', displayTime(turn.created)), document.createTextNode('你'));
     const question = element('p', 'da-question', turn.text);
+    if (turn.images?.length) question.append(attachmentStrip(turn.images));
     if (turn.locks?.length) {
       question.append(lockSummary(turn.locks, 'da-question-locks'));
     }
@@ -957,7 +967,9 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
     }
     const position = source ? turns.findIndex(t => t.id === source.id) : turns.length;
     if (position < 0 || (source && source.threadId !== thread.id)) return;
-    const text = source ? source.text : input.value.trim();
+    if (vision?.pending) return;
+    const images = structuredClone((source ? source.images : thread.draftImages) || []);
+    const text = (source ? source.text : input.value.trim()) || (images.length ? '请查看附图。' : '');
     if (!text) return;
     if (!active()?.model) {
       await saveDraft();
@@ -977,11 +989,20 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
       : thread;
     const replacing = Boolean(source && !branch);
     const prefix = turns.slice(0, position);
+    const reviewMode = source ? source.reviewMode : vision?.mode();
+    if (reviewMode === 'last' && !images.some(item => item.workId)) {
+      const last = prefix.findLast(t => t.workIds?.length)?.workIds.at(-1);
+      if (!last) return notice('这段对话还没有可查看的成图。');
+      if (images.length >= 4) return notice('最多同时查看 4 张图，请先移除一张附件。');
+      images.push({ workId: last, name: '上次成图' });
+    }
     const turn = {
       id: replacing ? source.id : crypto.randomUUID(),
       created: replacing ? source.created : Date.now(),
       threadId: current.id,
       text,
+      images,
+      reviewMode,
       state: 'pending',
       model: provider.model,
       reasoningEffort,
@@ -1005,6 +1026,9 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
       draftTimer = null;
       input.value = '';
       current.draft = '';
+      current.draftImages = [];
+      current.draftReview = '';
+      vision.paint();
       resizeInput();
     }
     paintSend();
@@ -1024,6 +1048,9 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
       } catch (error) {
         if (!source && thread?.id === current.id && input && !input.value) {
           input.value = text;
+          current.draftImages = images;
+          current.draftReview = reviewMode;
+          vision.paint();
           resizeInput();
           queueDraft();
         }
@@ -1061,8 +1088,17 @@ export function mountDesktopAgent(host, { run, openWork, openConnection, getNega
         if (view === 'chat' && thread?.id === turn.threadId) paintReply(turn);
       };
       try {
+        const pixels = [];
+        for (const item of images) {
+          controller.signal.throwIfAborted();
+          if (item.workId && !prefix.some(t => t.workIds?.includes(item.workId)))
+            throw Error('这张成图不属于当前对话，请重新附图。');
+          pixels.push(item.workId ? await workImage(item.workId) : item.url);
+        }
         const result = await run({
           text,
+          images: pixels,
+          reviewAfter: reviewMode === 'after',
           history,
           lockedChunks: turn.locks,
           provider,

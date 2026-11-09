@@ -122,6 +122,8 @@ export function startTurn(turn) {
       thread.title ||= Array.from(turn.text.replace(/\s+/g, ' ').trim()).slice(0, 32).join('');
       thread.updated = turn.created;
       thread.draft = '';
+      delete thread.draftImages;
+      delete thread.draftReview;
       threads.put(thread);
       tx.objectStore('turns').add(turn);
     };

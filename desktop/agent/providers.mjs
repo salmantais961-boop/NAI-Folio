@@ -121,16 +121,18 @@ async function readJson(response) {
 // Some OpenAI-compatible hosts list non-tool models next to tool-capable ones.
 // Inspect only a small error prefix and surface a fixed diagnostic; provider messages
 // sometimes echo user input, URLs or credentials.
-async function rejectsTools(response) {
+async function rejectionReason(response, vision, hasTools) {
   let prefix = '';
   for await (const chunk of response.body || []) {
     prefix += Buffer.from(chunk.subarray(0, 4096 - prefix.length)).toString('utf8');
     if (prefix.length >= 4000) break;
   }
-  return /(?:tools?|function.{0,2}call(?:ing)?).{0,90}(?:unsupported|not supported|not available|not enabled)|(?:does not support|doesn't support|unsupported|unknown parameter|unrecognized).{0,70}(?:tools?|function.{0,2}call)/is.test(prefix);
+  if (vision && /(?:vision|image|multimodal|content.{0,20}(?:string|array)|image_url|input_image|模态|视觉|图像|图片)/i.test(prefix))
+    return '当前模型未接受图片。请切换到支持视觉输入的模型，并检查服务商的图片输入限制。';
+  return hasTools && /(?:tools?|function.{0,2}call(?:ing)?).{0,90}(?:unsupported|not supported|not available|not enabled)|(?:does not support|doesn't support|unsupported|unknown parameter|unrecognized).{0,70}(?:tools?|function.{0,2}call)/is.test(prefix) ? '这个模型不支持原生工具调用。' : '';
 }
 
-async function request(config, endpoint, { operation, body, query, signal }) {
+async function request(config, endpoint, { operation, body, query, signal, vision = false }) {
   const url = new URL(config.baseUrl + '/' + endpoint);
   if (query) url.search = new URLSearchParams(query).toString();
   const outgoing = headers(config);
@@ -140,9 +142,10 @@ async function request(config, endpoint, { operation, body, query, signal }) {
     response = await fetch(url, { method: body ? 'POST' : 'GET', headers: outgoing,
       body: body ? JSON.stringify(body) : undefined, redirect: 'manual', signal });
     if (!response.ok) {
-      if (body?.tools?.length && [400, 404, 422].includes(response.status) && await rejectsTools(response))
-        throw Error('这个模型不支持原生工具调用。');
-      await response.body?.cancel();
+      if ((vision || body?.tools?.length) && [400, 404, 415, 422].includes(response.status)) {
+        const reason = await rejectionReason(response, vision, Boolean(body?.tools?.length));
+        if (reason) throw Error(reason);
+      } else await response.body?.cancel();
       throw providerError(operation, response.status);
     }
     const json = await readJson(response);
@@ -206,11 +209,28 @@ async function complete(config, { system = '', messages, tools = [], signal, max
     throw Error('工具定义缺少有效的名称或参数。');
   if (maxTokens != null && (!Number.isSafeInteger(maxTokens) || maxTokens < 1)) throw Error('输出 token 上限无效。');
   const scope = createHash('sha256').update(JSON.stringify([config.protocol, config.baseUrl, config.model])).digest('hex');
+  let imageCount = 0;
+  for (const m of messages) {
+    if (m.images === undefined) continue;
+    if (m.role !== 'user' || !Array.isArray(m.images) || (imageCount += m.images.length) > 4)
+      throw Error('每次最多发送 4 张图片，图片只能附在用户消息中。');
+    for (const url of m.images) {
+      if (typeof url !== 'string' || url.length > 740000 ||
+          !/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(url))
+        throw Error('图片附件无效或过大，请重新添加。');
+      const [header, encoded] = url.split(',');
+      const signature = Buffer.from(encoded.slice(0, 24), 'base64');
+      const matches = header === 'data:image/jpeg;base64' ? signature.subarray(0, 3).equals(Buffer.from([255,216,255]))
+        : header === 'data:image/png;base64' ? signature.subarray(0, 8).equals(Buffer.from('89504e470d0a1a0a','hex'))
+        : signature.toString('ascii', 0, 4) === 'RIFF' && signature.toString('ascii', 8, 12) === 'WEBP';
+      if (!matches || encoded.length % 4) throw Error('图片附件内容与格式不符，请重新添加。');
+    }
+  }
   const format = formats[config.protocol];
   const body = format.build({ config, system, messages, tools, maxTokens, scope });
   applyReasoningEffort(body, config, reasoningEffort);
   const started = performance.now();
-  const json = await request(config, format.path(config), { operation, body, signal });
+  const json = await request(config, format.path(config), { operation, body, signal, vision: imageCount > 0 });
   const usage = readUsage(config.protocol, json, performance.now() - started);
   const result = format.read(json, scope);
   if (usage) result.usage = usage;

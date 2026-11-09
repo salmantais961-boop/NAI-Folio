@@ -121,7 +121,7 @@ export function expandPrompt(text, library = records) {
 }
 
 /** Resolve one submitted caption and record only the chunks actually selected. */
-export function resolvePromptReferences(text, library = records) {
+export function resolvePromptReferences(text, library = records, random = Math.random) {
   const byName = new Map(library.map((row) => [row.name, row]));
   const used = new Map();
   let visits = 0;
@@ -132,7 +132,7 @@ export function resolvePromptReferences(text, library = records) {
     // different OC, a missing chunk, or even a cycle, none of which is submitted.
     const selected = input.replace(/\|\|([\s\S]*?)\|\|/g, (_, body) => {
       const choices = body.split('|');
-      return choices[Math.floor(Math.random() * choices.length)].trim();
+      return choices[Math.floor(random() * choices.length)].trim();
     });
     const output = [];
     let length = 0,

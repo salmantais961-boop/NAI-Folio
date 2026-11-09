@@ -32,6 +32,12 @@ function functions(tools) {
 function openAIToolMessages(messages, scope) {
   return messages.map(m => {
     if (m.role === 'tool') return { role: 'tool', tool_call_id: m.toolCallId, content: m.content };
+    if (m.role === 'user' && m.images?.length) return {
+      role: 'user', content: [
+        ...m.images.map(url => ({ type: 'image_url', image_url: { url } })),
+        ...(m.content ? [{ type: 'text', text: m.content }] : []),
+      ],
+    };
     if (m.role === 'user') return { role: 'user', content: m.content };
     const out = { role: 'assistant', content: m.content || null };
     if (m.toolCalls?.length) {
@@ -87,7 +93,11 @@ const responses = {
         input.push(...prior);
         continue;
       }
-      if (m.content) input.push({ role: m.role, content: m.content });
+      if (m.images?.length) input.push({ role: 'user', content: [
+        ...m.images.map(url => ({ type: 'input_image', image_url: url })),
+        ...(m.content ? [{ type: 'input_text', text: m.content }] : []),
+      ] });
+      else if (m.content) input.push({ role: m.role, content: m.content });
       for (const c of m.toolCalls || []) input.push({ type: 'function_call', name: c.name, arguments: JSON.stringify(c.arguments), call_id: c.id });
     }
     const body = { model: config.model, input, store: false, include: ['reasoning.encrypted_content'] };
@@ -126,7 +136,10 @@ const anthropic = {
       } else {
         let blocks = retained(m, scope);
         if (!Array.isArray(blocks)) {
-          blocks = m.content ? [{ type: 'text', text: m.content }] : [];
+          blocks = (m.images || []).map(url => ({ type: 'image', source: {
+            type: 'base64', media_type: url.slice(5, url.indexOf(';')), data: url.slice(url.indexOf(',') + 1),
+          } }));
+          if (m.content) blocks.push({ type: 'text', text: m.content });
           for (const c of m.toolCalls || []) blocks.push({ type: 'tool_use', id: c.id, name: c.name, input: c.arguments });
         }
         appendBlocks(history, m.role, blocks, 'content');
@@ -161,7 +174,10 @@ const gemini = {
       if (Array.isArray(parts)) {
         for (const p of parts) if (p.functionCall?.id) nativeIds.add(p.functionCall.id);
       } else {
-        parts = m.content ? [{ text: m.content }] : [];
+        parts = (m.images || []).map(url => ({ inlineData: {
+          mimeType: url.slice(5, url.indexOf(';')), data: url.slice(url.indexOf(',') + 1),
+        } }));
+        if (m.content) parts.push({ text: m.content });
         for (const c of m.toolCalls || []) parts.push({ functionCall: { name: c.name, args: c.arguments } });
       }
       appendBlocks(contents, m.role === 'assistant' ? 'model' : 'user', parts, 'parts');
@@ -190,6 +206,7 @@ const ollama = {
     const history = messages.map(m => {
       if (m.role === 'tool') return { role: 'tool', tool_name: m.name || names.get(m.toolCallId), content: m.content };
       const out = { role: m.role, content: m.content };
+      if (m.images?.length) out.images = m.images.map(url => url.slice(url.indexOf(',') + 1));
       if (m.toolCalls?.length) {
         out.tool_calls = m.toolCalls.map(c => {
           names.set(c.id, c.name);

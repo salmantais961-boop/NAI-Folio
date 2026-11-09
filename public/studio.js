@@ -27,6 +27,7 @@ import { mountAtlas } from './atlas.js';
 import { ensureChunkEntries, captureGenerated } from './atlas-store.js';
 import { searchItems, normalizeSearch } from './fuzzy-search.js';
 import { mountBilling } from './billing.js';
+import { estimateAnlas } from './billing-estimate.js';
 import { mountProofViewer } from './proof-viewer.js';
 import { mountProofActions } from './proof-actions.js';
 import { mountStudioFinish } from './atelier.js';
@@ -88,6 +89,10 @@ function visibleWorks() {
 function isHiddenWork(work) {
   return Boolean(work && getHideNSFW() && ratingFor(work).nsfw);
 }
+function getVisibleWork(id) {
+  const work = works.find(item => item.id === id);
+  return work && !isHiddenWork(work) ? work : undefined;
+}
 let controls,
   promptTokens,
   proofNotebook,
@@ -136,7 +141,7 @@ const archiveScoring = mountArchiveScoring($('archive-score-controls'), {
 let archiveQuery = '',
   currentScreen = 'studio';
 const screenScroll = new Map();
-let desktopAgent;
+let desktopAgent, lab, labLoading;
 const screenNode = name => $(name === 'agent' ? 'studio' : name);
 const atlas = mountAtlas($('atlas'), {
   getWorks: () => works,
@@ -329,6 +334,7 @@ function setScreen(target, viewTransition = false) {
   const screen = target === true ? 'archive' : target === false ? 'studio' : target;
   const changed = currentScreen !== screen;
   if (changed && currentScreen === 'archive') archiveBatch.close();
+  if (changed && currentScreen === 'lab') lab?.leave();
   if (changed) screenScroll.set(currentScreen, window.scrollY);
   currentScreen = screen;
   const agentMode = screen === 'agent';
@@ -342,7 +348,7 @@ function setScreen(target, viewTransition = false) {
     else desktopAgent?.deactivate();
     if (changed && desktopAgent && (agentMode || screen === 'studio')) syncCanvasSettings();
   }
-  for (const id of ['studio', 'archive', 'atlas']) {
+  for (const id of ['studio', 'archive', 'atlas', 'lab']) {
     $(id).hidden = $(id) !== screenNode(screen);
     $(id + '-nav').toggleAttribute('aria-current', id === screen);
   }
@@ -350,6 +356,7 @@ function setScreen(target, viewTransition = false) {
   if (screen === 'archive') renderArchive();
   else if (changed) archiveLayout.refresh();
   if (screen === 'atlas') void atlas.refresh();
+  if (screen === 'lab') void enterLab();
   if (changed) {
     // Animate the content, keeping the shared masthead fixed and immediately usable.
     studioEntrance.cancel();
@@ -379,6 +386,53 @@ function navigateScreen(target) {
     { scrollAfter, layered: screenNode(screen) === $('studio') },
   );
   if (!swapped) screenExit.play(screenNode(currentScreen), () => setScreen(screen));
+}
+async function enterLab() {
+  if (!labLoading) {
+    labLoading = import('./lab.js').then(({ mountLab }) => {
+      // Pin the account for all rows started with the same batch controller.
+      const sessions = new WeakMap();
+      lab = mountLab($('lab'), {
+        getSettings: () => ({
+          ...controls.getSettings(), mode: 'generate', batch: 1, quality: 'off', uc: 'none',
+          source: null, mask: null, references: [], characters: [], useCoords: false,
+        }),
+        async runPlan(plan, { signal }) {
+          signal.throwIfAborted();
+          if (!sessions.has(signal)) sessions.set(signal, controls.captureSession());
+          const accountSession = await sessions.get(signal);
+          return generate({ lab: true, prompt: plan.prompt, negative: plan.negative, settings: plan.settings, signal, accountSession });
+        },
+        estimate(plans) {
+          let min = 0, max = 0, quota = 0;
+          for (const plan of Array.isArray(plans) ? plans : [plans]) {
+            const quote = estimateAnlas(plan.settings, latestAccount);
+            if (quote.min == null) return;
+            min += quote.min;
+            max += quote.max;
+            quota += quote.quota || 0;
+          }
+          const amount = min === max ? String(min) : min + '–' + max;
+          return (latestAccount?.provider === 'relay' ? '官方参考 ' : '预计 ') + amount + ' Anlas' +
+            (quota ? ' · 约 ' + quota.toFixed(3) + '% 额度' : '');
+        },
+        getWork: getVisibleWork,
+        getWorkUrl: itemUrl,
+        onOpenWork(work) {
+          const visible = getVisibleWork(work.id);
+          if (visible) appreciation.open(visible);
+        },
+        notify,
+      });
+    });
+  }
+  try {
+    await labLoading;
+    if (currentScreen === 'lab') lab.enter();
+  } catch (error) {
+    labLoading = null;
+    notify(error.message || '实验室暂时无法打开。');
+  }
 }
 function useOC(entry) {
   const chunk = listChunks().find((item) => item.id === entry.chunkId || item.atlasId === entry.id);
@@ -1005,7 +1059,7 @@ function showPreview(frame) {
 }
 async function generate(job = {}) {
   if (request) {
-    if (job.agent) throw Error('画布上还有一项生成任务，请等它完成后再发送。');
+    if (job.agent || job.lab) throw Error('画布上还有一项生成任务，请等它完成后再发送。');
     return;
   }
   job.signal?.throwIfAborted();
@@ -1014,11 +1068,11 @@ async function generate(job = {}) {
   const cancelJob = () => generationRequest.abort();
   job.signal?.addEventListener('abort', cancelJob, { once: true });
   activeGeneration = {
-    viewing: true,
+    viewing: !job.lab,
     prepared: false,
     returnWork: current,
-    referenceWork: current,
-    referenceURL: current ? itemUrl(current) : '',
+    referenceWork: job.lab ? null : current,
+    referenceURL: !job.lab && current ? itemUrl(current) : '',
     settings: structuredClone(job.settings || controls.getSettings()),
     lastPreview: null,
   };
@@ -1027,8 +1081,8 @@ async function generate(job = {}) {
   const signal = request.signal,
     submitted = { prompt: job.prompt ?? prompt.value, negative: job.negative ?? negative.value };
   // Capture provenance at submission, independently of browsing or editing the next draft.
-  const submittedSettings = { ...controls.getSettings({ includeMedia: true }), ...job.settings };
-  const submittedReuse = job.agent ? [] : structuredClone(lineageReuse);
+  const submittedSettings = job.lab ? job.settings : { ...controls.getSettings({ includeMedia: true }), ...job.settings };
+  const submittedReuse = job.agent || job.lab ? [] : structuredClone(lineageReuse);
   const consumedReuses = new Set(submittedReuse.map(reuseToken));
   const submittedAtlas = ensureChunkEntries().catch(() => {
     notify('万象集暂时无法读取，本次仍可生成，但不会自动记录例图。');
@@ -1100,7 +1154,7 @@ async function generate(job = {}) {
       signal,
       settings: resolvedSettings,
       resolvedPrompts: true,
-      lockNegative: job.agent?.lockNegative === true,
+      lockNegative: job.lab === true || job.agent?.lockNegative === true,
       accountSession: job.accountSession,
     });
     if (!result?.images?.length) throw Error('未收到图像，请检查接口响应。');
@@ -1233,7 +1287,7 @@ async function generate(job = {}) {
       completedInBackground = firstVisible;
       drawStrip(new Set(batch.map((w) => w.id)));
       syncNotebookGeneration();
-      notify('新图已完成 · 点击历史首图或「查看新作」即可查看');
+      if (!job.lab) notify('新图已完成 · 点击历史首图或「查看新作」即可查看');
     }
     finish.complete(result.mode === 'upscale' ? '超分完成' : '显影完成', { reveal: Boolean(firstVisible && viewingResult) });
     renderArchive();
@@ -1245,7 +1299,7 @@ async function generate(job = {}) {
     } catch {
       $('generation-status').textContent = '已生成，但浏览器存储空间不足。请下载本次结果。';
     }
-    if (job.agent) return { workIds: batch.filter(w => !isHiddenWork(w)).map(w => w.id),
+    if (job.agent || job.lab) return { generatedCount: batch.length, workIds: batch.filter(w => !isHiddenWork(w)).map(w => w.id),
       text: firstVisible ? $('generation-status').textContent : '图像已生成，当前内容设置已隐藏预览。' };
   } catch (e) {
     proofProgress.clear();
@@ -1262,7 +1316,7 @@ async function generate(job = {}) {
     $('generation-status').textContent = signal.aborted
       ? '已停止等待。本次任务的计费以所用服务的账户记录为准。'
       : e.message || '生成请求失败。';
-    if (job.agent) throw e;
+    if (job.agent || job.lab) throw e;
   } finally {
     job.signal?.removeEventListener('abort', cancelJob);
     clearInterval(timer);
@@ -1332,10 +1386,17 @@ controls = mountControls($('controls'), {
   onPrepare({ mode, width, height, count }) {
     if (activeGeneration) Object.assign(activeGeneration, { mode, width, height, count, prepared: true });
     pendingHistory.begin({ mode, width, height, count });
-    finish.viewingGeneration(true);
+    const viewing = Boolean(activeGeneration?.viewing);
+    pendingHistory.select(viewing);
+    finish.viewingGeneration(viewing);
     finish.busy(true, mode);
-    setPanel('canvas');
-    displayGeneration();
+    if (viewing) {
+      setPanel('canvas');
+      displayGeneration();
+    } else {
+      drawStrip();
+      syncNotebookGeneration();
+    }
   },
   onTransportStart({ stream, mode, totalSteps, samples }) {
     proofProgress.transport({ stream, mode, totalSteps, samples });
@@ -1477,6 +1538,11 @@ if ($('agent-nav')) {
       opening ??= import('./desktop-agent-studio.js').then(({ mount }) =>
         desktopAgent = mount($('desktop-agent'), {
           controls, generate, search: searchAgentCatalog, onImageSettingsChange: syncCanvasSettings,
+          readWorkImage(id) {
+            const work = getVisibleWork(id);
+            if (!work?.blob) throw Error('这张成图已移除，或已被内容设置隐藏。');
+            return work.blob;
+          },
           openWork(id) {
             const work = works.find(w => w.id === id);
             if (!work || isHiddenWork(work)) return notify('这张作品已移除，或已被内容设置隐藏。');
@@ -1493,6 +1559,7 @@ if ($('agent-nav')) {
   };
 }
 $('archive-nav').onclick = () => navigateScreen(true);
+$('lab-nav').onclick = () => navigateScreen('lab');
 $('atlas-nav').onclick = () => navigateScreen('atlas');
 let searchTimer,
   composingSearch = false;
@@ -1529,6 +1596,7 @@ $('archive-search').addEventListener('keydown', (event) => {
 });
 $('archive-search-clear').onclick = clearArchiveSearch;
 window.addEventListener('folio:content-preferences', () => {
+  if (currentScreen === 'lab') lab?.enter();
   const hiding = getHideNSFW();
   if (hiding) {
     archiveBatch.close();

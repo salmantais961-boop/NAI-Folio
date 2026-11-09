@@ -407,6 +407,17 @@ body * {
     display: none;
   }
 }
+@media (max-width: 360px) {
+  .app-top nav { gap: 7px; }
+  .app-top .account-island .account,
+  .app-top .account-island .account:hover {
+    width: 25px;
+    padding: 0;
+    justify-content: center;
+  }
+  .app-top .account-island .account > span:not([data-icon]) { display: none; }
+  .app-top .account-island .account > [data-icon] { display: inline-grid; }
+}
 @media (max-width: 560px) {
   #utility {
     width: calc(100vw - 24px);
