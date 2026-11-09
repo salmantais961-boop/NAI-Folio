@@ -58,7 +58,7 @@ export async function importCatalog(sourceDirectory, targetDirectory = bundledRo
   const covers = new Map();
   let missingCovers = 0;
   for (const row of [...data.artist, ...data.character]) {
-    if (row.length > 6) row[6] = ''; // Imported editions, like the starter, stay offline.
+    if (row.length > 6) row[6] = ''; // User-imported editions load covers from disk only.
     if (!row[7]) continue;
     const path = row[7];
     if (!isLocalCover(path)) throw Error('不支持的封面路径：' + path);
@@ -108,7 +108,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       const info = await importCatalog(process.argv[2]);
       console.log(`已导入 ${info.tags} 个联想词条、${info.artists} 位画师、${info.characters} 位角色，以及 ${info.covers} 张本地封面。`);
       if (info.missingCovers) console.log(`缺少 ${info.missingCovers} 张本地封面，这些条目将使用首字排版。`);
-      console.log('在工作台地址后加 ?catalog=local 启用。?catalog=sample 切回随附示例库。');
+      console.log('在工作台地址后加 ?catalog=local 启用。?catalog=sample 切回内置图鉴。');
     } catch (error) {
       console.error('导入失败：' + error.message);
       process.exitCode = 1;

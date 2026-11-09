@@ -8,10 +8,10 @@
 
 | Windows x64 | 怎么打开 |
 | --- | --- |
-| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11/Folio-Desktop-1.11-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
-| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11/NAI-Folio-1.11-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
+| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/Folio-Desktop-1.11.1-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
+| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/NAI-Folio-1.11.1-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
 
-两个下载都在 1.11 发布页，校验文件也放在那里。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.11) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11/SHA256SUMS.txt)
+两个下载都在 1.11.1 发布页，校验文件也放在那里。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.11.1) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.11.1/SHA256SUMS.txt)
 
 第一次打开桌面版，跟着引导先选 NovelAI 官方账户或中转站，再选 Agent 对话用的语言模型。只想先看看界面，可以跳过，之后到设置里补填。使用 WebUI 时，点右上角 **连接 NovelAI** 即可添加账户。
 
@@ -76,7 +76,7 @@ npm start
 
 桌面壳使用 Rust 和 Tauri。要在 Windows x64 构建，先装好 Rust MSVC 工具链、Visual Studio C++ 生成工具和 Windows SDK。运行 `npm run desktop:build` 得到 `desktop-build/Folio/Folio.exe`。运行 `npm run desktop:installer` 制作安装包，输出在 `src-tauri/target/release/bundle/nsis/`。
 
-公开版带有 60 个通用标签、6 位历史画师、6 位示例角色和 6 个起步词块。源码版可以导入自己有权使用的图鉴。提示词计数也在本机完成。[图鉴与导入方法](docs/catalog.md) · [分词数据来源](public/tokenizers/README.md)
+桌面版和 WebUI 都自带 243,910 条标签联想、15,879 位画师和 34,301 个角色。输入「初音未来」就能找到 Hatsune Miku，多角色栏还能带入她的外貌标签。词库检索和提示词计数都在本机完成。[图鉴与导入方法](docs/catalog.md) · [分词数据来源](public/tokenizers/README.md)
 
 </details>
 

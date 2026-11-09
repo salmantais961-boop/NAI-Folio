@@ -43,17 +43,17 @@ test('bundled characters resolve exact canonical and aliases through NAI weights
     id: 1,
     kind: 'exact-characters',
     texts: [
-      '{{1.25::character:IRIS_(PAPER_QUAY)::}}, 1girl, long_hair, blue eyes, iris_(paper_quay)',
-      '[character:mira_lensmaker] | +.8::teo_(paper_quay)::\ncharacter:ada_clockmaker',
+      '{{1.25::character:HATSUNE_MIKU::}}, 1girl, long_hair, blue eyes, hatsune_miku',
+      '[character:raiden_(genshin_impact)] | +.8::artoria_pendragon_(fate)::\ncharacter:kotiya_sanae',
     ],
   });
   assert.deepEqual(
     found.characters.map((item) => item.id),
-    ['tag:iris_(paper_quay)', 'tag:mira_(paper_quay)', 'tag:teo_(paper_quay)', 'tag:ada_(paper_quay)'],
+    ['tag:hatsune_miku', 'tag:raiden_shogun', 'tag:artoria_pendragon_(fate)', 'tag:kochiya_sanae'],
   );
-  assert.equal(found.characters[0].name, '鸢尾 · 测星员');
+  assert.equal(found.characters[0].name, '初音未来');
   assert.deepEqual(h.requests, ['character.json']);
-  const repeated = await h.send({ id: 2, kind: 'exact-characters', texts: ['iris the surveyor, mira (paper quay)'] });
+  const repeated = await h.send({ id: 2, kind: 'exact-characters', texts: ['hatsune miku, raiden shogun'] });
   assert.equal(repeated.characters.length, 2);
   assert.deepEqual(h.requests, ['character.json']);
 });
@@ -154,15 +154,25 @@ test('character picker supplements only its page with verified local appearance 
   const result = await h.send({
     id: 1,
     kind: 'character',
-    query: 'iris (paper quay)',
+    query: '初音未来',
     limit: 1,
     includeDetails: true,
     channel: 'picker',
   });
-  assert.equal(result.results[0][0], 'iris (paper quay)');
-  assert(result.details['iris (paper quay)'].includes('brass telescope'));
-  assert.deepEqual(Object.keys(result.details), ['iris (paper quay)']);
+  assert.equal(result.results[0][0], 'hatsune miku');
+  assert(result.details['hatsune miku'].includes('aqua hair'));
+  assert.deepEqual(Object.keys(result.details), ['hatsune miku']);
   assert.deepEqual(h.requests, ['character.json', 'character-details.json']);
+});
+
+test('bundled artist aliases, translated tags and related suggestions resolve offline', async () => {
+  const h = harness();
+  const artists = await h.send({ id: 1, kind: 'artist', query: 'mossi' });
+  assert(artists.results.some(row => row[0] === 'modare'));
+  const tags = await h.send({ id: 2, kind: 'tags', query: '景深' });
+  assert.equal(tags.results[0][0], 'depth of field');
+  const related = await h.send({ id: 3, kind: 'related-tags', query: 'depth of field' });
+  assert(related.results.some(row => row[0] === 'bokeh'));
 });
 
 test('text and next-tag suggestions cap at twenty, skip existing tags and require a recorded relation', async () => {

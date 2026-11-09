@@ -23,7 +23,7 @@ async function resolveEdition() {
   if (!editionRequest) {
     editionRequest = fetch(new URL('local/current.json', dataURL), { cache: 'no-store' })
       .then(async (response) => {
-        if (!response.ok) throw Error('请先导入本机图鉴，或用 ?catalog=sample 打开示例库。');
+        if (!response.ok) throw Error('请先导入本机图鉴，或用 ?catalog=sample 切回内置图鉴。');
         const { edition } = await response.json();
         if (!/^[a-f0-9-]{36}$/.test(edition)) throw Error('本机图鉴版本无效，请重新导入。');
         workerURL.searchParams.set('edition', edition);
@@ -632,13 +632,15 @@ function makeTile(row, kind, appearance, select, observe) {
   fallback.append(label);
   cover.append(fallback);
   const local = isLocalCover(row[7]) ? new URL(row[7], coverRoot).href : '';
-  if (local) {
+  const remote = !useImported && typeof row[6] === 'string' &&
+    /^https:\/\/blobs\.animadex\.net\/(?:ArtistOutputs|Outputs)\/thumbs\/[^/?#\\]+\.webp$/.test(row[6]) ? row[6] : '';
+  if (local || remote) {
     const img = node('img');
     img.alt = '';
     img.draggable = false;
     img.decoding = 'async';
     img.referrerPolicy = 'no-referrer';
-    img.dataset.source = local;
+    img.dataset.source = local || remote;
     img.addEventListener('load', () => {
       cover.dataset.loaded = 'true';
       tile.dataset.ratio = img.naturalWidth + '/' + img.naturalHeight;
@@ -646,6 +648,10 @@ function makeTile(row, kind, appearance, select, observe) {
       observe.relayout();
     });
     img.addEventListener('error', () => {
+      if (remote && img.getAttribute('src') !== remote) {
+        img.src = remote;
+        return;
+      }
       img.remove();
       cover.dataset.failed = 'true';
       observe.relayout();

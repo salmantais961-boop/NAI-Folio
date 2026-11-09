@@ -11,6 +11,10 @@
 | React Bits · Dot Grid | 点阵背景作为工作台的一部分分发。该组件使用附 Commons Clause 条件的许可，单独分发及商业使用范围以原文为准。[组件许可](public/vendor/react-bits-LICENSE.txt) |
 | Qwen、T5、CLIP 与 HTML 实体数据 | 本地提示词分词。数据的具体版本、生成方式和上游许可见分词目录。[来源及许可](public/tokenizers/README.md) |
 
+## 图鉴数据
+
+内置词典和角色、画师索引整理自 Aurora Bright Edition 的本地标签库、AnimaDex（2026 年 5 月版）与 Danbooru Tag Lab。本地封面及在线缩略图来自 AnimaDex，画作权利归各自权利人。项目的 MIT 许可适用于 Folio 自有代码。[本期索引清单](public/catalog-data/manifest.json) · [图鉴说明](docs/catalog.md)
+
 ## 便携包运行时
 
 Windows x64 便携包另附官方 Node.js v24.22.2，可执行文件与完整许可位于包内的 `runtime/`。[Node.js 官方发行目录](https://nodejs.org/dist/v24.22.2/)
