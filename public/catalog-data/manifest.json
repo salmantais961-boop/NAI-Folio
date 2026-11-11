@@ -1,1 +1,27 @@
-{"tags":243910,"artists":15879,"characters":34301,"aliases":16855,"localTags":222581,"source":"AURORA local-tag-db • AnimaDex 2026.05 • Danbooru Tag Lab","version":"2026.11.03"}
+{
+  "tags": 336155,
+  "artists": 15879,
+  "characters": 34301,
+  "aliases": 5666,
+  "source": "ffdkj/ffdkj-Danbooru_Tag-Chinese-English-Translation-Table",
+  "version": "2026.11.09",
+  "tagCategories": {
+    "0": 53664,
+    "1": 155856,
+    "3": 20381,
+    "4": 105504,
+    "5": 750
+  },
+  "tagSource": {
+    "repository": "https://github.com/ffdkj/ffdkj-Danbooru_Tag-Chinese-English-Translation-Table",
+    "revision": "15f5f4b50428226649d371cbf7faff8ddaacdb24",
+    "date": "2026-11-09",
+    "sha256": "17305abac098be0c3a268e4bfd676711de4a7690529bdb14d0a6be22ce4a2c35",
+    "license": "MIT",
+    "aliasSource": "Matching artist and character records from the bundled Folio catalog"
+  },
+  "catalogSource": {
+    "source": "AURORA local-tag-db • AnimaDex 2026.05 • Danbooru Tag Lab",
+    "version": "2026.11.03"
+  }
+}

@@ -77,6 +77,7 @@ const stamp = new Intl.DateTimeFormat('zh-CN', {
   minute: '2-digit',
 });
 const imageURLs = new WeakMap();
+const historyParts = new WeakMap();
 const contentRatings = new WeakMap();
 function ratingFor(work) {
   // Saved positive captions are snapshots. Scoring and gallery tags don't change them.
@@ -706,8 +707,10 @@ function drawStrip(freshIds) {
       open.dataset.workId = work.id;
       const surface = make('span', 'hm-thumbnail');
       const img = make('img');
-      img.src = itemUrl(work);
+      // Lazy loading must be set before src, or the original may load eagerly.
       img.loading = 'lazy';
+      img.decoding = 'async';
+      img.src = itemUrl(work);
       img.alt = '';
       const sizeThumbnail = (width, height) => {
         if (!(width > 0 && height > 0)) return;
@@ -739,17 +742,26 @@ function drawStrip(freshIds) {
       tile.append(open, trail, del);
       historyTiles.set(work.id, tile);
     }
+    // Completion redraws ~900 tiles; only write what changed so the layout and
+    // style work stays proportional to the new or reselected tiles.
     const label = '作品 ' + num + (ratingFor(work).nsfw ? ' · NSFW' : '') + ' · ' + shortPrompt(work);
-    const open = tile.querySelector('.history-open');
-    if (!tile.hasAttribute('data-removal-armed')) {
+    const parts = historyParts.get(tile) || {
+      open: tile.querySelector('.history-open'),
+      del: tile.querySelector('.history-delete'),
+      small: tile.querySelector('.history-open small'),
+    };
+    historyParts.set(tile, parts);
+    const { open, del, small } = parts;
+    const selected = String(work.id === current?.id);
+    if (!tile.hasAttribute('data-removal-armed') && open.title !== label) {
       open.title = label;
       open.setAttribute('aria-label', label);
     }
-    open.querySelector('small').textContent = num;
-    open.setAttribute('aria-pressed', String(work.id === current?.id));
-    tile.dataset.selected = String(work.id === current?.id);
-    tile.querySelector('.history-delete').setAttribute('aria-label', '删除作品 ' + num);
-    tile.querySelector('.history-delete').title = '删除作品 · 可撤销';
+    if (small.textContent !== num) small.textContent = num;
+    if (open.getAttribute('aria-pressed') !== selected) open.setAttribute('aria-pressed', selected);
+    if (tile.dataset.selected !== selected) tile.dataset.selected = selected;
+    if (del.getAttribute('aria-label') !== '删除作品 ' + num) del.setAttribute('aria-label', '删除作品 ' + num);
+    if (del.title !== '删除作品 · 可撤销') del.title = '删除作品 · 可撤销';
     if (cursor !== tile) host.insertBefore(tile, cursor);
     cursor = nextWorkTile(tile.nextElementSibling);
     if (freshIds?.has(work.id) && work.id !== pendingHistory.completingId)
@@ -1042,6 +1054,27 @@ function createArchiveCard(work) {
   archiveBatch.decorate(card);
   return card;
 }
+// Every stream frame is a full-size image. The proof shows each one; the
+// colour field and pending history tile only need the newest about twice a second.
+let ambientPreview = { at: 0, timer: 0, url: '', request: null };
+function previewAmbient(url) {
+  if (ambientPreview.request !== request) {
+    clearTimeout(ambientPreview.timer);
+    ambientPreview = { at: 0, timer: 0, url: '', request };
+  }
+  ambientPreview.url = url;
+  if (ambientPreview.timer) return;
+  const run = () => {
+    ambientPreview.timer = 0;
+    ambientPreview.at = performance.now();
+    if (ambientPreview.request !== request || !request || request.signal.aborted) return;
+    if (activeGeneration?.viewing) atmosphere.preview(ambientPreview.url);
+    void pendingHistory.preview(ambientPreview.url);
+  };
+  const wait = ambientPreview.at + 500 - performance.now();
+  if (wait <= 0) run();
+  else ambientPreview.timer = setTimeout(run, wait);
+}
 function showPreview(frame) {
   if (!request || request.signal.aborted) return;
   proofProgress.frame(frame);
@@ -1050,11 +1083,8 @@ function showPreview(frame) {
   if (!(url || dataUrl)) return;
   const info = '样本 ' + ((sample ?? 0) + 1) + (step != null ? ' · 第 ' + step + ' 步' : '');
   if (activeGeneration) activeGeneration.lastPreview = { url: url || dataUrl, info };
-  if (activeGeneration?.viewing) {
-    preview('stream', url || dataUrl, 'NovelAI 中间预览', '流式预览', info);
-    atmosphere.preview(url || dataUrl);
-  }
-  void pendingHistory.preview(url || dataUrl);
+  if (activeGeneration?.viewing) preview('stream', url || dataUrl, 'NovelAI 中间预览', '流式预览', info);
+  previewAmbient(url || dataUrl);
   $('generation-status').textContent = '正在生成 · ' + info;
 }
 async function generate(job = {}) {

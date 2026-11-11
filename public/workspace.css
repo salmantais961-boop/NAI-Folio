@@ -56,6 +56,16 @@
   min-width: 0;
   min-height: 0;
 }
+#app:has(> .workspace[hidden]) {
+  display: grid;
+  grid-template: auto auto 1fr / minmax(0, 1fr);
+}
+#app > main:not(.workspace) {
+  width: 100%;
+}
+.app-foot {
+  align-self: end;
+}
 .workspace:not([hidden]) ~ .app-foot {
   display: none;
 }

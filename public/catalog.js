@@ -104,7 +104,7 @@ function node(tag, className, text) {
 const compact = (value) => value.trim().toLowerCase().replaceAll('_', ' ').replace(/\s+/g, ' ');
 const delimiters = /[,，、\n|]/;
 const suggestionLimit = 20;
-const categoryNames = { 0: '标签', 1: '画师', 3: '作品', 4: '角色', 5: '元标签', 6: '词块' };
+const categoryNames = { 0: '常规', 1: '画师', 3: '作品', 4: '角色', 5: '元数据', 6: '词块' };
 const attached = new WeakSet();
 let popup,
   active,
@@ -167,7 +167,7 @@ async function officialTags(region) {
       .map((item) => [
         prefix && item.tag.startsWith(prefix) ? item.tag.slice(prefix.length) : item.tag,
         '',
-        region.category || 0,
+        region.category ?? -1,
       ]);
     if (remoteCache.size >= 128) remoteCache.delete(remoteCache.keys().next().value);
     remoteCache.set(key, rows);
@@ -180,16 +180,25 @@ async function officialTags(region) {
 
 const tagPrefix = /^\s*(?:(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)::|[\[{])\s*)*(?:(artist|character):\s*)?/i;
 const tagSuffix = /(?:[\]}]|::)*\s*$/;
-const usedTag = token => compact(token.replace(tagPrefix, '').replace(tagSuffix, ''));
+const usedTag = token => token.replace(tagPrefix, '').replace(tagSuffix, '').trim();
 
-function tokenAt(input) {
-  const caret = input.selectionStart;
-  if (caret !== input.selectionEnd) return null;
+function tokenAt(input, inspect = false) {
+  const caret = input.selectionStart, selectionEnd = input.selectionEnd;
   const text = input.value;
-  let start = caret, end = caret;
+  let start = caret, end = selectionEnd;
   while (start > 0 && !delimiters.test(text[start - 1])) start--;
   while (end < text.length && !delimiters.test(text[end])) end++;
   const token = text.slice(start, end);
+  if (caret !== selectionEnd || (inspect && token.trim())) {
+    const related = usedTag(token);
+    const picked = text.slice(caret, selectionEnd);
+    if (related && related.length <= 100 && !token.includes('!macro:') && !delimiters.test(token) &&
+        (caret === selectionEnd || usedTag(picked) === related)) {
+      const from = start + token.trimEnd().length;
+      return { from, to: from, end, query: '', related, insertAfter: true };
+    }
+    if (caret !== selectionEnd) return null;
+  }
   if (!token.trim()) {
     if (!start || !/[,，、]/.test(text[start - 1])) return null;
     let previous = start - 1;
@@ -201,7 +210,7 @@ function tokenAt(input) {
   const prefix = token.match(tagPrefix);
   const from = start + prefix[0].length;
   const to = end - token.match(tagSuffix)[0].length;
-  const query = compact(text.slice(from, Math.min(caret, to)));
+  const query = text.slice(from, Math.min(caret, to)).trim();
   if (!query || token.includes('!macro:') || caret < from || query.length > 100) return null;
   const type = prefix[1]?.toLowerCase();
   return { from, to, end, query, category: type === 'artist' ? 1 : type === 'character' ? 4 : null };
@@ -336,8 +345,8 @@ function highlight(index, scroll = true) {
   else if (bottom > popup.scrollTop + popup.clientHeight) popup.scrollTop = bottom - popup.clientHeight + 4;
 }
 
-function matchesCaret({ input, value, caret }) {
-  return input.value === value && input.selectionStart === caret && input.selectionEnd === caret;
+function matchesCaret({ input, value, caret, selectionEnd }) {
+  return input.value === value && input.selectionStart === caret && input.selectionEnd === selectionEnd;
 }
 
 function commitSuggestion(index) {
@@ -354,20 +363,25 @@ function commitSuggestion(index) {
   const next = value.slice(region.end);
   const delimiter = /^[,，、][ \t]*/.exec(next);
   const end = region.end + (delimiter?.[0].length || 0);
-  const leading = region.related && /[,，、]/.test(value[region.from - 1]) ? ' ' : '';
+  const leading = region.insertAfter ? ', ' : region.related && /[,，、]/.test(value[region.from - 1]) ? ' ' : '';
   const replacement = leading + label + suffix + ', ';
   typeValue(input, replacement, region.from, end);
   // Native textarea input events can fire before setSelectionRange completes.
-  scheduleSuggestions(input);
+  scheduleSuggestions(input, false, row[2] === 6 ? '' : label);
 }
 
-function scheduleSuggestions(input) {
+function scheduleSuggestions(input, inspect = false, acceptedTag = '') {
   closeSuggestions();
   if (composing || (input !== document.activeElement && !input.promptEditor?.focused)) return;
-  const region = tokenAt(input);
+  const caret = input.selectionStart;
+  // When inserting between two existing tags the next token already has text.
+  // Offer companions at the new caret without replacing that next token.
+  const region = acceptedTag && caret === input.selectionEnd
+    ? { from: caret, to: caret, end: caret, query: '', related: acceptedTag }
+    : tokenAt(input, inspect);
   if (!region) return;
   const epoch = suggestionEpoch, value = input.value;
-  const search = { input, value, caret: input.selectionStart, moves: 0, related: region.related };
+  const search = { input, value, caret: input.selectionStart, selectionEnd: input.selectionEnd, moves: 0, related: region.related };
   opening = search;
   async function populate() {
     let result,
@@ -379,14 +393,21 @@ function scheduleSuggestions(input) {
       } catch {
         return;
       }
-      headingText = '相关标签 · ' + region.related;
-    } else if (region.query.startsWith('@')) {
-      result = {
-        results: findChunks(region.query.slice(1))
-          .slice(0, suggestionLimit)
-          .map((c) => [c.name, c.text.slice(0, 50), 6]),
-      };
-      headingText = 'FOLIO  /  PROMPT BLOCKS';
+      headingText = '搭配预测 · ' + region.related;
+    } else if (region.category === null && region.query.startsWith('@')) {
+      const blocks = findChunks(region.query.slice(1)).slice(0, suggestionLimit)
+        .map(c => [c.name, c.text.slice(0, 50), 6]);
+      let tags = [];
+      // @ also starts real tags such as @_@. Keep block names on-device.
+      if (region.query.length > 1) {
+        try {
+          const page = await request('tags', region.query, { limit: suggestionLimit });
+          tags = page.results?.filter(row => row[0].startsWith('@')) || [];
+        } catch { /* Saved blocks still work when the dictionary is unavailable. */ }
+      }
+      const exact = tags.find(row => compact(row[0]) === compact(region.query));
+      result = { results: [...(exact ? [exact] : []), ...blocks, ...tags.filter(row => row !== exact)] };
+      headingText = blocks.length ? (tags.length ? '词块与标签' : 'FOLIO  /  PROMPT BLOCKS') : 'DANBOORU  /  LOCAL';
     } else if (source === 'official') {
       try {
         const rows = await officialTags(region);
@@ -430,7 +451,15 @@ function scheduleSuggestions(input) {
       active.options.push(option);
       const label = node('span', 'cat-option-text');
       label.append(node('b', '', row[0]), node('small', '', row[1] || ''));
-      option.append(label, node('em', '', categoryNames[row[2] || 0] || '标签'));
+      const category = node('em', '', categoryNames[row[2] || 0] || '标签');
+      const proof = result.evidence?.[row[0]];
+      if (proof?.shared) {
+        const stats = node('span', 'cat-option-evidence');
+        stats.append(category, node('small', '', '样本同现 ' + number.format(proof.shared)));
+        option.title = '公开样本中含「' + region.related + '」的 ' + number.format(result.sampleSize) +
+          ' 张图里，有 ' + number.format(proof.shared) + ' 张也使用了「' + row[0] + '」。';
+        option.append(label, stats);
+      } else option.append(label, category);
       option.addEventListener('pointerdown', (event) => event.preventDefault());
       option.addEventListener('pointermove', (event) => {
         if (event.pointerType === 'mouse' && (event.movementX || event.movementY) && active?.index !== i)
@@ -469,7 +498,10 @@ export function attachAutocomplete(input) {
     scheduleSuggestions(input);
   });
   input.addEventListener('input', () => scheduleSuggestions(input));
-  input.addEventListener('click', () => scheduleSuggestions(input));
+  input.addEventListener('click', () => scheduleSuggestions(input, true));
+  input.addEventListener('select', () => {
+    if (input.selectionStart !== input.selectionEnd) scheduleSuggestions(input);
+  });
   input.addEventListener('blur', () => {
     composing = false;
     closeSuggestions();

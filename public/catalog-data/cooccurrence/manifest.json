@@ -1,0 +1,19 @@
+{
+  "source": "https://huggingface.co/datasets/newtextdoc1111/danbooru-tag-csv",
+  "revision": "fdf2772213f13d46bff60fc5ebd876e1a811a053",
+  "sourceRevisionDate": "2025-05-15",
+  "pairFilePublished": "2025-05-09",
+  "license": "MIT",
+  "inputSha256": {
+    "danbooru_tags.csv": "a48e1e63b81e8e4fc3091c660fd763e9d05e19beea3b98d1ee78d00ed10ac9d3",
+    "danbooru_tags_cooccurrence.csv": "29bf95d3dd2f4b1038ac26b3fee371ebbe67d9b622b32d274c9486dbde56077a"
+  },
+  "unit": "Shared Danbooru posts in the source snapshot; not prompt order or Folio usage.",
+  "inputPairs": 3236959,
+  "minimumInputPairCount": 100,
+  "matchedPairs": 3165441,
+  "coveredSeeds": 30234,
+  "maxNeighbours": 48,
+  "shards": 16,
+  "ranking": "General tags first, then cosine similarity times joint / (joint + 100), then joint count."
+}

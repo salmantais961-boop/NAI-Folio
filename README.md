@@ -8,10 +8,10 @@
 
 | Windows x64 | 怎么打开 |
 | --- | --- |
-| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.12.0/Folio-Desktop-1.12.0-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
-| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.12.0/NAI-Folio-1.12.0-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
+| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.13.0/Folio-Desktop-1.13.0-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
+| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.13.0/NAI-Folio-1.13.0-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
 
-**1.12.0** 的两个版本都能打开实验室，批量比较画师权重和采样参数。想把参考图发给 Agent，或让它看看刚生成的作品，请下载桌面版。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.12.0) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.12.0/SHA256SUMS.txt)
+**1.13.0** 生成时的预览更顺，历史条在出图后不再整排重绘。标签联想换成 336,155 条 ffdkj 中英文词库，选中一个标签还能看到常和它一起出现的搭配。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.13.0) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.13.0/SHA256SUMS.txt)
 
 第一次打开桌面版，跟着引导先选 NovelAI 官方账户或中转站，再选 Agent 对话用的语言模型。只想先看看界面，可以跳过，之后到设置里补填。使用 WebUI 时，点右上角 **连接 NovelAI** 即可添加账户。
 
@@ -23,7 +23,7 @@
 
 ![Folio 1.11 桌面工作台实景，顶栏可切换到 Agent，中央画布展示浅金短发人物，右侧是历史缩略图](docs/media/workbench-preview.png)
 
-**提示词不用每次从头写。** 记得中文、不记得英文时，输入「柔光」也能找出 `soft lighting`。用上下方向键挑词，按 Tab 插入。常用的一整串画风可以存成词块。下次点一下就能插进提示词，拖动可以换位置，展开还能看里面写了什么。调权重时，每个 tag 的底色会跟着变，输入框下方也能看到当前用了多少 token。
+**提示词不用每次从头写。** 记得中文、不记得英文时，输入「蓝发」也能找出 `blue hair`。用上下方向键挑词，按 Tab 插入。常用的一整串画风可以存成词块。下次点一下就能插进提示词，拖动可以换位置，展开还能看里面写了什么。调权重时，每个 tag 的底色会跟着变，输入框下方也能看到当前用了多少 token。
 
 **两个人物可以各写各的。** 在支持多角色的模型里，把场景写进正向提示词，再分别给两个人物写发色和衣服。习惯一行写完，也可以输入 `2girls | girl, red hair | girl, blue hair`，发送时会自动拆成两个角色。点角色图鉴或引用自己的 OC，同样会进独立的角色栏。
 
@@ -88,7 +88,7 @@ npm start
 
 桌面壳使用 Rust 和 Tauri。要在 Windows x64 构建，先装好 Rust MSVC 工具链、Visual Studio C++ 生成工具和 Windows SDK。运行 `npm run desktop:build` 得到 `desktop-build/Folio/Folio.exe`。运行 `npm run desktop:installer` 制作安装包，输出在 `src-tauri/target/release/bundle/nsis/`。
 
-桌面版和 WebUI 都自带 243,910 条标签联想、15,879 位画师和 34,301 个角色。输入「初音未来」就能找到 Hatsune Miku，多角色栏还能带入她的外貌标签。词库检索和提示词计数都在本机完成。[图鉴与导入方法](docs/catalog.md) · [分词数据来源](public/tokenizers/README.md)
+当前源码内置 336,155 条 ffdkj 中英文标签，以及 15,879 位画师和 34,301 个角色的图鉴。输入「初音未来」就能找到 Hatsune Miku，多角色栏还能带入她的外貌标签。词库检索和提示词计数都在本机完成。[图鉴与导入方法](docs/catalog.md) · [分词数据来源](public/tokenizers/README.md)
 
 </details>
 

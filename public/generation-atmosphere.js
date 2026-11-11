@@ -52,6 +52,11 @@ export function mountGenerationAtmosphere(stage) {
   let targets = new Float32Array();
   let colors = new Float32Array();
   let entryDelays = new Float32Array();
+  // Per-cell fill strings, rebuilt only when the rounded colour changes. The
+  // field settles within a second, so frames reuse them instead of formatting
+  // thousands of rgba() strings.
+  let styles = [];
+  let styleKeys = new Int32Array();
   let image = null;
   let ambientPalette = null;
   let dark = themeRoot.dataset.theme === 'dark';
@@ -95,6 +100,8 @@ export function mountGenerationAtmosphere(stage) {
     targets = new Float32Array(columns * rows * 4);
     colors = new Float32Array(targets.length);
     entryDelays = new Float32Array(columns * rows);
+    styles = new Array(columns * rows);
+    styleKeys = new Int32Array(columns * rows).fill(-1);
     // A quiet diagonal reveal, with small cell-to-cell offsets instead of rows
     // switching on together. The whole field settles in about 650ms after its pause.
     for (let y = 0; y < rows; y++) {
@@ -224,7 +231,15 @@ export function mountGenerationAtmosphere(stage) {
         const swell = 0.84 + (wave + 1) * 0.1 + (ripple + 1) * 0.035;
         const radius = step * density * swell * pulse * (1 - exit) * enter;
         if (radius < 0.13) continue;
-        context.fillStyle = `rgba(${Math.round(colors[index])},${Math.round(colors[index + 1])},${Math.round(colors[index + 2])},${shade * (0.84 + braid * 0.1) * (1 - exit * 0.45)})`;
+        const cell = index / 4;
+        const r = Math.round(colors[index]), g = Math.round(colors[index + 1]), b = Math.round(colors[index + 2]);
+        const key = (r << 16) | (g << 8) | b;
+        if (styleKeys[cell] !== key) {
+          styleKeys[cell] = key;
+          styles[cell] = `rgb(${r},${g},${b})`;
+        }
+        context.fillStyle = styles[cell];
+        context.globalAlpha = shade * (0.84 + braid * 0.1) * (1 - exit * 0.45);
         const release = Math.sin(exit * Math.PI) * step * 1.4;
         context.beginPath();
         context.arc(
@@ -237,6 +252,7 @@ export function mountGenerationAtmosphere(stage) {
         context.fill();
       }
     }
+    context.globalAlpha = 1;
     const veil = 1 - ease((completion - 0.08) / 0.7);
     paper.style.opacity = String((hasPreview ? 0.97 : 1) * veil);
     wash.style.opacity = String((hasPreview ? 0.5 : 0) * veil * washEnter);

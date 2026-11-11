@@ -13,7 +13,11 @@
 
 ## 图鉴数据
 
-内置词典和角色、画师索引整理自 Aurora Bright Edition 的本地标签库、AnimaDex（2026 年 5 月版）与 Danbooru Tag Lab。本地封面及在线缩略图来自 AnimaDex，画作权利归各自权利人。项目的 MIT 许可适用于 Folio 自有代码。[本期索引清单](public/catalog-data/manifest.json) · [图鉴说明](docs/catalog.md)
+「搭配预测」使用 newtextdoc1111 发布的 Danbooru 共现次数与同批次的标签频次，按当前词库筛选并分片。该数据集按 MIT 许可发布。[数据来源](https://huggingface.co/datasets/newtextdoc1111/danbooru-tag-csv/tree/fdf2772213f13d46bff60fc5ebd876e1a811a053) · [共现数据说明与许可](public/catalog-data/cooccurrence/LICENSE.txt)
+
+内置标签的英文名称、中文翻译、分类和使用次数来自 ffdkj 的 Danbooru 中英文对照表，以 MIT 许可分发。[上游快照](https://github.com/ffdkj/ffdkj-Danbooru_Tag-Chinese-English-Translation-Table/tree/15f5f4b50428226649d371cbf7faff8ddaacdb24) · [随附许可](public/catalog-data/ffdkj-LICENSE.txt)
+
+角色、画师图鉴、别名和关联资料来自 Aurora Bright Edition、AnimaDex（2026 年 5 月版）与 Danbooru Tag Lab。本地封面及在线缩略图来自 AnimaDex，画作权利归各自权利人。项目的 MIT 许可适用于 Folio 自有代码。[本期索引清单](public/catalog-data/manifest.json) · [图鉴说明](docs/catalog.md)
 
 ## 便携包运行时
 

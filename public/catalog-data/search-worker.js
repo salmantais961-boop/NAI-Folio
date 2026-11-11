@@ -12,9 +12,9 @@ const normalize = (value) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-function getFile(name, optional = false) {
+function getFile(name, optional = false, base = catalogRoot) {
   if (!files.has(name)) {
-    const pending = fetch(new URL(name + '.json', catalogRoot))
+    const pending = fetch(new URL(name + '.json', base))
       .then((response) => {
         if (optional && response.status === 404) return {};
         if (!response.ok) throw new Error('本地索引暂时无法读取');
@@ -123,34 +123,124 @@ function relevance(needle, words, key, translation, aliases, series, translatedS
   return -1;
 }
 
-let tagRowsByName;
+let tagIndex;
 
-async function relatedTags(query, exclude, limit) {
-  const seed = normalize(query);
-  if (!seed) return [];
-  const [relations, appearances] = await Promise.all([
-    getFile('related-tags', true), getFile('character-details', true),
-  ]);
-  const appearance = Object.hasOwn(appearances, seed) ? appearances[seed] : [];
-  const related = Object.hasOwn(relations, seed) ? relations[seed] : [];
-  if (!appearance.length && !related.length) return [];
-
-  const rows = await getFile('tags');
-  if (!tagRowsByName) {
-    tagRowsByName = new Map();
-    for (const row of rows) tagRowsByName.set(row[0], row);
+function getTagIndex() {
+  if (!tagIndex) {
+    tagIndex = getFile('tags').then(rows => {
+      const entries = rows.map(row => {
+        const literal = row[0].trim().toLowerCase();
+        const key = literal.includes('_') ? normalize(literal) : literal;
+        const zh = normalize(row[1]);
+        const category = row[2] || 0;
+        // A translated character name may carry its series in one trailing qualifier.
+        const shortName = [1, 3, 4].includes(category)
+          ? zh.match(/^([^()（）]+?)\s*(?:（[^（）()]+）|\([^（）()]+\))$/)?.[1].trim() : '';
+        const aliases = row[4] ? row[4].split('|').map(normalize).filter(Boolean) : null;
+        return { row, key, literal, zh, category, shortName, aliases };
+      });
+      // Imports can arrive in any order. Each match tier then retains usage order.
+      entries.sort((a, b) => (b.row[3] || 0) - (a.row[3] || 0));
+      const byName = new Map();
+      for (const entry of entries) byName.set(entry.literal, entry);
+      for (const entry of entries) {
+        if (entry.key !== entry.literal && !byName.has(entry.key)) byName.set(entry.key, entry);
+      }
+      return { entries, byName };
+    }).catch(error => {
+      tagIndex = null;
+      files.delete('tags');
+      throw error;
+    });
   }
+  return tagIndex;
+}
+
+function searchTags(index, query, category, offset, limit) {
+  const literal = query.trim().toLowerCase();
+  const needle = normalize(literal);
+  const words = needle.split(' ');
+  const wordStart = ' ' + needle, qualifiedStart = '(' + needle, wholeWord = wordStart + ' ';
+  const buckets = Array.from({ length: 14 }, () => []);
+  const pageEnd = offset + limit;
+  // Only the most used entity gets the shorthand boost. A single letter/digit
+  // is a broad search, not a request for every artist named "A" or "2".
+  let promoteShortName = needle.length >= 2 && /\p{Script=Han}/u.test(needle);
+  let count = 0;
+  for (const { row, key, literal: name, zh, category: kind, shortName, aliases } of index.entries) {
+    if (category !== null && kind !== category) continue;
+    const other = kind === 0 ? 0 : 1;
+    let score;
+    if (!literal) score = other;
+    else if (literal === name) score = other;
+    else if (!needle) continue;
+    else if (key === needle || zh === needle) score = 2 + other;
+    else if (aliases?.includes(needle)) score = 4 + other;
+    else if (promoteShortName && shortName === needle) {
+      promoteShortName = false;
+      score = 4 + other;
+    }
+    // Within a strong match, put general terms first. A whole word such as
+    // "hair" in "long hair" is as precise as the start of "hair ornament".
+    else if (key.startsWith(needle) || zh.startsWith(needle) || key.endsWith(wordStart) || key.includes(wholeWord))
+      score = 6 + 2 * other;
+    else if (key.includes(wordStart) || key.includes(qualifiedStart) || aliases?.some(alias => alias.startsWith(needle)))
+      score = 7 + 2 * other;
+    else if (key.includes(needle) || zh.includes(needle) || aliases?.some(alias => alias.includes(needle)))
+      score = 10 + other;
+    else if (words.length > 1 && words.every(word => key.includes(word) || zh.includes(word)))
+      score = 12 + other;
+    else continue;
+    count++;
+    if (buckets[score].length < pageEnd) buckets[score].push(row);
+  }
+  return { count, results: buckets.flat().slice(offset, pageEnd) };
+}
+
+// Load only the selected tag's shard. Four recent shards cover backtracking
+// without permanently retaining the entire decoded pair graph in a tab.
+const pairShards = new Set();
+async function countedPairs(key) {
+  let hash = 2166136261;
+  for (const char of key) hash = Math.imul(hash ^ char.codePointAt(0), 16777619);
+  const path = 'cooccurrence/' + (hash & 15).toString(16).padStart(2, '0');
+  pairShards.delete(path);
+  pairShards.add(path);
+  if (pairShards.size > 4) {
+    const oldest = pairShards.values().next().value;
+    files.delete(oldest);
+    pairShards.delete(oldest);
+  }
+  // Imported dictionaries can filter candidates, but only bundled public samples count.
+  const rows = await getFile(path, true, self.location.href).catch(() => ({}));
+  return rows && Object.hasOwn(rows, key) ? rows[key] : null;
+}
+
+async function relatedTags(index, query, exclude, limit) {
+  const literal = query.trim().toLowerCase();
+  const seed = index.byName.get(literal) || index.byName.get(normalize(literal));
+  if (!seed) return { results: [] };
+
+  const pairs = await countedPairs(seed.literal);
+  if (!Array.isArray(pairs) || !Number.isSafeInteger(pairs[0]) || pairs[0] <= 0 || !Array.isArray(pairs[1]))
+    return { results: [] };
+  const [sampleSize, neighbours] = pairs;
   const used = characterTokens(exclude);
-  used.add(seed);
-  const result = [];
-  for (const name of [...appearance, ...related]) {
-    const key = normalize(name);
-    if (!key || used.has(key)) continue;
-    used.add(key);
-    result.push(tagRowsByName.get(key) || [key, '', 0]);
-    if (result.length === limit) break;
+  used.add(seed.key);
+  const results = [];
+  const evidence = Object.create(null);
+  // The shard already ranks public pairs by category and association strength.
+  for (const pair of neighbours) {
+    if (!Array.isArray(pair)) continue;
+    const [name, shared] = pair;
+    const item = index.byName.get(name);
+    if (!item || used.has(item.key) || !Number.isSafeInteger(shared) || shared <= 0 || shared > sampleSize) continue;
+    results.push(item.row);
+    evidence[item.row[0]] = { shared };
+    used.add(item.key);
+    if (results.length === limit) break;
   }
-  return result;
+  return results.length ? { results, recommendation: 'cooccurrence', evidence, sampleSize } : { results };
 }
 
 const recent = new Map();
@@ -175,9 +265,17 @@ self.onmessage = async ({ data }) => {
   }
   recent.set(channel, id);
   try {
-    if (kind === 'related-tags') {
-      const results = await relatedTags(query, data.exclude, limit);
-      self.postMessage(recent.get(channel) === id ? { id, count: results.length, results } : { id, stale: true });
+    if (kind === 'tags' || kind === 'related-tags') {
+      const index = await getTagIndex();
+      if (recent.get(channel) !== id) {
+        self.postMessage({ id, stale: true });
+        return;
+      }
+      const page = kind === 'tags'
+        ? searchTags(index, query, category, offset, limit)
+        : await relatedTags(index, query, data.exclude, limit);
+      self.postMessage(recent.get(channel) === id
+        ? { id, count: page.results.length, ...page } : { id, stale: true });
       return;
     }
     const rows = await getFile(kind);
@@ -190,21 +288,19 @@ self.onmessage = async ({ data }) => {
     const buckets = Array.from({ length: 6 }, () => []);
     const pageEnd = offset + limit;
     let count = 0;
-    if (!needle && kind !== 'tags') {
+    if (!needle) {
       count = rows.length;
       buckets[0] = rows.slice(offset, pageEnd);
     } else {
       for (const row of rows) {
-        const isTag = kind === 'tags';
-        if (isTag && category !== null && (row[2] || 0) !== category) continue;
         const score = relevance(
           needle,
           words,
           row[0],
-          (isTag ? row[1] : row[3]) || '',
-          (isTag ? row[4] : row[8]) || '',
-          isTag ? '' : (row[4] || '').toLowerCase(),
-          isTag ? '' : row[9] || '',
+          row[3] || '',
+          row[8] || '',
+          (row[4] || '').toLowerCase(),
+          row[9] || '',
         );
         if (score < 0) continue;
         count++;
@@ -212,7 +308,7 @@ self.onmessage = async ({ data }) => {
       }
     }
     let results = buckets.flat();
-    if (needle || kind === 'tags') results = results.slice(offset, pageEnd);
+    if (needle) results = results.slice(offset, pageEnd);
     let details, detailsUnavailable;
     if (kind === 'character' && data.includeDetails) {
       try {

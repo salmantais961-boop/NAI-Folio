@@ -4,7 +4,7 @@ import path from 'node:path';
 
 export async function writeDesktopNotices(root, dest) {
   await mkdir(dest, { recursive: true });
-  for (const file of ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'public/fonts/misans/LICENSE.pdf',
+  for (const file of ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'public/fonts/misans/LICENSE.pdf', 'public/catalog-data/ffdkj-LICENSE.txt', 'public/catalog-data/cooccurrence/LICENSE.txt',
     'public/fonts/italiana-LICENSE.txt', 'public/fonts/instrument-LICENSE.txt', 'public/vendor/three-LICENSE.txt',
     'public/vendor/react-bits-LICENSE.txt', 'public/vendor/meshoptimizer-LICENSE.txt', 'public/vendor/draco/LICENSE.txt',
     'public/tokenizers/CLIP-LICENSE.txt', 'public/tokenizers/Qwen3.5-LICENSE.txt',
