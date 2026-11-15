@@ -55,6 +55,39 @@ function mountWindow(appWindow) {
   });
   void syncWindowSize().catch(reportFailure);
   window.addEventListener('resize', afterResize);
+  // The close button either quits or keeps Folio in the tray (set in Settings,
+  // which lives in the workspace frame and shares this origin's storage).
+  const invoke = window.__TAURI__?.core?.invoke;
+  function syncCloseAction() {
+    let action = 'quit';
+    try {
+      action = localStorage.getItem('folio.close-action') === 'tray' ? 'tray' : 'quit';
+    } catch {}
+    invoke?.('set_close_action', { action }).catch(reportFailure);
+  }
+  syncCloseAction();
+  window.addEventListener('storage', (event) => {
+    if (event.key === null || event.key === 'folio.close-action') syncCloseAction();
+  });
+  // Tray menu choices (open a page, a chat, settings…) are carried out by the workspace.
+  let trayReady = false;
+  const pendingTray = [];
+  function flushTray() {
+    if (!trayReady) return;
+    for (const payload of pendingTray.splice(0))
+      frame.contentWindow?.postMessage({ type: 'folio:tray', ...payload }, location.origin);
+  }
+  window.addEventListener('message', event => {
+    if (event.origin !== location.origin || event.source !== frame.contentWindow || event.data?.type !== 'folio:tray-ready') return;
+    trayReady = true;
+    flushTray();
+  });
+  void window.__TAURI__?.event
+    ?.listen('folio:tray', ({ payload }) => {
+      pendingTray.push(payload);
+      flushTray();
+    })
+    .catch(reportFailure);
   void appWindow.onFocusChanged(({ payload }) => {
     root.toggleAttribute('data-unfocused', !payload);
   }).catch(reportFailure);

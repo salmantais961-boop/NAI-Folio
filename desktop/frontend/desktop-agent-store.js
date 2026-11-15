@@ -162,13 +162,14 @@ export function finishTurn(turn) {
   });
 }
 
-export function checkpointTools(turnId, tools) {
+export function checkpointTools(turnId, tools, thought) {
   const rows = structuredClone(tools);
+  const progress = thought ? { thought: structuredClone(thought) } : {};
   return write('turns', (tx) => {
     const turns = tx.objectStore('turns');
     const request = turns.get(turnId);
     request.onsuccess = () => {
-      if (request.result?.state === 'pending') turns.put({ ...request.result, tools: rows });
+      if (request.result?.state === 'pending') turns.put({ ...request.result, tools: rows, ...progress });
     };
   });
 }

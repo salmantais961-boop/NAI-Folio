@@ -5,9 +5,11 @@ import { settingsPanel } from './desktop-agent-settings.js';
 import { reasoningEfforts } from './agent-effort.mjs';
 import { createToolTrace, endToolEvents, recordToolEvent } from './desktop-agent-trace.js';
 import { replyFooter, signature } from './desktop-agent-reply.js';
+import { createThoughtLine } from './thought-line.js';
 import { webSearchProviderFor } from './agent-web-search.js';
 import { attachmentStrip, visionComposer } from './desktop-agent-vision.js';
 import * as store from './desktop-agent-store.js';
+import { transitionReveal } from './motion.js';
 
 const emptyConfig = () => ({
   profiles: [],
@@ -144,6 +146,13 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
     renderCutoff = 0;
   let dest, input, send, modelButton, effortButton, locksButton, lockBand, composer, welcome, vision;
   const replyHosts = new Map();
+  function clearReplies() {
+    for (const host of replyHosts.values()) {
+      host.thought?.destroy();
+      host.trace?.destroy();
+    }
+    replyHosts.clear();
+  }
   let navigating;
   const channel =
     typeof BroadcastChannel === 'function' ? new BroadcastChannel('folio-desktop-agent-history') : null;
@@ -202,6 +211,9 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
     if (focus) menuAnchor?.focus();
     menuAnchor = null;
   }
+  // Header buttons swap views with the same circular reveal as the theme switch.
+  const revealFrom = (action) => (event) =>
+    transitionReveal(event?.currentTarget, () => action(), { within: shell });
   function enter(name, title) {
     void saveDraft()?.catch((err) => notice(explain(err)));
     viewCleanup?.();
@@ -212,7 +224,7 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
     vision = null;
     dest = null;
     composer = null;
-    replyHosts.clear();
+    clearReplies();
     body.replaceChildren();
     header.replaceChildren();
     shell.dataset.view = name;
@@ -227,16 +239,20 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
       titleGroup.append(wordmark, sub);
       const actions = element('div', 'da-top-actions');
       actions.append(
-        button('历史对话', 'history', safe(openHistory)),
-        button('新建对话', 'plus', safe(createThread)),
-        button('Agent 设置', 'sliders', openSettings),
+        button('历史对话', 'history', revealFrom(safe(openHistory))),
+        button('新建对话', 'plus', revealFrom(safe(createThread))),
+        button('Agent 设置', 'sliders', revealFrom(openSettings)),
       );
       header.append(titleGroup, actions);
     } else {
-      const back = button('返回对话', 'back', () => {
-        showChat();
-        input?.focus({ preventScroll: true });
-      });
+      const back = button(
+        '返回对话',
+        'back',
+        revealFrom(() => {
+          showChat();
+          input?.focus({ preventScroll: true });
+        }),
+      );
       header.append(back, element('h2', 'da-subtitle', title));
       requestAnimationFrame(() => {
         if (view === name) back.focus({ preventScroll: true });
@@ -838,11 +854,31 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
     const near = dest.scrollHeight - dest.scrollTop - dest.clientHeight < 100;
     const live = turn.state === 'pending' && activeJob?.turn.id === turn.id;
     if (turn.tools?.length) {
-      if (!host.trace) {
-        host.trace = createToolTrace(live, notice);
-        reply.before(host.trace.root);
-      }
+      host.trace ??= createToolTrace(live, notice, { embedded: true });
       host.trace.update(turn.tools, live);
+    }
+    if (turn.thought || host.trace) {
+      if (!host.thought) {
+        host.thought = createThoughtLine({ working: live, fontSize: 14 });
+        reply.before(host.thought.root);
+      }
+      const state = live ? 'running' : turn.state === 'pending' ? 'interrupted' : turn.state;
+      const thought = turn.thought;
+      const endedAt = thought?.endedAt ?? thought?.updatedAt ?? thought?.startedAt;
+      host.thought.update({
+        working: live,
+        label: activeJob?.controller.signal.aborted && live ? '正在停止…' : '思考中…',
+        doneLabel: ({ error: '处理失败', cancelled: '已停止', interrupted: '已中断' })[state] || '已完成',
+        state,
+        startedAt: thought?.startedAt,
+        showTimer: Boolean(thought),
+        elapsed: live ? undefined : thought ? Math.max(0, endedAt - thought.startedAt) / 1000 : 0,
+        content: host.trace?.root,
+        steps: (thought?.steps || []).map((text, i, all) => ({
+          text,
+          state: i < all.length - 1 || state === 'done' ? 'done' : state,
+        })),
+      });
     }
     const opened = Boolean(reply.querySelector('.da-plan[open]'));
     reply.replaceChildren();
@@ -868,7 +904,7 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
       );
       reply.append(links);
     }
-    if (turn.state === 'pending') {
+    if (turn.state === 'pending' && !turn.thought) {
       const status = element('div', 'da-step');
       if (live) status.append(element('span', 'da-pulse'));
       status.append(document.createTextNode(live ? activeJob.progress : '这次对话尚未写入最终回复。'));
@@ -890,29 +926,22 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
   function addTurn(turn, replace = false) {
     const part = element('article', 'da-turn');
     const meta = element('div', 'da-user-meta');
-    meta.append(element('time', '', displayTime(turn.created)), document.createTextNode('你'));
+    meta.append(element('time', '', displayTime(turn.created)));
     const question = element('p', 'da-question', turn.text);
     if (turn.images?.length) question.append(attachmentStrip(turn.images));
     if (turn.locks?.length) {
       question.append(lockSummary(turn.locks, 'da-question-locks'));
     }
     const reply = element('div', 'da-reply');
-    const mark = element('div', 'da-byline');
-    mark.append(flower(), element('strong', '', 'Folio Agent'));
-    if (turn.model) {
-      const model =
-        turn.model +
-        (turn.reasoningEffort && turn.reasoningEffort !== 'auto'
-          ? ' · 思考' + (effortNames[turn.reasoningEffort] || turn.reasoningEffort)
-          : '');
-      const label = element('span', 'da-by-model', model);
-      label.title = model;
-      mark.append(label);
-    }
+    reply.setAttribute('aria-label', 'Agent 回复');
     const content = element('div', 'da-reply-content');
-    reply.append(mark, content);
+    reply.append(content);
     part.append(meta, question, reply);
     const previous = replace && replyHosts.get(turn.id)?.content.closest('.da-turn');
+    if (replace) {
+      replyHosts.get(turn.id)?.thought?.destroy();
+      replyHosts.get(turn.id)?.trace?.destroy();
+    }
     if (previous) previous.replaceWith(part);
     else dest.append(part);
     replyHosts.set(turn.id, { content });
@@ -936,7 +965,7 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
     renderCutoff = Math.max(0, turns.length - 28);
     const drawHistory = () => {
       dest.replaceChildren();
-      replyHosts.clear();
+      clearReplies();
       if (renderCutoff > 0) {
         dest.append(
           button(
@@ -1007,6 +1036,7 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
       model: provider.model,
       reasoningEffort,
       tools: [],
+      thought: { startedAt: Date.now(), updatedAt: Date.now(), steps: ['正在连接模型…'] },
       locks,
       answer: '',
       workIds: [],
@@ -1072,16 +1102,21 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
       }
       const update = (event) => {
         if (activeJob !== job || (controller.signal.aborted && event.type !== 'tool')) return;
-        if (event.type === 'tool' && recordToolEvent(turn, event.tool)) {
+        const recordedTool = event.type === 'tool' && recordToolEvent(turn, event.tool);
+        if (event.type === 'status' && event.text) {
+          job.progress = event.text;
+          if (turn.thought.steps.at(-1) !== event.text) turn.thought.steps.push(event.text);
+        }
+        if (recordedTool || event.type === 'status') {
+          turn.thought.updatedAt = Date.now();
           if (!job.checkpointQueued && !replacing) {
             job.checkpointQueued = true;
             queueMicrotask(() => {
               job.checkpointQueued = false;
-              if (turn.state === 'pending') void store.checkpointTools(turn.id, turn.tools).catch(() => {});
+              if (turn.state === 'pending') void store.checkpointTools(turn.id, turn.tools, turn.thought).catch(() => {});
             });
           }
         }
-        if (event.type === 'status') job.progress = event.text || job.progress;
         if (event.type === 'usage') turn.usage = event.usage;
         if (event.plan) turn.plan = event.plan;
         if (event.workIds) turn.workIds = Array.from(new Set([...turn.workIds, ...event.workIds]));
@@ -1117,6 +1152,7 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
         turn.state = controller.signal.aborted ? 'cancelled' : 'error';
         if (turn.state === 'error') turn.error = explain(err, [provider.apiKey]);
       }
+      turn.thought.endedAt = Date.now();
       endToolEvents(turn);
       // Keep a previous successful reply intact when a retry fails or is stopped.
       if (replacing && source.state === 'done' && turn.state !== 'done' && !turn.workIds.length) {
@@ -1222,6 +1258,24 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
     body.replaceChildren(element('p', 'da-issue', '无法打开本机对话记录。' + explain(err)));
   });
   return {
+    // Entry points for the tray menu.
+    async openThread(id) {
+      await ready;
+      if (thread?.id === id && view === 'chat') return;
+      await safe(selectThread)(id);
+    },
+    async openHistory() {
+      await ready;
+      await safe(openHistory)();
+    },
+    async newChat() {
+      await ready;
+      await safe(createThread)();
+    },
+    async openSettings() {
+      await ready;
+      openSettings();
+    },
     activate() {
       visible = true;
       imageSettings?.refresh();
@@ -1239,6 +1293,7 @@ export function mountDesktopAgent(host, { run, openWork, workImage, openConnecti
     },
     destroy() {
       lifetime.abort();
+      clearReplies();
       viewCleanup?.();
       channel?.close();
       activeJob?.controller.abort();

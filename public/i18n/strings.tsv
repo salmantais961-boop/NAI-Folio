@@ -1,0 +1,1930 @@
+# Folio interface phrases: zh<TAB>en<TAB>ja. Chinese is the source text.
+请输入完整的	Enter a complete	完全な
+地址，例如	address, e.g.	アドレスを入力してください（例：
+地址需要使用	The address must use	アドレスには次を使用してください：
+，本机服务也支持	; local services also support	。ローカルサービスは次にも対応：
+地址不能包含登录信息、查询参数或	The address cannot contain credentials, query parameters or	アドレスに認証情報・クエリ・
+片段。	fragments.	フラグメントは含められません。
+请输入	Enter	入力してください：
+中不能包含换行。	cannot contain line breaks.	に改行は含められません。
+中转站账户	Relay account	中継アカウント
+账户	Account	アカウント
+浏览器未能保存账户，请检查本地存储权限。	The browser could not save the account. Check local storage permissions.	ブラウザーがアカウントを保存できませんでした。ローカルストレージの権限を確認してください。
+当前	Current	現在の
+模型缺少可用的提示词	The model has no usable prompt	モデルに使用可能なプロンプトの
+无法读取本地	Cannot read local	ローカルの
+提示词计数，请重试。	prompt count. Please retry.	プロンプト数を読み取れません。再試行してください。
+本地	Local	ローカル
+提示词计数未返回完整结果。	prompt count returned incomplete results.	プロンプト数の結果が不完全です。
+模型	Model	モデル
+数据集	Dataset	データセット
+运算强度	Compute	演算強度
+生成方式	Method	生成方式
+种子	Seed	シード
+步数	Steps	ステップ数
+采样器	Sampler	サンプラー
+重缩放	Rescale	リスケール
+噪声调度	Noise schedule	ノイズスケジュール
+批次数量	Batch size	バッチ数
+质量标签	Quality tags	品質タグ
+负面预设	Negative preset	ネガティブプリセット
+重绘强度	Strength	再描画強度
+噪声强度	Noise	ノイズ強度
+增强	Enhance	強化
+透明背景	Transparent background	透過背景
+变化增强	Variety boost	バリエーション強化
+柔化	Soften	ソフト化
+旧版负面词	Legacy negatives	旧版ネガティブ
+局部聚焦	Inpaint focus	部分フォーカス
+参考归一化	Reference normalization	参照の正規化
+导演工具	Director	ディレクター
+工具提示词	Tool prompt	ツールプロンプト
+表情	Expression	表情
+色彩削弱	Defry	色彩抑制
+超分降噪	Upscale denoise	アップスケールのノイズ除去
+角色定位	Character position	キャラクター位置
+随机	Random	ランダム
+开启	On	オン
+关闭	Off	オフ
+作品鉴赏	Work viewer	作品鑑賞
+作品原图	Original image	作品の原画像
+上一张作品	Previous work	前の作品
+下一张作品	Next work	次の作品
+下载原图	Download original	原画像をダウンロード
+关闭作品鉴赏	Close viewer	鑑賞を閉じる
+为这一张留下判断。	Leave your verdict on this one.	この一枚に評価を残しましょう。
+我的评分	My rating	マイ評価
+为作品评分	Rate this work	作品を評価
+分	pts	点
+清除	Clear	クリア
+清除作品评分	Clear rating	評価をクリア
+作品元数据	Image metadata	作品メタデータ
+正向	Positive	ポジティブ
+负向	Negative	ネガティブ
+角色	Character	キャラクター
+在工作台打开	Open in studio	ワークベンチで開く
+复用	Reuse	再利用
+收藏	Save	保存
+线索	Lineage	系譜
+返回作品集确认删除	Confirm deletion in the archive	作品集に戻って削除を確認
+完整原图	Full original	完全な原画像
+未评分	Unrated	未評価
+正在保存…	Saving…	保存中…
+未评分与	Unrated and	未評価と
+分分别记录	-point ratings are kept separately	点はそれぞれ記録されます
+评分已存于此设备	Ratings are stored on this device	評価はこの端末に保存されています
+可随时修改	Change anytime	いつでも変更可
+命中	Matched	一致
+作品标签	Work tags	作品タグ
+画幅	Size	サイズ
+参考素材	References	参照素材
+张	images	枚
+输入底图	Input image	入力画像
+已保存	Saved	保存済み
+重绘蒙版	Inpaint mask	再描画マスク
+操作	Actions	操作
+这张作品没有独立的角色提示词。	This work has no separate character prompts.	この作品には個別のキャラクタープロンプトがありません。
+未启用	Off	未使用
+未填写正向提示词	No positive prompt	ポジティブプロンプト未入力
+负面提示词	Negative prompt	ネガティブプロンプト
+位置	Position	位置
+复制	Copy	コピー
+正向提示词	Positive prompt	ポジティブプロンプト
+已复制	Copied	コピーしました
+复制失败，请选择正文复制。	Copy failed. Select the text to copy it.	コピーに失敗しました。本文を選択してコピーしてください。
+未记录这部分提示词。	This part of the prompt was not recorded.	この部分のプロンプトは記録されていません。
+生成作品	Generated work	生成作品
+作品暂时无法打开。	This work cannot be opened right now.	作品を開けません。
+查看作品：	View work:	作品を表示：
+选择作品：	Select work:	作品を選択：
+打包	Export	まとめて保存
+已为	Saved tags for	タグを保存しました：
+张作品保存标签	works	枚の作品
+标签保存失败，请重试。	Could not save tags. Please retry.	タグの保存に失敗しました。再試行してください。
+已打包	Exported	まとめて保存しました：
+张原图	original images	枚の原画像
+打包失败，请重试。	Export failed. Please retry.	まとめて保存に失敗しました。再試行してください。
+高分作品优先	Highest rated first	高評価順
+已评分作品按分数从高到低排列；未评分作品在后，同分保持原顺序。	Rated works are sorted from highest to lowest; unrated works follow, ties keep their order.	評価済みの作品を高い順に並べ、未評価の作品は後ろに置きます。同点は元の順序を保ちます。
+高分优先	Top rated	高評価順
+排序已切换，但此设备暂时无法记住偏好。	Sorting changed, but this device cannot remember the preference.	並び順を変更しましたが、この端末では設定を記憶できません。
+评分	Rating	評価
+评分应为	Rating must be	評価は
+的整数，或清除评分。	as a whole number, or clear it.	の整数にするか、クリアしてください。
+这张作品已被移除，无法保存评分。	This work was removed; the rating cannot be saved.	この作品は削除されたため、評価を保存できません。
+评分暂时无法保存。	The rating cannot be saved right now.	評価を保存できません。
+请先选择作品。	Select a work first.	先に作品を選択してください。
+请至少输入一个标签。	Enter at least one tag.	タグを1つ以上入力してください。
+暂时无法保存作品标签。	Cannot save work tags right now.	作品タグを保存できません。
+所选作品中有图片已被移除，请重新选择。	Some selected images were removed. Please select again.	選択した作品の一部が削除されています。選び直してください。
+请先选择要打包的作品。	Select the works to export first.	まとめて保存する作品を選択してください。
+有作品的原图已无法读取，请刷新作品集后重试。	Some originals can no longer be read. Refresh the archive and retry.	一部の原画像を読み込めません。作品集を更新して再試行してください。
+印色	Inks	インク
+复制印色	Copy ink	インクをコピー
+已复制色值	Color copied	カラー値をコピーしました
+色值：	Color:	カラー値：
+新作已收入历史，当前查看保持不变。	The new image is in History; your current view is unchanged.	新作は履歴に追加されました。現在の表示はそのままです。
+超分完成	Upscale complete	アップスケール完了
+再近一点，细节也动人。	Closer still, the details shine.	近づくほど、細部が輝く。
+想象，有了颜色。	Imagination, now in color.	想像に、色が宿った。
+超分处理中	Upscaling	アップスケール中
+图像处理中	Processing image	画像を処理中
+图像显影中	Developing image	画像を現像中
+后台生成中	Generating in background	バックグラウンドで生成中
+选择例图	Choose an example image	例図を選択
+引用	Use	引用
+从作品集带走一张图，或上传新的原图。	Take an image from the archive or upload a new original.	作品集から画像を選ぶか、新しい原画像をアップロードします。
+让角色的名字，带上属于它的外貌。	Give a character’s name the look that belongs to it.	キャラクターの名前に、その姿を添えて。
+关闭选择器	Close picker	選択を閉じる
+搜索作品的提示词或文件名…	Search prompts or file names…	プロンプトやファイル名で検索…
+搜索名称、外貌或分类…	Search name, appearance or category…	名前・外見・分類で検索…
+上传原图	Upload original	原画像をアップロード
+可选作品	Available works	選択できる作品
+可选条目	Available entries	選択できる項目
+仅复制图像，作品集中的原图不变。	Only the image is copied; the archive original is unchanged.	画像のみをコピーします。作品集の原画像はそのままです。
+点击角色，放入独立的多角色提示栏。	Click a character to add it to its own character prompt.	キャラクターをクリックすると、個別のキャラクタープロンプト欄に追加します。
+正在设置例图…	Setting example image…	例図を設定中…
+正在引用…	Adding…	引用中…
+操作失败，请重试。	Something went wrong. Please retry.	操作に失敗しました。再試行してください。
+项	items	件
+选用图像：	Use image:	画像を使用：
+引用：	Use:	引用：
+未命名	Untitled	無題
+作品	Works	作品
+未分组	Ungrouped	未分類
+没有匹配的条目。	No matching entries.	一致する項目はありません。
+作品集还没有成图，可以先上传一张。	The archive has no images yet. Upload one to start.	作品集にはまだ画像がありません。まず1枚アップロードしてください。
+还没有保存的	No saved	保存された
+。可在「万象集」中创建角色与外貌提示词。	yet. Create characters and appearance prompts in Atlas.	はまだありません。「万象集」でキャラクターと外見プロンプトを作成できます。
+暂时无法读取条目。	Entries cannot be read right now.	項目を読み込めません。
+读取失败，请重试。	Could not load. Please retry.	読み込みに失敗しました。再試行してください。
+请选择	Choose an image under	次以下の画像を選択してください：
+以内的图像。	.	。
+点击例图，选用这个已保存的词块。	Click an example image to use this saved block.	例図をクリックして、この保存済みブロックを使用します。
+正在读取…	Loading…	読み込み中…
+选择词块例图	Choose block example	ブロックの例図を選択
+素材	Material	素材
+例图	Example	例図
+请选择素材、	Choose material,	素材・
+或例图类型。	or example type.	または例図の種類を選択してください。
+名称应为	Name must be	名前は
+个字符。	characters.	文字にしてください。
+名称不能包含换行或感叹号。	Names cannot contain line breaks or exclamation marks.	名前に改行や感嘆符は使えません。
+分类名最多	Category names allow at most	分類名は最大
+提示词不能超过	Prompts cannot exceed	プロンプトの上限は
+请填写	Enter the	入力してください：
+外貌或例图的固定提示词。	appearance or example fixed prompt.	の外見または例図の固定プロンプト。
+请选择有效的图像文件。	Choose a valid image file.	有効な画像ファイルを選択してください。
+无法读取这张图片，请使用	Cannot read this image. Use	この画像を読み込めません。次を使用してください：
+或浏览器支持的图像格式。	or another format the browser supports.	またはブラウザーが対応する画像形式。
+图片尺寸过大，请使用	The image is too large. Use	画像が大きすぎます。次を使用してください：
+万像素以内的图像。	0,000 pixels or fewer.	万画素以内の画像。
+无法保存条目。	Cannot save the entry.	項目を保存できません。
+关联词块刚被更新，未覆盖新内容；请刷新后再撤销。	The linked block was just updated and was not overwritten. Refresh, then undo.	関連ブロックが更新されたため上書きしていません。更新してから元に戻してください。
+条目未保存，词块同步恢复失败，请重试保存。	Entry not saved and block sync could not be restored. Please save again.	項目は保存されず、ブロックの同期も復元できませんでした。もう一度保存してください。
+词块同步失败，请稍后重试。	Block sync failed. Please retry later.	ブロックの同期に失敗しました。後で再試行してください。
+关联词块已在其他窗口更改，请刷新后重试。	The linked block changed in another window. Refresh and retry.	関連ブロックが別のウィンドウで変更されました。更新して再試行してください。
+无法移除条目。	Cannot remove the entry.	項目を削除できません。
+同名词块已经存在，未覆盖新内容。	A block with this name exists; it was not overwritten.	同名のブロックが既にあるため、上書きしていません。
+条目未删除，关联词块恢复失败；原提示词正文仍保留，请重试。	Entry not deleted and the linked block could not be restored; prompt text is kept. Please retry.	項目は削除されず、関連ブロックも復元できませんでした。プロンプト本文は残っています。再試行してください。
+这次移除已无法撤销。	This removal can no longer be undone.	この削除は元に戻せません。
+已有新建或更新的同名词块，未覆盖它；请先更名该词块后再撤销。	A newer block with this name exists and was kept. Rename it, then undo.	同名の新しいブロックがあるため上書きしていません。名前を変えてから元に戻してください。
+这条收藏已被移除。	This item was removed.	この保存項目は削除されました。
+这张作品没有可收藏的图像。	This work has no image to save.	この作品には保存できる画像がありません。
+未命名收藏	Untitled item	無題の保存項目
+分类名称应为	Category names must be	分類名は
+基础分类名称固定。	Built-in category names are fixed.	基本分類の名前は変更できません。
+基础分类不可删除。	Built-in categories cannot be deleted.	基本分類は削除できません。
+万象集	Atlas	万象集
+收藏图像，保存角色，让每一次灵感都有来处。	Save images and characters so every idea has somewhere to come from.	画像とキャラクターを保存して、ひらめきの拠り所に。
+导入图片	Import images	画像を取り込む
+新建条目	New entry	新規項目
+收藏类型	Type	種類
+全部	All	すべて
+搜索名称、标签或提示词	Search names, tags or prompts	名前・タグ・プロンプトで検索
+搜索万象集	Search Atlas	万象集を検索
+收藏分类	Category	分類
+管理分类	Manage categories	分類を管理
+只存于此设备	Stored on this device only	この端末にのみ保存
+原图完整保留	Originals kept intact	原画像はそのまま保持
+撤销	Undo	元に戻す
+万象集条目	Atlas entries	万象集の項目
+正在翻开收藏…	Opening your collection…	コレクションを開いています…
+所有分类	All categories	すべての分類
+没有找到相符的条目。试试名称的一部分，或更换标签。	No matching entries. Try part of a name, or another tag.	一致する項目がありません。名前の一部や別のタグで試してください。
+这一页还留着空白。导入一张图片，或写下一个新角色。	This page is still blank. Import an image, or write a new character.	このページはまだ空白です。画像を取り込むか、新しいキャラクターを書きましょう。
+打开条目：	Open entry:	項目を開く：
+等待一张新的图像	Waiting for a new image	新しい画像を待っています
+尚未附图	No image yet	画像未添付
+首次引用生图后自动收录	Added automatically after its first generation	初回の生成後に自動で収録
+使用素材	Use material	素材を使用
+引用提示词块	Use prompt block	プロンプトブロックを引用
+万象集暂时无法读取。	Atlas cannot be read right now.	万象集を読み込めません。
+这张素材已按	This material is hidden by your	この素材は
+设置隐藏。	setting.	の設定により非表示です。
+条目图像	Entry image	項目の画像
+为灵感留一个位置。	Keep a place for inspiration.	ひらめきのための場所を。
+替换图像	Replace image	画像を差し替え
+添加图像	Add image	画像を追加
+外貌提示词	Appearance prompt	外見プロンプト
+固定提示词	Fixed prompt	固定プロンプト
+这条素材还没有附带提示词。	This material has no prompt yet.	この素材にはまだプロンプトがありません。
+素材会以独立原图保存在万象集。	Materials are kept in Atlas as separate originals.	素材は独立した原画像として万象集に保存されます。
+提示词块已关联，可随时引用或替换示例图。	The prompt block is linked; use it or swap its example anytime.	プロンプトブロックは関連付け済みです。いつでも引用や例図の差し替えができます。
+实际引用这个词块后，首张成功生成的图像会自动成为封面。	Once this block is used, the first successful image becomes its cover.	このブロックを使って最初に生成に成功した画像が、自動で表紙になります。
+使用此条目	Use this entry	この項目を使用
+编辑	Edit	編集
+移除	Remove	削除
+已移除「	Removed “	「
+已移除条目及关联词块，已有提示词正文与作品仍保留。	Entry and linked block removed; existing prompt text and works are kept.	項目と関連ブロックを削除しました。既存のプロンプト本文と作品は残ります。
+已移除条目，原作品仍保留。	Entry removed; the original work is kept.	項目を削除しました。元の作品は残ります。
+查看来源作品	View source work	元の作品を表示
+编辑条目	Edit entry	項目を編集
+条目类型	Entry type	項目の種類
+给它一个容易找到的名字	Give it a name that’s easy to find	見つけやすい名前を付けましょう
+名称	Name	名前
+条目分类	Entry category	項目の分類
+分类	Category	分類
+场景、发色、主题…	Scene, hair color, theme…	シーン・髪色・テーマ…
+额外标签	Extra tags	追加タグ
+用逗号分隔，支持中文标签。	Separate with commas; Chinese tags are supported.	カンマ区切り。中国語タグにも対応。
+与例图会同步为可引用的提示词块。素材的提示词可以留空。	and examples sync as usable prompt blocks. Material prompts can be left empty.	と例図は引用可能なプロンプトブロックとして同期されます。素材のプロンプトは空でも構いません。
+取消	Cancel	キャンセル
+保存条目	Save entry	項目を保存
+已保存到万象集	Saved to Atlas	万象集に保存しました
+保存失败，请稍后重试。	Could not save. Please retry later.	保存に失敗しました。後で再試行してください。
+新素材	New material	新しい素材
+新的收藏	New item	新しい保存項目
+关闭分类管理	Close category manager	分類管理を閉じる
+分类名称：	Category name:	分類名：
+基础分类	Built-in	基本分類
+保存	Save	保存
+新的分类名称	New category name	新しい分類名
+添加分类	Add category	分類を追加
+类型与分类相互独立。移除分类后，条目回到对应的基础分类。	Types and categories are independent. Removing a category returns its entries to the built-in one.	種類と分類は独立しています。分類を削除すると、項目は対応する基本分類に戻ります。
+按标准价估算。连接后按账户权益重新计算。	Estimated at standard price; recalculated for your account once connected.	標準価格で見積もり。接続後にアカウントの特典で再計算します。
+账户未返回	The account did not return	アカウントから次が返されませんでした：
+额度状态。区间两端分别为首张获抵扣及全额计费。	allowance status. The range spans a covered first image to full price.	枠の状態。範囲の両端は、1枚目が控除される場合と全額課金の場合です。
+官方标记	Officially marked	公式表示
+可用额度已用尽，按	allowance is used up; estimated at	の利用枠を使い切りました。
+标准价估算。	standard price.	標準価格で見積もり。
+首张基础费用	First-image base cost	1枚目の基本料金
+，使用	, using	、使用：
+额度。	allowance.	枠。
+额度折算约	allowance equals about	枠の換算：約
+（首张）。参考官方	(first image). Based on the official	（1枚目）。公式の
+步每	steps per	ステップあたり
+约	about	約
+张，按基础费用比例估算。	images, estimated from the base cost ratio.	枚。基本料金の比率で見積もり。
+等待读取参数	Waiting for parameters	パラメーターを待っています
+复用已有编码。	Reusing an existing encoding.	既存のエンコードを再利用。
+新编码一次收取	New encoding is charged once:	新規エンコードは1回課金：
+像素规整在本机处理。	Pixel snapping runs locally.	ピクセル整列はローカルで処理します。
+等待导入底图	Waiting for a base image	ベース画像を待っています
+超过工作台超分输入上限	Exceeds the studio upscale input limit	アップスケールの入力上限を超えています
+独立放大按输入分辨率计费，每张	Standalone upscaling is billed by input resolution, per image	単独アップスケールは入力解像度で課金、1枚あたり
+等待选择导演工具	Choose a director tool	ディレクターツールを選択してください
+去背景按	Background removal is billed at	背景除去の課金：
+计费。	.	。
+导演工具按	Director tools are estimated from	ディレクターツールの見積もり：
+步和输入图尺寸估算，基础	steps and input size; base	ステップと入力サイズ、基本
+此操作暂无计费数据	No pricing data for this action	この操作の課金データはありません
+等待读取聚焦蒙版尺寸	Waiting for the focus mask size	フォーカスマスクのサイズを待っています
+请核对尺寸、步数与张数	Check size, steps and image count	サイズ・ステップ数・枚数を確認してください
+请核对重绘强度	Check the strength	再描画強度を確認してください
+当前设置超出官方单张费用估算范围	These settings exceed the official per-image estimate range	現在の設定は公式の1枚あたり見積もり範囲を超えています
+请核对当前模型的参考图组合	Check the reference combination for this model	このモデルの参照画像の組み合わせを確認してください
+步	steps	ステップ
+张。	images.	枚。
+按聚焦重绘区域估算。	Estimated from the focused inpaint area.	フォーカス再描画領域で見積もり。
+按	Based on	基準：
+放大后的工作尺寸估算。	the upscaled working size.	拡大後の作業サイズで見積もり。
+此长宽比按官方工作尺寸近似，	This aspect ratio is approximated to official working sizes;	この縦横比は公式の作業サイズで近似しています。
+像素取整后会越过	after rounding it crosses	画素の丸め後に次を超えます：
+上限。	limit.	の上限。
+使用官方	Using the official	公式の
+步折算。	-step conversion.	ステップ換算を使用。
+超过	Over	超過：
+个		件
+的附加费	surcharge	の追加料金
+次。	times.	回。
+精确参考	Precise reference	精密参照
+张，附加	images, extra	枚、追加
+待单独编码，共	to encode separately, total	件を個別にエンコード、合計
+。生成价不含这笔费用。	. The generation price excludes this.	。生成料金には含まれません。
+未返回	Not returned	未取得
+分钟	min	分
+小时	h	時間
+天	d	日
+尚未连接	Not connected	未接続
+连接	Connect	接続
+中转站	Relay	中継
+已配置	Configured	設定済み
+余额与	Balance and	残高と
+额度	allowance	利用枠
+未知	Unknown	不明
+中转站未提供兼容的余额接口，可继续生成图像。	The relay has no compatible balance API; you can still generate.	中継に互換性のある残高APIがありません。生成は続けられます。
+未知订阅	Unknown plan	不明なプラン
+方案	Plan	プラン
+到期	Expires	期限
+订阅	Subscription	サブスクリプション
+购买	Purchased	購入
+本期到期	Renews	今期の期限
+本次账户响应未提供	This account response did not include	今回のアカウント応答には次が含まれていません：
+基础额度剩余	Base allowance left	基本枠の残り
+购买额度剩余	Purchased allowance left	購入枠の残り
+当前标记额度不可用。	The marked allowance is unavailable.	表示中の枠は利用できません。
+约可生成	About	生成可能：約
+每恢复	Each refill of	回復ごとに
+约需	takes about	所要：約
+基础额度回满约需	Base allowance refills in about	基本枠の全回復まで約
+当前未补充基础额度。	The base allowance is not refilling now.	現在、基本枠は補充されていません。
+中转站读数	Relay reading	中継の値
+官方读数	Official reading	公式の値
+账户用量	Account usage	アカウント使用量
+本次预计	This estimate	今回の見込み
+中转站用量	Relay usage	中継の使用量
+余额未知	Balance unknown	残高不明
+已连接	Connected	接続済み
+剩余	Left	残り
+未连接	Not connected	未接続
+刷新用量	Refresh usage	使用量を更新
+读取中…	Loading…	読み込み中…
+已更新	Updated	更新しました
+官方参考价	Official reference price	公式参考価格
+标准价预估	Standard estimate	標準価格の見積もり
+待估价	Pending estimate	見積もり待ち
+当前余额	Balance	現在の残高
+预计费用高于当前余额。	The estimate exceeds your balance.	見込み費用が現在の残高を上回っています。
+，可估算后会在这里显示明细。	; details appear here once it can be estimated.	。見積もれるようになると、ここに内訳が表示されます。
+规则展示参考价，中转站可能使用不同费率，实际扣费以中转站为准。	rules show a reference price; relays may charge differently, and the relay’s charge is final.	のルールで参考価格を表示。中継の料金は異なる場合があり、実際の課金は中継に準じます。
+当前公开网页规则估算，实际扣费以账户为准。	current public pricing rules; the actual charge is your account’s.	の公開ルールで見積もり。実際の課金はアカウントに準じます。
+请先导入本机图鉴，或用	Import a local catalog first, or use	先にローカル図鑑を取り込むか、次を使用：
+切回内置图鉴。	to switch back to the built-in catalog.	で内蔵図鑑に戻してください。
+本机图鉴版本无效，请重新导入。	The local catalog version is invalid. Please import it again.	ローカル図鑑のバージョンが無効です。もう一度取り込んでください。
+本地索引暂时无法读取	The local index cannot be read right now	ローカル索引を読み込めません
+常规	General	一般
+画师	Artist	絵師
+元数据	Metadata	メタデータ
+词块	Blocks	ブロック
+提示词联想来源	Suggestion source	候補の取得元
+联想	Suggest	候補
+使用本地图鉴索引	Using the local catalog index	ローカル図鑑の索引を使用
+官方	Official	公式
+将光标处当前标签发给	Send the tag at the cursor to	カーソル位置のタグを送信：
+，查询当前模型的建议	to query suggestions for the current model	、現在のモデルの候補を取得
+官方建议暂不可用	Official suggestions unavailable	公式候補は利用できません
+本地标签	Local tags	ローカルタグ
+搭配预测	Pairing forecast	組み合わせ予測
+词块与标签	Blocks and tags	ブロックとタグ
+官方联想	Official suggestions	公式候補
+官方无匹配	No official match	公式に一致なし
+本地联想	local suggestions	ローカル候補
+官方暂不可用	Official unavailable	公式は利用不可
+相关标签建议	Related tag suggestions	関連タグの候補
+标签建议	Tag suggestions	タグ候補
+选择	Select	選択
+插入	Insert	挿入
+标签	Tags	タグ
+样本同现	Co-occurrence	サンプル共起
+公开样本中含「	Of public samples with “	公開サンプルのうち「
+」的	”,	」を含む
+张图里，有	images,	枚のうち
+张也使用了「	also use “	枚が「
+搜索画师名、中文名或别名…	Search artist name, Chinese name or alias…	絵師名・中国語名・別名で検索…
+搜索角色名、中文名或作品…	Search character, Chinese name or series…	キャラクター名・中国語名・作品で検索…
+选择角色：	Choose character:	キャラクターを選択：
+选择画师：	Choose artist:	絵師を選択：
+角色提示词	Character prompt	キャラクタープロンプト
+画师标签	Artist tag	絵師タグ
+仅角色标签	Character tag only	キャラクタータグのみ
+暂无外貌资料	No appearance data	外見データなし
+关闭图鉴	Close catalog	図鑑を閉じる
+图鉴分类	Catalog type	図鑑の分類
+检索图鉴	Search catalog	図鑑を検索
+附带外貌标签	Include appearance tags	外見タグを含める
+上一页	Previous page	前のページ
+下一页	Next page	次のページ
+请从工作台的角色栏打开图鉴。	Open the catalog from a character slot in the studio.	ワークベンチのキャラクター欄から図鑑を開いてください。
+未能加入角色栏，请检查模型或角色数量。	Could not add to the characters. Check the model or character count.	キャラクター欄に追加できません。モデルやキャラクター数を確認してください。
+未能使用这项标签，请重试。	Could not use this tag. Please retry.	このタグを使用できませんでした。再試行してください。
+没有匹配项。可试试英文标签、中文译名或更短的关键词。	No matches. Try the English tag, a Chinese name or a shorter keyword.	一致なし。英語タグ・中国語名・短いキーワードで試してください。
+图鉴	Catalog	図鑑
+选入多角色栏	Add to characters	キャラクター欄に追加
+保留全局构图提示词	Keep the global composition prompt	全体の構図プロンプトを保持
+选择画师，加入当前提示词	Choose an artist to add to the prompt	絵師を選んでプロンプトに追加
+正在检索本地图鉴…	Searching the local catalog…	ローカル図鑑を検索中…
+索引读取失败	Index failed to load	索引の読み込みに失敗
+重新读取	Reload	再読み込み
+条匹配	matches	件一致
+本地馆藏	Local collection	ローカル収蔵
+位		名
+外貌资料暂不可用	Appearance data unavailable	外見データは利用できません
+角色已移入多角色栏。给他们一个名字，下一次灵感来临时，就能再次相遇。	Characters moved to their own slots. Give them names, and you can meet again next time.	キャラクターを個別の欄に移しました。名前を付ければ、次のひらめきでまた会えます。
+已完成	Done	完了
+角色分段	Character split	キャラクター分割
+全局提示词保留在原处。保存为	The global prompt stays in place. Saved as	全体プロンプトはそのままです。
+后会收入万象集，首张引用生成的图片将自动成为封面。	, they go into Atlas; the first image generated with them becomes the cover.	として保存すると万象集に収録され、最初に生成した画像が表紙になります。
+把角色收藏为	Save characters as	キャラクターを次として保存：
+勾选要收藏的角色，名称与外貌都可以调整。	Check the characters to save; names and appearance are editable.	保存するキャラクターを選択。名前と外見は調整できます。
+保存提示	Save prompt	保存の案内
+仅保留多角色	Keep character slots only	キャラクター欄のみ保持
+收藏角色	Save characters	キャラクターを保存
+为	For	対象：
+的	’s	の
+的外貌提示词	appearance prompt	の外見プロンプト
+请为每个角色保留外貌提示词。	Keep an appearance prompt for each character.	各キャラクターに外見プロンプトを残してください。
+个字符，且不能含换行或感叹号。	characters, with no line breaks or exclamation marks.	文字で、改行や感嘆符は使えません。
+」已被使用，请给这个	” is taken. Give this	」は使用済みです。この
+换一个名称。	a different name.	に別の名前を付けてください。
+角色内容已改变，未覆盖新的编辑；保存的	The character changed and new edits were kept; the saved	キャラクター内容が変わったため、新しい編集は上書きしていません。保存済みの
+可在万象集再次引用。	can be used again from Atlas.	は万象集から再度引用できます。
+已收藏	Saved	保存しました
+，并在多角色栏引用。	and referenced in the character slots.	。キャラクター欄で引用しています。
+已保留多角色提示词。	Character prompts kept.	キャラクタープロンプトを保持しました。
+未完成保存，请重试。	Not saved. Please retry.	保存できませんでした。再試行してください。
+未能迁移角色，原文已保留。	Could not move the characters; the original text is kept.	キャラクターを移動できませんでした。元の文章は残っています。
+全局	Global	全体
+提示词	Prompt	プロンプト
+主	Main	メイン
+负面	Negative	ネガティブ
+当前模型不支持多角色，角色段落已保留在原文。请先切换到	This model does not support multiple characters; the sections stay in the text. Switch to	現在のモデルは複数キャラクターに非対応です。段落は元の文章に残しています。先に次へ切り替えてください：
+或更新模型。	or a newer model.	以降のモデル。
+当前角色数量已超过模型的	The character count exceeds the model’s	キャラクター数がモデルの上限
+个上限，原文已完整保留。请先整理多角色栏。	limit; the original text is kept. Tidy the character slots first.	件を超えています。元の文章は残っています。先にキャラクター欄を整理してください。
+检测到	Found	検出：
+个角色，但当前模型剩余位置不足；原文已完整保留。	characters, but the model has too few free slots; the original text is kept.	人のキャラクター。モデルの空き枠が足りないため、元の文章を残しています。
+柔和侧光	Soft side light	柔らかなサイド光
+光影	Lighting	光と影
+空气透视	Aerial perspective	空気遠近法
+构图	Composition	構図
+清透色彩	Clear colors	澄んだ色彩
+色彩	Color	色彩
+（导入）	(imported)	（取込）
+（导入	(imported	（取込
+提示词片段嵌套过深或内容过长。	Prompt snippets are nested too deeply or are too long.	プロンプト断片の入れ子が深すぎるか、長すぎます。
+展开后的提示词过长。	The expanded prompt is too long.	展開後のプロンプトが長すぎます。
+找不到提示词片段「	Prompt snippet not found: “	プロンプト断片が見つかりません：「
+提示词片段「	Prompt snippet “	プロンプト断片「
+」循环引用。	” references itself.	」が循環参照しています。
+请将完整的随机候选或词块引用写在同一段提示词中，不要跨词块拼接。	Keep each random choice or block reference within one prompt; don’t split it across blocks.	ランダム候補やブロック参照は一つのプロンプト内に書き、ブロックをまたがないでください。
+我的	My	マイ
+个字符，不能含换行或感叹号。	characters, with no line breaks or exclamation marks.	文字で、改行や感嘆符は使えません。
+请填写这个词块的提示词。	Enter this block’s prompt.	このブロックのプロンプトを入力してください。
+分组名最多	Group names allow at most	グループ名は最大
+该词块已在其他窗口更改，请刷新列表。	This block changed in another window. Refresh the list.	このブロックは別のウィンドウで変更されました。一覧を更新してください。
+已有同名词块，请更换名称。	A block with this name exists. Choose another name.	同名のブロックがあります。別の名前にしてください。
+词块关联无效。	Invalid block link.	ブロックの関連付けが無効です。
+词块类型无效。	Invalid block type.	ブロックの種類が無効です。
+合并后的提示词超过	The merged prompt exceeds	結合後のプロンプトが次を超えています：
+个字符，请减少选择。	characters. Select fewer.	文字。選択を減らしてください。
+请选择至少两个不同的词块。	Select at least two different blocks.	異なるブロックを2つ以上選択してください。
+源词块「	Source block “	元のブロック「
+」已在其他窗口更改，请重新选择。	” changed in another window. Select again.	」は別のウィンドウで変更されました。選び直してください。
+」展开后没有提示词。	” has no prompt once expanded.	」は展開後にプロンプトがありません。
+源词块已在其他窗口更改，请返回选块并重新预览。	A source block changed in another window. Go back, reselect and preview again.	元のブロックが別のウィンドウで変更されました。選択に戻り、もう一度プレビューしてください。
+我的提示词块	My prompt blocks	マイプロンプトブロック
+打开词块库	Open block library	ブロックライブラリを開く
+用量未知	usage unknown	使用量不明
+正在连接…	Connecting…	接続中…
+待连接	pending connection	接続待ち
+请先选择并连接一个账户。	Select and connect an account first.	先にアカウントを選択して接続してください。
+请求未完成（	Request incomplete (	リクエストが完了しませんでした（
+账户接口返回了无法识别的数据。	The account API returned unrecognized data.	アカウントAPIが認識できないデータを返しました。
+已选择中转站，实际连接将在生成时验证	Relay selected; the connection is verified when you generate	中継を選択しました。接続は生成時に確認します
+环境令牌	Environment token	環境トークン
+设置	Settings	設定
+关闭设置	Close settings	設定を閉じる
+通用	General	一般
+语言	Language	言語
+点击关闭时	When closing the window	ウィンドウを閉じるとき
+彻底退出	Quit	終了する
+最小化到托盘	Minimize to tray	トレイに最小化
+隐藏	Hide	非表示
+隐藏正向提示词或角色提示词命中敏感标签的图像。	Hide images whose positive or character prompts include sensitive tags.	ポジティブまたはキャラクタープロンプトにセンシティブなタグを含む画像を非表示にします。
+入场时播放封面画刊	Play the cover on launch	起動時に表紙を再生
+余额	balance	残高
+断开连接	Disconnect	接続を解除
+已保存的账户	Saved accounts	保存済みアカウント
+添加账户	Add account	アカウントを追加
+账户名称	Account name	アカウント名
+如：主账号	e.g. Main	例：メイン
+连接方式	Connection	接続方法
+生图	Image	画像生成
+地址	URL	アドレス
+可选	Optional	任意
+留空使用生图地址	Leave empty to use the image URL	空欄の場合は画像生成アドレスを使用
+或中转站密钥	or relay key	または中継キー
+显示	Show	表示
+保存后的密钥仅存于当前浏览器。	Saved keys stay in this browser only.	保存したキーはこのブラウザーにのみ保存されます。
+仅本次使用	Use once	今回のみ使用
+保存并使用	Save and use	保存して使用
+删除此账户	Delete account	このアカウントを削除
+设置已用于本页，但浏览器未能记住此选项。	Applied to this page, but the browser could not remember it.	このページには適用しましたが、ブラウザーが設定を記憶できませんでした。
+已保留密钥，留空继续使用	Key kept; leave empty to keep using it	キーは保持済み。空欄のままで引き続き使用
+使用环境令牌，保存时请粘贴密钥	Using the environment token; paste a key to save	環境トークンを使用中。保存するにはキーを貼り付けてください
+正在核对连接…	Checking connection…	接続を確認中…
+中转站已选择	Relay selected	中継を選択済み
+等待连接验证	Waiting for verification	接続の確認待ち
+选择已保存账户或添加连接	Choose a saved account or add one	保存済みアカウントを選ぶか、接続を追加してください
+当前账户	Current account	現在のアカウント
+使用账户	Use account	アカウントを使用：
+切换到此账户	Switch to this account	このアカウントに切り替え
+编辑账户	Edit account	アカウントを編集
+已选择中转站，生成时验证密钥。	Relay selected; the key is verified when you generate.	中継を選択しました。キーは生成時に確認します。
+连接已更新。	Connection updated.	接続を更新しました。
+连接地址已变更，请重新输入密钥	The address changed; enter the key again	アドレスが変わりました。キーを再入力してください
+确认从本机删除	Confirm delete from this device	この端末から削除を確定
+账户与密钥已从本机删除。	Account and key deleted from this device.	アカウントとキーをこの端末から削除しました。
+当前连接已断开，已保存的账户仍保留。	Disconnected. Saved accounts are kept.	接続を解除しました。保存済みアカウントは残っています。
+提交时的账户连接已改变，请重新提交。	The account changed while submitting. Please submit again.	送信中にアカウント接続が変わりました。もう一度送信してください。
+流式响应没有内容。	The streamed response was empty.	ストリーミング応答が空です。
+生成中断。	Generation interrupted.	生成が中断されました。
+流式连接已结束，未收到最终图片。	The stream ended without a final image.	ストリームが終了し、最終画像を受け取れませんでした。
+蒙版没有可重绘区域。	The mask has no area to inpaint.	マスクに再描画する領域がありません。
+请先导入底图并绘制蒙版。	Import a base image and draw a mask first.	先にベース画像を取り込み、マスクを描いてください。
+蒙版与底图尺寸不一致。	The mask and base image sizes differ.	マスクとベース画像のサイズが一致しません。
+以内的	or smaller	以内の
+或	or	または
+请使用本地图片。	Use a local image.	ローカル画像を使用してください。
+输入图像超过	The input image exceeds	入力画像が次を超えています：
+万像素，请缩小后导入。	0,000 pixels; resize it before importing.	万画素。縮小してから取り込んでください。
+工作台图像	Studio image	ワークベンチ画像
+文件超过	The file exceeds	ファイルが次を超えています：
+无法读取	Cannot read	読み込めません：
+文件。	file.	ファイル。
+无法识别	Unrecognized	認識できない
+格式。	format.	形式です。
+文件没有可用的	The file has no usable	ファイルに使用可能な次がありません：
+编码。	encoding.	エンコード。
+请先完成当前模型的编码。	Finish encoding for this model first.	先に現在のモデル用のエンコードを完了してください。
+蒙版	Mask	マスク
+编辑重绘蒙版	Edit inpaint mask	再描画マスクを編集
+选取	Select	選択
+参考区域	reference area	参照領域
+绘制重绘区域	Paint the inpaint area	再描画領域を描く
+在图上涂抹要重绘的区域	Paint over the area to redraw	再描画する領域を塗ってください
+画笔	Brush	ブラシ
+橡皮	Eraser	消しゴム
+笔径	Size	ブラシ径
+撤回	Undo	元に戻す
+清空	Clear	クリア
+导入蒙版	Import mask	マスクを取り込む
+提取紫色选区内的视觉信息	Uses the visual information inside the purple area	紫の選択範囲から視覚情報を抽出
+紫色区域将在生成时重绘	The purple area is redrawn when you generate	紫の領域は生成時に再描画されます
+应用蒙版	Apply mask	マスクを適用
+蒙版需与底图宽高一致。	The mask must match the base image’s size.	マスクはベース画像と同じサイズにしてください。
+扩展后的画布超过	The expanded canvas exceeds	拡張後のキャンバスが次を超えています：
+万像素，请先缩小底图。	0,000 pixels; resize the base image first.	万画素。先にベース画像を縮小してください。
+文生图	Txt2Img	txt2img
+生成图像	Generate	画像を生成
+图生图	Img2Img	img2img
+生成变体	Generate variations	バリエーションを生成
+局部重绘	Inpaint	インペイント
+重绘选区	Redraw selection	選択範囲を再描画
+执行工具	Run tool	ツールを実行
+超分放大	Upscale	拡大
+放大图像	Upscale image	画像を拡大
+去除背景	Remove background	背景を除去
+提取线稿	Line art	線画を抽出
+铅笔草图	Sketch	鉛筆スケッチ
+线稿上色	Colorize	線画に着色
+调整表情	Emotion	表情を調整
+清除文字	Declutter	文字を消去
+清字并保留气泡	Declutter, keep bubbles	文字を消して吹き出しを残す
+负面提示词的角色段数超过正向角色数，请核对竖线的顺序。	The negative prompt has more character sections than the positive; check the order of the bars.	ネガティブのキャラクター段落がポジティブより多いです。縦線の順序を確認してください。
+第	No.	第
+个角色只填写了负面词，请补充正向描述。	character has only a negative prompt; add a positive description.	番目のキャラクターはネガティブのみです。ポジティブの説明を追加してください。
+当前模型最多支持	This model supports at most	現在のモデルの上限は
+个角色。	characters.	人です。
+请先导入底图。	Import a base image first.	先にベース画像を取り込んでください。
+底图尺寸无效。	Invalid base image size.	ベース画像のサイズが無効です。
+请选择导演工具。	Choose a director tool.	ディレクターツールを選択してください。
+削弱原图色彩范围为	Defry must be between	色彩抑制の範囲は
+到	and	〜
+超分输入最多	Upscale input is at most	アップスケール入力は最大
+万像素，请缩小后再导入。	0,000 pixels; resize before importing.	万画素です。縮小してから取り込んでください。
+请选择有效的超分降噪级别。	Choose a valid upscale denoise level.	有効なノイズ除去レベルを選択してください。
+请选择有效模型和生成模式。	Choose a valid model and mode.	有効なモデルと生成モードを選択してください。
+请先输入正向提示词。	Enter a positive prompt first.	先にポジティブプロンプトを入力してください。
+宽高需为	Width and height must be multiples of	幅と高さは次の倍数にしてください：
+的倍数，总像素不能超过	, with total pixels no more than	。総画素数の上限は
+万。	0,000.	万です。
+请检查步数、引导值和引导重缩放。	Check steps, guidance and guidance rescale.	ステップ数・ガイダンス・リスケールを確認してください。
+本尺寸单次最多	At this size, at most	このサイズでは1回あたり最大
+种子需为	Seed must be	シードは
+的整数，留空即随机。	as a whole number; leave empty for random.	の整数にしてください。空欄ならランダムです。
+请先输入正向提示词或角色描述。	Enter a positive prompt or character description first.	先にポジティブプロンプトかキャラクターの説明を入力してください。
+使用固定负面词，请清空自定义负面词，或将运算强度切回	uses fixed negatives; clear your custom negatives or switch compute back to	は固定ネガティブを使用します。カスタムネガティブを消すか、演算強度を次に戻してください：
+重绘强度和噪声范围为	Strength and noise must be between	再描画強度とノイズの範囲は
+需要单张输出。	requires a single output.	は1枚出力が必要です。
+请先绘制需要重绘的区域。	Paint the area to redraw first.	先に再描画する領域を描いてください。
+与精确参考需分开使用，请停用其中一种。	and precise reference can’t be combined; turn one off.	と精密参照は同時に使えません。どちらかを無効にしてください。
+区域	area	領域
+需要使用	requires	には次が必要：
+当前模型或模式不支持	This model or mode does not support	現在のモデルまたはモードは次に非対応：
+，请停用参考图或切换模型。	; turn off references or switch models.	。参照画像を無効にするか、モデルを切り替えてください。
+请先编码参考图，或导入当前模型对应的	Encode the reference first, or import a matching	先に参照画像をエンコードするか、現在のモデル用の
+需要原始参考图。	needs the original reference image.	には元の参照画像が必要です。
+精确参考只支持	Precise reference only supports	精密参照の対応：
+继续播放	Resume	再生を続ける
+暂停播放	Pause	一時停止
+窗口操作未完成，请重试。	Window action failed. Please retry.	ウィンドウ操作が完了しませんでした。再試行してください。
+还原窗口	Restore	元のサイズに戻す
+最大化	Maximize	最大化
+退出	Quit	終了
+启动引导暂时无法显示，可在设置中连接账户。	The welcome guide can’t be shown; connect an account in Settings.	起動ガイドを表示できません。設定からアカウントを接続できます。
+图像工作台	Image workbench	画像ワークベンチ
+工作区	Workspace	ワークスペース
+窗口控制	Window controls	ウィンドウ操作
+最小化	Minimize	最小化
+关闭窗口	Close window	ウィンドウを閉じる
+骨盆	Pelvis	骨盤
+胸腔	Chest	胸郭
+头颈	Head	頭と首
+左	L	左
+右	R	右
+肩	shoulder	肩
+肘	elbow	肘
+腕	wrist	手首
+髋	hip	股関節
+膝	knee	膝
+踝	ankle	足首
+以内的单文件	single file within	以内の単一ファイル
+二进制	binary	バイナリ
+引用了外部文件，请将贴图和网格嵌入同一个	references external files; embed textures and meshes in one	は外部ファイルを参照しています。テクスチャとメッシュを同じ
+后导入。	before importing.	に埋め込んでから取り込んでください。
+没有找到可显示的三维网格。	No 3D mesh to display was found.	表示できる3Dメッシュが見つかりません。
+关节	Joint	関節
+浏览器未能创建	The browser could not create a	ブラウザーが次を作成できませんでした：
+画布，请启用硬件加速后重试。	canvas. Enable hardware acceleration and retry.	キャンバス。ハードウェアアクセラレーションを有効にして再試行してください。
+三维姿势与模型	3D poses and models	3Dポーズとモデル
+三维形体室	3D figure room	3D造形室
+关闭三维形体室	Close 3D figure room	3D造形室を閉じる
+木制人偶	Wooden mannequin	木製デッサン人形
+导入	Import	取り込む
+姿态	Pose	ポーズ
+姿态预设	Pose preset	ポーズプリセット
+自然站立	Standing	自然な立ち姿
+迈步	Walking	歩く
+抬手	Reaching	手を上げる
+坐姿	Sitting	座る
+三维关节	3D joint	3D関節
+视角	View	視点
+正面	Front	正面
+侧面	Side	側面
+背面	Back	背面
+复位	Reset	リセット
+透视视图	Perspective	透視ビュー
+拖动旋转，滚轮缩放，按住	Drag to rotate, scroll to zoom, hold	ドラッグで回転、ホイールで拡大縮小、
+拖动平移。	and drag to pan.	を押しながらドラッグで移動。
+应用三维图层	Apply 3D layer	3Dレイヤーを適用
+俯仰	Pitch	ピッチ
+转向	Yaw	ヨー
+侧倾	Roll	ロール
+三维模型预览	3D model preview	3Dモデルのプレビュー
+正在读取本地	Reading local	ローカルを読み込み中：
+模型已载入。拖动旋转，滚轮缩放。	Model loaded. Drag to rotate, scroll to zoom.	モデルを読み込みました。ドラッグで回転、ホイールで拡大縮小。
+此	This	この
+使用	Use	使用
+纹理，请转为内嵌	textures; convert them to embedded	テクスチャを使用しています。埋め込みの次に変換してください：
+无法导入	Cannot import	取り込めません：
+三维人偶	3D mannequin	3D人形
+画布文件不完整，或含有无法读取的图层。	The canvas file is incomplete or has unreadable layers.	キャンバスファイルが不完全か、読み込めないレイヤーを含んでいます。
+无法导出图层位图。	Cannot export the layer bitmap.	レイヤーのビットマップを書き出せません。
+三维骨架数据超过工程格式上限。	The 3D skeleton data exceeds the project format limit.	3D骨格データがプロジェクト形式の上限を超えています。
+画布文件。	canvas file.	キャンバスファイル。
+当前版本的工作台无法读取这个画布版本。	This studio version can’t read this canvas version.	このバージョンのワークベンチでは、このキャンバスを読み込めません。
+取色	Eyedropper	スポイト
+克隆	Clone	クローン
+移动	Move	移動
+拖动绘制，触控笔可用压感。	Drag to draw; pens support pressure.	ドラッグで描画。ペンは筆圧に対応。
+擦除当前图层的笔迹。	Erase strokes on the current layer.	現在のレイヤーの描画を消します。
+点按画面吸取颜色。	Tap the canvas to pick a color.	キャンバスをタップして色を取得します。
+先点取样，再拖动复制像素。按	Tap to sample, then drag to copy pixels. Press	クリックでサンプルを取り、ドラッグで画素をコピー。
+或「重新取样」更换来源。	or “Resample” to change the source.	または「再サンプル」でソースを変更します。
+拖动移动当前图层。姿势图层可单独拖动关节。	Drag to move the layer. Pose layers let you drag joints.	ドラッグでレイヤーを移動。ポーズレイヤーは関節を個別に動かせます。
+万像素以内的画布尺寸。	0,000 pixels or fewer for the canvas.	万画素以内のキャンバスサイズ。
+底图	Base image	ベース画像
+纸张	Paper	用紙
+画层	Layer	描画レイヤー
+绘图画布	Drawing canvas	描画キャンバス
+打开画布	Open canvas	キャンバスを開く
+保存画布	Save canvas	キャンバスを保存
+关闭画布	Close canvas	キャンバスを閉じる
+绘图工具	Drawing tools	描画ツール
+绘图区域	Drawing area	描画領域
+笔色	Color	ペンの色
+图层	Layers	レイヤー
+不透明度	Opacity	不透明度
+线架	Wireframe	ワイヤーフレーム
+三维	3D	3D
+编辑三维	Edit 3D	3Dを編集
+上移	Move up	上へ
+下移	Move down	下へ
+删除层	Delete layer	レイヤーを削除
+用作图生图底图	Use as image-to-image base	画像から画像のベースにする
+重新取样	Resample	再サンプル
+重做	Redo	やり直し
+画布最多可使用	A canvas can use at most	キャンバスで使えるレイヤーは最大
+个图层。	layers.	枚です。
+已取色	Color picked	色を取得しました
+已取样，拖动以克隆图像。	Sampled; drag to clone.	サンプルを取得しました。ドラッグで複製します。
+请先显示所选图层。	Show the selected layer first.	先に選択したレイヤーを表示してください。
+请先选择一个可绘制的图层。	Select a drawable layer first.	先に描画可能なレイヤーを選択してください。
+三维图层可单独编辑，请在笔迹图层使用橡皮。	3D layers are edited separately; use the eraser on stroke layers.	3Dレイヤーは個別に編集します。消しゴムは描画レイヤーで使ってください。
+笔迹	Strokes	描画
+正在还原图层…	Restoring layers…	レイヤーを復元中…
+已还原	Restored	復元しました
+正在保存图层…	Saving layers…	レイヤーを保存中…
+已导出可继续编辑的画布文件。	Exported an editable canvas file.	編集を続けられるキャンバスファイルを書き出しました。
+姿势	Pose	ポーズ
+已恢复本标签页的画布与图层。	Restored this tab’s canvas and layers.	このタブのキャンバスとレイヤーを復元しました。
+选择选项	Choose an option	オプションを選択
+放大中	Upscaling	拡大中
+处理中	Processing	処理中
+生成中	Generating	生成中
+查看正在生成的图像	View the image being generated	生成中の画像を表示
+返回正在生成的图像	Back to the image being generated	生成中の画像に戻る
+图像	Image	画像
+雨后街角	Street after rain	雨上がりの街角
+场景	Scene	シーン
+天台蓝调	Rooftop blues	屋上のブルー
+旅行手账	Travel journal	旅のノート
+笔触	Brushwork	筆致
+本地图像工作台与	Local image workbench and	ローカル画像ワークベンチと
+提示词图典	prompt catalog	プロンプト図鑑
+入场画刊	Opening cover	オープニング表紙
+入场时播放	Play on launch	起動時に再生
+进入工作台	Enter the studio	ワークベンチへ
+白底人物插画，浅金短发，灰褐色开衫和暗红领带	Portrait illustration on white: short pale-gold hair, taupe cardigan, dark red tie	白背景の人物イラスト。淡い金色の短髪、灰褐色のカーディガン、暗い赤のネクタイ
+人物习作	Portrait study	人物習作
+选择杂志版面	Choose a spread	誌面を選択
+首页	Home	ホーム
+主导航	Main navigation	メインナビゲーション
+工作台	Studio	ワークベンチ
+实验室	Lab	ラボ
+作品集	Archive	作品集
+封面画刊	Cover	表紙
+界面主题与设置	Theme and settings	テーマと設定
+切换深浅色	Toggle light and dark	ライト／ダークを切り替え
+工作区视图	Workspace view	ワークスペース表示
+创作	Compose	作成
+画布	Canvas	キャンバス
+历史	History	履歴
+创作参数	Composition settings	作成パラメーター
+调整创作栏宽度	Resize the compose column	作成欄の幅を調整
+拖动或按左右方向键调节栏宽，双击恢复	Drag or use the arrow keys to resize; double-click to reset	ドラッグまたは左右キーで幅を調整、ダブルクリックで元に戻す
+创作台	Compose	作成台
+提示词编辑器	Prompt editor	プロンプトエディター
+描绘画面，或输入标签…	Describe the scene, or type tags…	情景を描くか、タグを入力…
+希望避开的元素…	Things to avoid…	避けたい要素…
+字符	characters	文字
+画师图鉴	Artists	絵師図鑑
+角色图鉴	Characters	キャラクター図鑑
+配方导入与导出	Import and export recipes	レシピの取り込みと書き出し
+配方	Recipe	レシピ
+取消等待	Cancel	待機をキャンセル
+预览画布	Preview canvas	プレビューキャンバス
+画布待命	Canvas ready	キャンバス待機中
+从图像提取的印色，点击复制色值	Inks from the image; click to copy a color	画像から抽出したインク。クリックでカラー値をコピー
+图像配方札记	Recipe notes	画像レシピノート
+画布工具	Canvas tools	キャンバスツール
+收藏到万象集	Save to Atlas	万象集に保存
+查看图片线索与修改过程	View the image’s lineage and edits	画像の系譜と修正過程を表示
+打开分层绘图画布	Open the layered drawing canvas	レイヤー描画キャンバスを開く
+绘图	Draw	描画
+像素网格校正	Pixel grid correction	ピクセルグリッド補正
+像素化	Pixelate	ピクセル化
+沉浸查看（	Immersive view (	没入表示（
+查看大图	View large	大きく表示
+送入图生图	Send to image-to-image	画像から画像へ送る
+清空预览，保留历史	Clear preview, keep history	プレビューを消去（履歴は保持）
+生成历史	Generation history	生成履歴
+历史图像	History images	履歴の画像
+查看全部作品	View all works	すべての作品を表示
+本地作品集	Local archive	ローカル作品集
+搜索全部作品	Search all works	すべての作品を検索
+搜索提示词或作品标签…	Search prompts or work tags…	プロンプトや作品タグで検索…
+搜索作品正面提示词或标签	Search positive prompts or tags	ポジティブプロンプトやタグで検索
+清除搜索	Clear search	検索をクリア
+批量打标	Batch tag	一括タグ付け
+按提示词或作品标签搜索	Search by prompt or work tag	プロンプトや作品タグで検索
+支持模糊匹配	Fuzzy matching	あいまい検索に対応
+批量打标与打包	Batch tagging and export	一括タグ付けとまとめて保存
+已选	Selected	選択済み
+选择范围	Scope	選択範囲
+自选图片	Picked images	選んだ画像
+全部命中	All matches	すべての一致
+作品标签，多个用逗号分隔	Work tags, separated by commas	作品タグ（カンマ区切り）
+输入标签，多个用逗号分隔	Enter tags, separated by commas	タグを入力（カンマ区切り）
+添加标签	Add tags	タグを追加
+退出批量模式（	Exit batch mode (	一括モードを終了（
+退出批量模式	Exit batch mode	一括モードを終了
+已生成作品	works generated	件の生成作品
+完整画幅	Full frame	フルサイズ
+最新在前	Newest first	新しい順
+当前画布预览	Current canvas preview	現在のキャンバスのプレビュー
+把灵感，留给下一次创作。	Keep the inspiration for next time.	ひらめきを、次の創作へ。
+当前创作配方	Current recipe	現在のレシピ
+创作配方	Recipe	創作レシピ
+保存当前提示词、底图与参数，或带着一张图片的	Save the current prompt, base image and settings, or continue from an image’s	現在のプロンプト・ベース画像・パラメーターを保存するか、画像の
+继续创作。	.	を引き継いで続けます。
+当前草稿参数	Current draft settings	現在の下書きパラメーター
+导出当前配方	Export current recipe	現在のレシピを書き出す
+提示词与完整参数	Prompts and full settings	プロンプトと全パラメーター
+导入配方或图片	Import a recipe or image	レシピや画像を取り込む
+选择需要保留的	Choose what to keep:	保持する項目を選択：
+角色分段、随机组合与权重	Character sections, random picks and weights	キャラクター分割・ランダム・重み
+及以上支持	and later support	以降で対応
+。第一段描述画面，后面每段对应一个角色。	. The first section describes the scene; each later one is a character.	。最初の段落で情景を描き、以降の段落が各キャラクターに対応します。
+竖线可以单独占一行。独立角色栏中的角色会依次接在后面。	A bar can sit on its own line. Characters from the character slots follow in order.	縦線は単独の行に置けます。キャラクター欄のキャラクターは順に続きます。
+用	Use
+随机选取一项，用	to pick one at random, and	でランダムに1つ選び、
+调整权重。	to adjust weight.	で重みを調整します。
+可混合提示词。	blends prompts.	でプロンプトを混ぜられます。
+请启用	Please enable	次を有効にしてください：
+进入图像工作台。	to use the workbench.	で画像ワークベンチに入れます。
+请选择有效的	Choose a valid	有効な次を選択してください：
+模型。	model.	モデル。
+权重超出可计算范围，请降低数值。	The weight is out of range; lower it.	重みが計算範囲を超えています。値を下げてください。
+模型不支持负权重，请使用	model doesn’t support negative weights; use	モデルは負の重みに非対応です。次を使用してください：
+权重低于六位小数的精度，请调整输入。	The weight is below six-decimal precision; adjust it.	重みが小数6桁の精度を下回っています。調整してください。
+仅支持正权重。	supports positive weights only.	は正の重みのみ対応です。
+需要过多层括号，请缩小权重范围或选择新版模型。	needs too many brackets; narrow the weight range or pick a newer model.	括弧が多すぎます。重みの範囲を狭めるか、新しいモデルを選んでください。
+发现未闭合的词块或随机分支。	Found an unclosed block or random branch.	閉じられていないブロックまたはランダム分岐があります。
+权重组未正确闭合，请检查	A weight group isn’t closed correctly; check	重みグループが正しく閉じられていません。確認してください：
+和	and	と
+发现未闭合的权重组，请检查	Found an unclosed weight group; check	閉じられていない重みグループがあります。確認してください：
+提示词超过	The prompt exceeds	プロンプトが次を超えています：
+字符，请分段处理。	characters; split it up.	文字。分割してください。
+提示词权重嵌套过深。	Prompt weights are nested too deeply.	プロンプトの重みの入れ子が深すぎます。
+请在权重组外分隔角色或提示词区段。	Split characters or sections outside weight groups.	キャラクターや区分は重みグループの外で区切ってください。
+种子应为	The seed must be	シードは
+的整数。	as a whole number.	の整数にしてください。
+使用固定负面词。要指定负面词，请在工作台把运算强度切到	uses fixed negatives. To set your own, switch compute in the studio to	は固定ネガティブを使用します。指定するにはワークベンチで演算強度を次に切り替えてください：
+实验轮次无效。	Invalid experiment round.	実験ラウンドが無効です。
+先填一组画师或标签，再生成权重方案。	Enter a set of artists or tags before generating weight plans.	先に絵師またはタグを入力してから、重み案を生成してください。
+画师串里不能包含角色段，请把角色移到固定角色栏。	Artist strings can’t contain character sections; move them to the fixed character field.	絵師の並びにキャラクター段落は含められません。固定キャラクター欄に移してください。
+画师串不能为空或全为零权重。	The artist string can’t be empty or all zero weight.	絵師の並びを空や重みゼロだけにはできません。
+画师实验固定一个角色，请分别填写角色、背景和负面词。	Artist tests fix one character; fill in character, background and negatives separately.	絵師実験ではキャラクターを1人固定します。キャラクター・背景・ネガティブを別々に入力してください。
+权重方案	Weight plan	重み案
+这组权重在当前模型中无法区分出十种结果，请调整初始权重。	These weights can’t produce ten distinct results on this model; adjust the starting weights.	この重みでは現在のモデルで10通りの結果を区別できません。初期の重みを調整してください。
+应在	must be within	は次の範囲にしてください：
+之间		の間
+，并使用整数。	, as a whole number.	、整数で。
+先填写固定正向提示词。	Enter the fixed positive prompt first.	先に固定ポジティブプロンプトを入力してください。
+请至少选择一种采样器。	Choose at least one sampler.	サンプラーを1つ以上選択してください。
+只支持	only supports	の対応：
+存在未支持的采样器。	Contains an unsupported sampler.	非対応のサンプラーが含まれています。
+的采样步数固定为	uses fixed sampling steps of	のサンプリングステップは固定：
+本次可比较至多	You can compare at most	今回比較できるのは最大
+组，请减少参数组合。	sets; reduce the combinations.	組です。組み合わせを減らしてください。
+每轮随机抽取	Each round draws	各ラウンドでランダムに
+个方案。	plans at random.	案を抽出します。
+窗边半身像	Half-body by a window	窓辺の半身像
+海岸全身像	Full-body on a shore	海岸の全身像
+素背景肖像	Portrait on a plain background	無地背景のポートレート
+待生成	Pending	生成待ち
+排队中	Queued	待機中
+失败	Failed	失敗
+已停止	Stopped	停止しました
+画师权重	Artist weights	絵師の重み
+采样对照	Sampler comparison	サンプラー比較
+标签简写	Tag shorthand	タグ短縮
+权重曲线	Weight curve	重み曲線
+显示前	Show first	先頭を表示：
+组	sets	組
+实验类型	Experiment type	実験の種類
+实验条件	Conditions	実験条件
+实验方案与成图	Plans and results	実験案と生成画像
+每行一组画师，也可输入一条逗号分隔的画师串	One artist set per line, or one comma-separated artist string	1行に1組の絵師、またはカンマ区切りの絵師の並び
+角色、发型、服装与姿态	Character, hair, outfit and pose	キャラクター・髪型・服装・ポーズ
+场所、构图与光线	Setting, composition and light	場所・構図・光
+每张图共同避开的元素	Things every image should avoid	全画像で避ける要素
+固定条件预设	Fixed condition preset	固定条件のプリセット
+自定义	Custom	カスタム
+固定条件	Fixed conditions	固定条件
+画师配比	Artist mix	絵師の配合
+画师串	Artist string	絵師の並び
+每行一组，组内用逗号分隔。	One set per line, commas within a set.	1行に1組、組内はカンマ区切り。
+单一角色	Single character	単一キャラクター
+背景	Background	背景
+通用负面提示词	Shared negative prompt	共通ネガティブプロンプト
+输入此次对照使用的正向提示词	Enter the positive prompt for this comparison	今回の比較に使うポジティブプロンプトを入力
+输入固定的负面提示词	Enter the fixed negative prompt	固定のネガティブプロンプトを入力
+手动组合	Manual	手動の組み合わせ
+随机采样	Random	ランダム抽出
+例如	e.g.	例：
+引导	Guidance	ガイダンス
+随机方案数	Random plans	ランダム案の数
+参数组合	Combinations	パラメーターの組み合わせ
+换种子	New seed	シードを変更
+为整批方案换一个固定种子	Pick a new fixed seed for the whole batch	バッチ全体の固定シードを変更
+对照种子	Comparison seed	比較用シード
+原始提示词	Original prompt	元のプロンプト
+粘贴需要归并的画师串或标签	Paste artist strings or tags to merge	統合する絵師の並びやタグを貼り付け
+待归并的标签	Tags to merge	統合するタグ
+重复标签按权重平方和近似合并，反向权重按平方强度抵消。	Duplicate tags merge by sum of squared weights; opposite weights cancel by squared strength.	重複タグは重みの二乗和で近似統合し、逆の重みは二乗の強さで相殺します。
+再取	Draw again	再抽出
+全选	Select all	すべて選択
+生成所选方案	Generate selected	選択した案を生成
+停止批次	Stop batch	バッチを停止
+简写后的提示词	Shortened prompt	短縮後のプロンプト
+复制简写	Copy shorthand	短縮をコピー
+用于画师实验	Use in artist test	絵師実験に使う
+本次成图	Results	今回の画像
+工作台参数	Studio settings	ワークベンチのパラメーター
+追加随机方案	Add random plans	ランダム案を追加
+归并结果	Merged result	統合結果
+方案清单	Plans	案の一覧
+同一场景与种子，对照各组画师的影响。	Same scene and seed; compare each artist set.	同じシーンとシードで、各絵師の組の影響を比較します。
+固定描述与种子，只改变选定的采样参数。	Fixed description and seed; only the chosen sampling settings change.	説明とシードを固定し、選んだサンプリング設定だけを変えます。
+相同标签归为一项，保留各自的有效权重。	Identical tags become one, keeping their effective weights.	同じタグを1つにまとめ、それぞれの有効な重みを保ちます。
+至	to	〜
+的整数种子。	as a whole-number seed.	の整数シード。
+这一轮没有新的参数组合，可扩展参数范围或再次抽取。	No new combinations this round; widen the ranges or draw again.	このラウンドに新しい組み合わせはありません。範囲を広げるか再抽出してください。
+这一轮与已有方案重合，可调整画师串或再次取样。	This round repeats existing plans; adjust the artist string or draw again.	このラウンドは既存の案と重複しています。絵師の並びを調整するか再抽出してください。
+合并	Merge	統合
+输入标签后，简写结果会出现在这里。	Enter tags and the shorthand appears here.	タグを入力すると、短縮結果がここに表示されます。
+步数范围	Step range	ステップの範囲
+引导范围	Guidance range	ガイダンスの範囲
+选择方案	Select plan	案を選択
+收起	Collapse	折りたたむ
+详情	Details	詳細
+参数	Settings	パラメーター
+状态	Status	状態
+组方案	plans	組の案
+正在停止…	Stopping…	停止中…
+清除选择	Clear selection	選択をクリア
+等待当前请求停止	Waiting for the current request to stop	現在のリクエストの停止を待っています
+完成的图片会自动进入作品集	Finished images go to the archive automatically	完成した画像は自動で作品集に入ります
+按方案逐张生成	Generate plan by plan	案ごとに1枚ずつ生成
+成图	Result	生成画像
+已停止批次。	Batch stopped.	バッチを停止しました。
+此次请求没有返回成图。	This request returned no image.	今回のリクエストでは画像が返されませんでした。
+批次已停止，已完成的作品可在下方查看。	Batch stopped; finished works are below.	バッチを停止しました。完成した作品は下に表示されます。
+批次已停在「	Batch stopped at “	バッチは「
+批次已停止，已完成	Batch stopped; finished	バッチを停止しました。完了：
+批次完成，已生成	Batch complete; generated	バッチ完了。生成：
+已复制简写后的提示词	Shortened prompt copied	短縮後のプロンプトをコピーしました
+已选中结果，可以复制。	Result selected; ready to copy.	結果を選択しました。コピーできます。
+基础	Base	基本
+负向提示词	Negative prompt	ネガティブプロンプト
+尺寸	Size	サイズ
+生成参数	Generation settings	生成パラメーター
+参考图像	Reference images	参照画像
+宽度	Width	幅
+高度	Height	高さ
+噪声	Noise	ノイズ
+噪声计划	Noise schedule	ノイズスケジュール
+模式	Mode	モード
+张数	Images	枚数
+图像修改	Image edit	画像の修正
+提示词相近	Similar prompt	類似プロンプト
+同一角色	Same character	同じキャラクター
+同批生成	Same batch	同じバッチ
+时间未记录	Time not recorded	時刻の記録なし
+生成	Generate	生成
+此前作品	Earlier work	以前の作品
+关联	Related	関連
+作品线索	Work lineage	作品の系譜
+关闭线索	Close lineage	系譜を閉じる
+筛选线索连接	Filter lineage links	系譜のつながりを絞り込む
+仅实线	Solid only	実線のみ
+仅虚线	Dashed only	破線のみ
+线索画布，拖动平移，滚轮缩放，方向键移动，	Lineage canvas: drag to pan, scroll to zoom, arrow keys to move,	系譜キャンバス：ドラッグで移動、ホイールで拡大縮小、矢印キーで移動、
+适应所有节点	fit all nodes	すべてのノードに合わせる
+线索画布工具	Lineage canvas tools	系譜キャンバスのツール
+缩小画布	Zoom out	縮小
+放大画布	Zoom in	拡大
+适应全部线索	Fit all	全体に合わせる
+定位选中作品	Locate selected work	選択中の作品へ移動
+画布缩放比例	Canvas zoom	キャンバスの倍率
+修改	Edit	修正
+相似	Similar	類似
+选中作品详情	Selected work details	選択中の作品の詳細
+原创角色	Original character	オリジナルキャラクター
+共同角色：	Shared characters:	共通キャラクター：
+角色身份一致	Same character identity	キャラクターが一致
+提示词一致	Same prompt	プロンプトが一致
+条提示词改动	prompt changes	件のプロンプト変更
+提示词相似	Similar prompt	プロンプトが類似
+有关联	Related	関連あり
+相同提示词	Same prompt	同じプロンプト
+选择同组第	Select in group: No.	グループ内を選択：第
+张：	:	枚目：
+关联线索	Related lineage	関連する系譜
+从这里而来	Comes from here	ここから派生
+记录起点	Start of record	記録の起点
+从外部文件复用的	Reused from an external file:	外部ファイルから再利用した
+；从本次引用开始记录关联。	; links are recorded from this use onward.	。今回の引用から関連を記録します。
+此前过程未追溯；从本次引用起记录后续变化。	Earlier steps weren’t traced; changes are recorded from this use onward.	以前の過程は追跡していません。今回の引用以降の変化を記録します。
+此前作品未追溯。新修改或	Earlier works weren’t traced. New edits or	以前の作品は追跡していません。新しい修正や
+复用将开始记录。	reuse will start the record.	の再利用から記録を始めます。
+这张作品还没有上游线索。接下来的修改与复用会记录在这里。	This work has no upstream lineage yet. Future edits and reuse are recorded here.	この作品にはまだ上流の系譜がありません。今後の修正と再利用はここに記録されます。
+相关作品	Related works	関連作品
+关联强度	Link strength	関連の強さ
+成图尺寸	Image size	画像サイズ
+参数变化	Setting changes	パラメーターの変化
+未记录	Not recorded	記録なし
+查看这张作品	View this work	この作品を表示
+图片已删除，线索仍保留。	Image deleted; lineage kept.	画像は削除されましたが、系譜は残っています。
+外部	External	外部
+作为本次创作的来源。	as the source of this work.	を今回の作成の元として使用。
+旧作品，仅记录更新后的关联。	Older work; only later links are recorded.	古い作品のため、更新後の関連のみ記録します。
+保存在当前浏览器的本地记录。	Local record saved in this browser.	このブラウザーに保存されたローカル記録。
+张图	images	枚
+拖动提示词组；方向键移动，	Drag prompt groups; arrow keys move,	プロンプトグループをドラッグ。矢印キーで移動、
+恢复自动位置	Restore automatic layout	自動配置に戻す
+提示词组	Prompt group	プロンプトグループ
+，查看线索详情	, view lineage details	、系譜の詳細を表示
+图像已删除	Image deleted	画像は削除済み
+未保留原图	Original not kept	原画像は保持されていません
+尺寸未记录	Size not recorded	サイズの記録なし
+此前作品未追溯	Earlier works not traced	以前の作品は未追跡
+新修改将从这里继续	New edits continue from here	新しい修正はここから続きます
+拖动组标题整理线索	Drag group titles to arrange	グループ見出しをドラッグして整理
+空白处平移画布	Drag empty space to pan	空白部分をドラッグして移動
+正在整理线索…	Arranging lineage…	系譜を整理中…
+这张作品暂时没有可读取的线索	No readable lineage for this work	この作品には読み込める系譜がありません
+线索读取失败，请稍后再试	Could not load lineage; try again later	系譜を読み込めませんでした。後で再試行してください
+线索读取失败	Could not load lineage	系譜の読み込みに失敗
+共同角色	Shared characters	共通キャラクター
+项改动	changes	件の変更
+生成张数	Images	生成枚数
+无	None	なし
+标准	Standard	標準
+轻度	Light	弱
+强力	Strong	強
+空	Empty	空
+画幅尺寸	Image size	画像サイズ
+生图参数	Generation settings	生成パラメーター
+角色提示与位置	Character prompts and positions	キャラクタープロンプトと位置
+底图与参考素材	Base image and references	ベース画像と参照素材
+待复用元数据的原图	Original image for metadata reuse	メタデータを再利用する原画像
+该配方未附带预览图	This recipe has no preview image	このレシピにはプレビュー画像がありません
+把灵感延续下去。选择这次想带走的	Carry the idea forward. Choose which	ひらめきを次へ。今回引き継ぐ
+关闭元数据复用	Close metadata reuse	メタデータの再利用を閉じる
+未勾选的内容，保留工作台当前设置。	Anything unchecked keeps the studio’s current settings.	チェックしていない項目は、ワークベンチの現在の設定を保ちます。
+复用所选	Reuse selected	選択した項目を再利用
+图像已隐藏	Image hidden	画像は非表示です
+已选择	Selected	選択済み
+正在载入…	Loading…	読み込み中…
+原始	Original	元の
+未记录此项	Not recorded	この項目は記録されていません
+空提示词	Empty prompt	空のプロンプト
+复用后会清空此输入框	Reusing clears this field	再利用するとこの入力欄は空になります
+随机种子	Random seed	ランダムシード
+生效时固定	Fixed when applied	適用時に固定
+步、	steps,	ステップ、
+；下列其余值为保存的设置。	; the other values below are the saved settings.	。以下のその他の値は保存された設定です。
+项参数	settings	項目のパラメーター
+展开查看	Show	展開して表示
+个角色	characters	人のキャラクター
+正负提示、开关与坐标一并复用	Positive and negative prompts, toggles and positions are reused together	ポジティブ・ネガティブ・スイッチ・座標をまとめて再利用
+无独立角色	No separate characters	個別のキャラクターなし
+复用后移除当前角色配置	Reusing removes the current character setup	再利用すると現在のキャラクター設定を削除します
+查看角色描述	View character descriptions	キャラクターの説明を表示
+空正向提示	Empty positive prompt	空のポジティブプロンプト
+空负向提示	Empty negative prompt	空のネガティブプロンプト
+张参考	references	枚の参照
+可选：同时恢复原来的生成模式与素材。	Optional: also restore the original mode and materials.	任意：元の生成モードと素材も復元します。
+载入失败，请重试。	Could not load. Please retry.	読み込みに失敗しました。再試行してください。
+正在读取图像	Reading image	画像を読み込み中
+暂时无法读取这张作品的	Cannot read this work’s	この作品の次を読み込めません：
+导出失败	Export failed	書き出しに失敗
+关闭像素整理	Close pixel snap	ピクセル整列を閉じる
+像素网格整理	Pixel grid snap	ピクセルグリッド整列
+为已有像素画重新对齐网格。在本机检测像素间距，可微调起点并缩减色板。	Realign the grid of existing pixel art. Spacing is detected locally; fine-tune the origin and reduce the palette.	既存のドット絵のグリッドを整え直します。画素間隔はローカルで検出し、起点の微調整や色数の削減ができます。
+导入一张像素画开始整理	Import pixel art to begin	ドット絵を取り込んで開始
+自动检测网格	Auto-detect grid	グリッドを自動検出
+色板	Palette	パレット
+保留原色	Keep original colors	元の色を保持
+色	colors	色
+像素间距	Pixel spacing	画素間隔
+水平起点	Horizontal origin	水平起点
+垂直起点	Vertical origin	垂直起点
+下载	Download	ダウンロード
+正在整理网格…	Snapping grid…	グリッドを整列中…
+透明网格上的像素整理预览	Pixel snap preview on a transparent grid	透過グリッド上のピクセル整列プレビュー
+处理图像失败	Image processing failed	画像の処理に失敗
+读取图片…	Reading image…	画像を読み込み中…
+请使用本地文件或工作台中的图片	Use a local file or a studio image	ローカルファイルかワークベンチの画像を使用してください
+请选择不超过	Choose an image no larger than	次以下の画像を選択してください：
+百万像素且边长不超过	megapixels, with sides up to	メガピクセル、辺の長さ
+的图像		以内
+图片读取失败	Could not read the image	画像の読み込みに失敗
+参数块过大。	The parameter block is too large.	パラメーターブロックが大きすぎます。
+文件不完整。	The file is incomplete.	ファイルが不完全です。
+这张	This	この
+中没有可读的	has no readable	には読み取れる次がありません：
+创作参数。	generation settings.	作成パラメーター。
+请先闭合权重组；随机分支内的词块需先移出分支。	Close the weight group first; blocks inside random branches must be moved out first.	先に重みグループを閉じてください。ランダム分岐内のブロックは先に分岐から出してください。
+正在移动词块。松开完成，	Moving block. Release to drop,	ブロックを移動中。離すと完了、
+取消。	to cancel.	でキャンセル。
+词块位置已调整，可撤销。	Block moved; you can undo.	ブロックを移動しました。元に戻せます。
+词块「	Block “	ブロック「
+拖动换位	Drag to reorder	ドラッグで並べ替え
+长按拖动	Long-press to drag	長押しでドラッグ
+双击展开或收起	Double-click to expand or collapse	ダブルクリックで展開・折りたたみ
+未找到此词块	Block not found	このブロックが見つかりません
+收起词块「	Collapse block “	ブロックを折りたたむ「
+展开词块「	Expand block “	ブロックを展開「
+移除词块「	Remove block “	ブロックを削除「
+」的提示词	” prompt	」のプロンプト
+当前模型暂无已核实的	This model has no verified	現在のモデルには検証済みの次がありません：
+词表读取失败。	Could not load the vocabulary.	語彙表の読み込みに失敗しました。
+当前浏览器不支持本地词表解压。	This browser can’t decompress the local vocabulary.	このブラウザーはローカル語彙表の展開に対応していません。
+计数暂不可用。	count unavailable.	のカウントは利用できません。
+此模型暂无已核实的	This model has no verified	このモデルには検証済みの次がありません：
+超分不使用这些提示词	Upscaling doesn’t use these prompts	アップスケールではこれらのプロンプトを使いません
+导演工具使用独立提示词	Director tools use their own prompt	ディレクターツールは独自のプロンプトを使います
+使用固定负面词，请清空自定义负面词或切回	uses fixed negatives; clear custom negatives or switch back to	は固定ネガティブを使用します。カスタムネガティブを消すか、次に戻してください：
+计数暂不可用，生成仍可继续。	count unavailable; you can still generate.	のカウントは利用できませんが、生成は続けられます。
+计数超时，请缩短提示词后重试。	count timed out; shorten the prompt and retry.	のカウントがタイムアウトしました。プロンプトを短くして再試行してください。
+用量	Usage	使用量
+读取词表…	Loading vocabulary…	語彙表を読み込み中…
+提示词容量	Prompt capacity	プロンプト容量
+缺少提示词计数挂载参数。	Missing prompt counter mount options.	プロンプトカウンターの設定がありません。
+暂不可用	Unavailable	利用不可
+随机预览	Random preview	ランダムプレビュー
+固定负面	Fixed negatives	固定ネガティブ
+，超出	, over by	、超過
+本地计数，与官方网页	Counted locally, same method as the official site’s	ローカルでカウント。公式サイトの
+同口径。	.	と同じ基準です。
+个启用角色	active characters	人の有効なキャラクター
+；正、负向各有独立上限。	; positive and negative each have their own limit.	。ポジティブとネガティブにはそれぞれ上限があります。
+混合提示词各段分别计数，此处显示最大值：	Blended prompt parts are counted separately; the maximum is shown:	混合プロンプトは段落ごとに数え、最大値を表示します：
+已计入实际追加的质量、数据集及画面标签。	Includes the quality, dataset and scene tags actually added.	実際に追加される品質・データセット・画面タグを含みます。
+已计入当前	Includes the current	現在の次を含みます：
+预设。	preset.	プリセット。
+随机块按最长文本候选预览；实际随机结果的	Random blocks preview their longest option; the actual result’s	ランダムブロックは最長の候補でプレビューします。実際の結果の
+数可能不同，此数不是上界。	count may differ; this is not an upper bound.	数は異なる場合があり、上限ではありません。
+含	incl.	含む：
+结束	end	終了
+；不支持的字符按官方网页的未知	; unsupported characters count as the official site’s unknown	。非対応の文字は公式サイトの不明
+计数。	.	としてカウントします。
+仅提示词容量，不代表	Prompt capacity only; not	プロンプト容量のみで、
+消耗或账户额度。	cost or account allowance.	の消費やアカウント枠を表すものではありません。
+超出	Over	超過
+（当前预览）	(current preview)	（現在のプレビュー）
+，超出部分可能被截断。	; the excess may be cut off.	。超過分は切り捨てられる場合があります。
+请把光标放在一个标签上，或先选中提示词。	Put the cursor on a tag, or select part of the prompt first.	カーソルをタグに置くか、先にプロンプトを選択してください。
+请选中词块引用，或将光标放在引用内。	Select a block reference, or put the cursor inside one.	ブロック参照を選択するか、カーソルを参照内に置いてください。
+角色栏尚未准备好，请稍后重试。	The character slots aren’t ready yet; try again shortly.	キャラクター欄の準備ができていません。少し待って再試行してください。
+这个	This	この
+尚未保存到万象集。	isn’t saved to Atlas yet.	はまだ万象集に保存されていません。
+收起提示词块库	Collapse prompt block library	プロンプトブロックライブラリを閉じる
+打开提示词块库	Open prompt block library	プロンプトブロックライブラリを開く
+收起词块库	Collapse block library	ブロックライブラリを閉じる
+词块库	Block library	ブロックライブラリ
+点击词块插入	Click a block to insert	ブロックをクリックして挿入
+合并多个词块	Merge blocks	複数のブロックを統合
+搜索提示词块	Search prompt blocks	プロンプトブロックを検索
+检索名称、分组或内容…	Search name, group or content…	名前・グループ・内容で検索…
+新建	New	新規
+词块分组	Block groups	ブロックのグループ
+词块列表	Block list	ブロック一覧
+按顺序选择词块	Select blocks in order	ブロックを順に選択
+顺序	Order	順序
+清空选择	Clear selection	選択をクリア
+预览合并	Preview merge	統合をプレビュー
+返回列表	Back to list	一覧に戻る
+已展开词块引用，原词块保留。可继续编辑下方正文。	Block reference expanded; the original block is kept. Keep editing the text below.	ブロック参照を展開しました。元のブロックは残っています。下の本文を続けて編集できます。
+块名称	Block name	ブロック名
+如：傍晚光照	e.g. Evening light	例：夕方の光
+分组	Group	グループ
+保存词块	Save block	ブロックを保存
+删除	Delete	削除
+取消删除	Cancel delete	削除をキャンセル
+插入纯文本	Insert as text	テキストとして挿入
+插入词块	Insert block	ブロックを挿入
+真实例图	Example image	実例画像
+与万象集同步	Synced with Atlas	万象集と同期
+词块真实例图	Block example image	ブロックの実例画像
+还没有例图。上传图片，或从作品集中选择。	No example yet. Upload an image or pick one from the archive.	まだ例図がありません。画像をアップロードするか、作品集から選んでください。
+上传替换	Upload to replace	アップロードして差し替え
+上传词块例图	Upload block example	ブロックの例図をアップロード
+从作品集选择	Pick from archive	作品集から選択
+从作品集选择词块例图	Pick a block example from the archive	作品集からブロックの例図を選択
+移除例图	Remove example	例図を削除
+移除词块例图	Remove block example	ブロックの例図を削除
+正在读取例图…	Loading example…	例図を読み込み中…
+保存这个词块后，即可为它选择一张真实例图。	Save this block first, then you can choose an example image.	このブロックを保存すると、実例画像を選べるようになります。
+例图已隐藏	Example hidden	例図は非表示です
+」的真实例图	” example image	」の実例画像
+生成例图	Generated example	生成した例図
+手动指定例图	Chosen example	手動で指定した例図
+例图读取失败。	Could not load the example.	例図の読み込みに失敗しました。
+例图正在保存，请稍后再试。	The example is saving; try again shortly.	例図を保存中です。少し待って再試行してください。
+正在保存真实例图…	Saving example image…	実例画像を保存中…
+例图已更新，万象集同步显示。	Example updated and shown in Atlas.	例図を更新しました。万象集にも反映されます。
+已移除例图，词块内容保留。	Example removed; the block content is kept.	例図を削除しました。ブロックの内容は残っています。
+请点选一个提示词输入框	Click a prompt field	プロンプト入力欄をクリックしてください
+加入至	Add to	追加先：
+独立角色栏	character slots	キャラクター欄
+插入至	Insert into	挿入先：
+保存并加入角色	Save and add character	保存してキャラクターに追加
+加入角色	Add character	キャラクターに追加
+保存并插入	Save and insert	保存して挿入
+个词块	blocks	件のブロック
+来源已变更	Source changed	元が変更されました
+（已移除）	(removed)	（削除済み）
+上移「	Move up “	上へ「
+下移「	Move down “	下へ「
+取消选择「	Deselect “	選択を解除「
+组合词块	Combined block	組み合わせブロック
+组合	Combined	組み合わせ
+已保留合并草稿	Merge draft kept	統合の下書きを保持しました
+按所选顺序拼接，重复标签与权重均保留	Joined in the chosen order; duplicate tags and weights are kept	選択した順に連結します。重複タグと重みはそのまま残ります
+已取消合并	Merge cancelled	統合をキャンセルしました
+选择至少两个词块，随后预览并保存	Select at least two blocks, then preview and save	ブロックを2つ以上選び、プレビューして保存します
+全部分组	All groups	すべてのグループ
+选择「	Select “	選択「
+插入「	Insert “	挿入「
+有草稿	Draft	下書きあり
+词块详情「	Block details “	ブロックの詳細「
+没有匹配的词块	No matching blocks	一致するブロックはありません
+继续新建	Continue new	新規作成を続ける
+选择后合并	Select, then merge	選択して統合
+编辑词块	Edit block	ブロックを編集
+返回选块	Back to selection	ブロック選択に戻る
+保存新词块	Save new block	新しいブロックを保存
+取消合并	Cancel merge	統合をキャンセル
+取消合并词块	Cancel block merge	ブロックの統合をキャンセル
+已恢复未保存的草稿	Unsaved draft restored	未保存の下書きを復元しました
+已合并为新词块，原词块保留	Merged into a new block; originals kept	新しいブロックに統合しました。元のブロックは残っています
+已保存到本机	Saved on this device	この端末に保存しました
+已将「	Added “	「
+」加入多角色栏	” to the character slots	」をキャラクター欄に追加しました
+请先点选要插入的提示词输入框。	Click the prompt field to insert into first.	先に挿入先のプロンプト入力欄をクリックしてください。
+已插入「	Inserted “	挿入しました「
+未保存的草稿已保留	Unsaved draft kept	未保存の下書きを保持しました
+已清空选择	Selection cleared	選択をクリアしました
+合并草稿尚未保存	Merge draft not saved	統合の下書きは未保存です
+草稿尚未保存	Draft not saved	下書きは未保存です
+当前文本	Current text	現在のテキスト
+确认删除	Confirm delete	削除を確定
+已有配方中的引用会保留原内容。	References in existing recipes keep their content.	既存のレシピ内の参照は元の内容を保ちます。
+已删除词块	Block deleted	ブロックを削除しました
+源词块已变更，请返回选块并重新预览。	A source block changed; go back and preview again.	元のブロックが変更されました。選択に戻り、再度プレビューしてください。
+词块库尚未加载，请刷新工作台。	The block library hasn’t loaded; refresh the studio.	ブロックライブラリが読み込まれていません。ワークベンチを更新してください。
+请先点选一个标签。	Click a tag first.	先にタグをクリックしてください。
+角色或混合提示词的分隔线两侧独立排序。	Each side of a character or blend divider is ordered separately.	キャラクターや混合プロンプトの区切りの両側は、それぞれ独立して並べ替えます。
+权重	Weight	重み
+减弱	Weaken	弱める
+减弱当前提示词	Weaken this tag	このタグを弱める
+当前提示词权重	Tag weight	このタグの重み
+输入精确权重，按回车应用	Enter an exact weight and press Enter	正確な重みを入力し、Enterで適用
+加强	Strengthen	強める
+加强当前提示词	Strengthen this tag	このタグを強める
+还原权重	Reset weight	重みをリセット
+还原当前提示词权重	Reset this tag’s weight	このタグの重みをリセット
+常用	Saved	よく使う
+将选中文本存为词块	Save selection as a block	選択したテキストをブロックとして保存
+新建词块	New block	新しいブロック
+点选标签编辑	Click a tag to edit	タグをクリックして編集
+前移	Move left	前へ
+后移	Move right	後ろへ
+展开词块	Expand block	ブロックを展開
+移除标签	Remove tag	タグを削除
+标签权重色标	Tag weight colors	タグの重みの色分け
+色标	Colors	色分け
+默认	Default	標準
+弱化	Weakened	弱め
+强化	Strengthened	強め
+负权	Negative	負の重み
+小于	below	未満
+，适用于	, for	、対象：
+及以上	and later	以降
+选中常用提示词，点击	Select frequently used prompt text and click	よく使うプロンプトを選択して次をクリック：
+写下提示词后，在这里选择或排列标签。	Once you write a prompt, select or arrange tags here.	プロンプトを書くと、ここでタグを選択・並べ替えできます。
+该模型不支持此权重。	This model doesn’t support this weight.	このモデルはこの重みに対応していません。
+尚未保存外貌提示词。	No appearance prompt saved yet.	外見プロンプトはまだ保存されていません。
+增强需要	Enhance requires	強化には次が必要：
+单张细化，重绘强度	Refine one image at strength	1枚を細部強化、再描画強度
+变体	Variations	バリエーション
+使用新种子生成	Generate with new seeds:	新しいシードで生成：
+个变体。	variations.	件のバリエーション。
+超分	Upscale	アップスケール
+点击即以	Click to upscale at	クリックで次の倍率で拡大：
+超分放大，结果存入作品历史。	; the result goes to History.	。結果は履歴に保存されます。
+重绘	Inpaint	再描画
+在当前成图上绘制重绘蒙版。	Paint an inpaint mask on this image.	現在の画像に再描画マスクを描きます。
+需要	requires	必要：
+的增强放大。	enhanced upscale.	の強化拡大。
+，使用当前成图作为源图。	, using the current image as the source.	、現在の画像を元画像として使用。
+请先生成图像，或从历史中选择一张作品。	Generate an image first, or pick one from History.	先に画像を生成するか、履歴から作品を選んでください。
+正在准备工作台。	Preparing the studio.	ワークベンチを準備中です。
+独立放大输入上限为	Standalone upscale input is limited to	単独アップスケールの入力上限は
+万像素，请先缩小原图。	0,000 pixels; resize the original first.	万画素です。先に原画像を縮小してください。
+当前图像超过工作台的	This image exceeds the studio’s	現在の画像はワークベンチの
+导入上限。	import limit.	取り込み上限を超えています。
+载入后估算	Estimated after loading	読み込み後に見積もり
+载入图像后读取尺寸并估算费用。	Load an image to read its size and estimate the cost.	画像を読み込むと、サイズを取得して費用を見積もります。
+官方参考价约	Official price about	公式参考価格：約
+预计	Est.	見込み
+标准价约	Standard about	標準価格：約
+，另约占	, plus about	、さらに約
+成图操作	Image actions	画像の操作
+待选图	No image selected	画像未選択
+更多成图操作与导演工具	More image actions and director tools	その他の画像操作とディレクターツール
+更多	More	その他
+更多成图操作	More image actions	その他の画像操作
+准备中	Preparing	準備中
+请先生成或选择一张作品。	Generate or select a work first.	先に作品を生成するか選択してください。
+应用后可更改参数。	You can change settings after applying.	適用後にパラメーターを変更できます。
+标准价估算	Standard estimate	標準価格の見積もり
+连接账户后按权益更新。	Updates for your plan once connected.	接続後にアカウントの特典で更新します。
+当前任务正在处理。	A task is in progress.	現在のタスクを処理中です。
+正在准备底图。	Preparing the base image.	ベース画像を準備中です。
+不可用	Unavailable	利用不可
+所选作品已更换，请重新选择操作。	The selected work changed; choose the action again.	選択中の作品が変わりました。操作を選び直してください。
+已载入	Loaded	読み込みました：
+设置。	settings.	の設定。
+下一张	Next	次の一枚
+配方札记	Recipe notes	レシピノート
+采样	Sampling	サンプリング
+提示词札记	Prompt notes	プロンプトノート
+收起札记	Hide notes	ノートを閉じる
+复制提示词	Copy prompt	プロンプトをコピー
+已复制这张作品的正向提示词	Copied this work’s positive prompt	この作品のポジティブプロンプトをコピーしました
+未能访问剪贴板，可展开札记后选择复制。	Couldn’t access the clipboard; open the notes and copy manually.	クリップボードにアクセスできません。ノートを開いて選択コピーしてください。
+复用配方	Reuse recipe	レシピを再利用
+配方暂时无法载入	The recipe can’t be loaded right now	レシピを読み込めません
+沿用种子	Reuse seed	シードを引き継ぐ
+滚轮缩放	Scroll to zoom	ホイールで拡大縮小
+沉浸查看	Immersive view	没入表示
+当前作品	Current work	現在の作品
+本次生成	This generation	今回の生成
+将	Set	次を
+设为下一次生成的种子	as the next generation’s seed	次回の生成のシードに設定
+未记录正向提示词	No positive prompt recorded	ポジティブプロンプトの記録なし
+未记录负面提示词	No negative prompt recorded	ネガティブプロンプトの記録なし
+返回生成现场	Back to the live generation	生成中の画面に戻る
+新作已完成	New image ready	新作が完成しました
+查看	View	表示
+当前生成任务进度	Generation progress	現在の生成の進行状況
+已回传的采样步骤	Steps received	受信したサンプリングステップ
+显影完成	Developed	現像完了
+后台任务已完成	Background task done	バックグラウンドのタスクが完了
+后台生成	Background	バックグラウンド生成
+正在显影	Developing	現像中
+新作已就绪	New image ready	新作の準備ができました
+流式回传	Streaming	ストリーミング
+标准输出	Standard	標準出力
+准备任务	Preparing	タスクを準備中
+回传步骤	Steps	受信ステップ
+采样步骤	Sampling steps	サンプリングステップ
+等待成图	Waiting for image	画像を待っています
+已收到预览	Preview received	プレビューを受信
+步数未提供	Steps not reported	ステップ数の報告なし
+等待首帧	Waiting for first frame	最初のフレームを待っています
+等待完整图像	Waiting for full image	完成画像を待っています
+等待连接	Connecting	接続を待っています
+适应画布并复位	Fit and reset	キャンバスに合わせてリセット
+适应	Fit	合わせる
+按原始像素显示	Actual pixels	原寸で表示
+缩小	Zoom out	縮小
+放大	Zoom in	拡大
+滚轮或双指缩放，拖动平移。双击查看细节。方向键平移，	Scroll or pinch to zoom, drag to pan, double-click for detail. Arrow keys pan,	ホイールかピンチで拡大縮小、ドラッグで移動、ダブルクリックで詳細。矢印キーで移動、
+适应，	fit,	合わせる、
+原尺寸，	actual size,	原寸、
+查看大图。	large view.	大きく表示。
+图像查看区域	Image viewer	画像表示領域
+图像缩放比例	Image zoom	画像の倍率
+图像查看工具	Viewer tools	画像表示ツール
+图像查看	Image viewer	画像ビューアー
+关闭大图	Close large view	大きな表示を閉じる
+大图查看	Large view	大きく表示
+等待出图	Waiting	出力待ち
+实时预览	Live preview	リアルタイムプレビュー
+图像预览不可用	Preview unavailable	プレビューを表示できません
+无法解码预览图像。	Cannot decode the preview image.	プレビュー画像をデコードできません。
+确认删除此作品，按	Confirm deleting this work; press	この作品の削除を確定。
+再次点击删除	Click again to delete	もう一度クリックで削除
+氛围	Vibe	雰囲気
+角色参考	Character reference	キャラクター参照
+风格参考	Style reference	スタイル参照
+角色与风格	Character & style	キャラクターとスタイル
+竖幅	Portrait	縦長
+横幅	Landscape	横長
+方形	Square	正方形
+平静	Neutral	平静
+开心	Happy	うれしい
+悲伤	Sad	悲しい
+生气	Angry	怒り
+害怕	Scared	怖い
+惊讶	Surprised	驚き
+疲惫	Tired	疲れ
+兴奋	Excited	興奮
+紧张	Nervous	緊張
+思考	Thinking	考え中
+困惑	Confused	困惑
+害羞	Shy	照れ
+厌恶	Disgusted	嫌悪
+得意	Smug	得意げ
+无聊	Bored	退屈
+大笑	Laughing	大笑い
+烦躁	Irritated	いらいら
+激动	Aroused	高ぶり
+尴尬	Embarrassed	気まずい
+担心	Worried	心配
+爱慕	Love	好意
+坚定	Determined	決意
+受伤	Hurt	傷ついた
+俏皮	Playful	いたずらっぽい
+工作模式	Mode	作業モード
+生成模型	Model	生成モデル
+没有方形预设	No square preset	正方形のプリセットなし
+图像设置	Image settings	画像設定
+画幅尺寸预设	Size preset	サイズのプリセット
+画幅方向	Orientation	向き
+自定义画幅	Custom size	カスタムサイズ
+步进	Step	刻み
+仅支持标准生成	Standard generation only	標準生成のみ対応
+此模式仅支持标准输出	This mode supports standard output only	このモードは標準出力のみ対応
+逐步显示去噪过程	Show denoising step by step	ノイズ除去の過程を順に表示
+流式预览	Streaming preview	ストリーミングプレビュー
+采样参数	Sampling	サンプリング設定
+采样步数	Steps	サンプリングステップ
+提示词引导	Prompt guidance	プロンプトガイダンス
+引导重缩放	Guidance rescale	ガイダンスのリスケール
+掷骰	Roll	サイコロ
+轻量	Light	軽量
+人物优先	Figure first	人物優先
+优先	first	優先
+采样增强	Sampling boost	サンプリング強化
+自动	Auto	自動
+固定使用	Always uses	常に使用：
+与	and	と
+负面预设。	negative preset.	ネガティブプリセット。
+多样性增强	Variety boost	多様性強化
+去过锐	Decrisp	過度なシャープを抑制
+旧版负面词行为	Legacy negative behavior	旧版のネガティブ挙動
+角色名称、外观、动作…	Character name, look, action…	キャラクター名・外見・動作…
+角色负面词	Character negatives	キャラクターのネガティブ
+此角色需要避开的元素	Things this character should avoid	このキャラクターで避ける要素
+点选角色	Select character	キャラクターを選択
+横向位置	Horizontal position	横の位置
+纵向位置	Vertical position	縦の位置
+启用此角色	Enable this character	このキャラクターを有効化
+多角色构图	Multi-character	複数キャラクターの構図
+指定角色在画面中的位置	Set character positions in the image	画面内のキャラクター位置を指定
+范围	range	範囲
+；原点在画面左上角。	; the origin is the top-left corner.	。原点は画面の左上です。
+在两个以上角色时启用	With two or more characters, enable	2人以上のときに次を有効化：
+网格定位。	grid positions.	グリッド配置。
+添加独立角色	Add character	キャラクターを追加
+启用	Enable	有効化
+参考强度	Strength	参照の強さ
+提取信息量	Information extracted	抽出する情報量
+忠实度	Fidelity	忠実度
+修改参考蒙版	Edit reference mask	参照マスクを修正
+绘制参考蒙版	Paint reference mask	参照マスクを描く
+裁至选区	Crop to selection	選択範囲に切り抜く
+整张参考	Whole image	画像全体を参照
+当前模型已编码	Encoded for this model	現在のモデル用にエンコード済み
+生成前需完成编码	Needs encoding before generating	生成前にエンコードが必要
+导出	Export	書き出す
+编码	Encode	エンコード
+图像参考	Image references	画像参照
+未添加	None	未追加
+参考类型	Reference type	参照の種類
+导入参考	Import reference	参照を取り込む
+当前模型或模式没有可用的图像参考。切换至	No image references for this model or mode. Switch to	現在のモデルまたはモードでは画像参照を使えません。次に切り替えてください：
+文生图可使用	text-to-image to use	のテキストから画像で使用可能：
+和精确参考。	and precise reference.	と精密参照。
+可导入	You can import	取り込み可能：
+或图片。首次编码每张	or images. First encoding costs, per image,	または画像。初回エンコードは1枚あたり
+的参考图。	reference images.	の参照画像。
+精确参考每张每次额外	Precise reference adds per image per run	精密参照は1枚・1回ごとに追加で
+，可与局部重绘同时使用。	, and works with inpainting.	。部分再描画と同時に使えます。
+将多张	Normalize the combined strength of multiple	複数の次の強さの合計を正規化：
+的强度合计归一化		の強さを合計で正規化
+修改重绘蒙版	Edit inpaint mask	再描画マスクを修正
+绘制重绘蒙版	Paint inpaint mask	再描画マスクを描く
+向外扩展	Outpaint	外側に拡張
+聚焦重绘	Focused inpaint	フォーカス再描画
+放大蒙版区域，生成后贴回原图	Enlarge the masked area, then paste it back	マスク領域を拡大して生成し、元の画像に戻します
+图像增强	Enhance	画像強化
+图像处理	Image tools	画像処理
+目标表情	Target expression	目標の表情
+削弱原图色彩	Defry	元画像の色を抑える
+补充说明	Notes	補足説明
+配色或表情细节	Colors or expression details	配色や表情の詳細
+替换底图	Replace base image	ベース画像を差し替え
+导入底图	Import base image	ベース画像を取り込む
+超分输出	Upscale output	アップスケール出力
+导演工具输出	Director tool output	ディレクターツールの出力
+先导入一张底图	Import a base image first	先にベース画像を取り込んでください
+无法识别生成参数。	Cannot read the generation settings.	生成パラメーターを認識できません。
+配方底图	Recipe base image	レシピのベース画像
+参考图	Reference image	参照画像
+请选择有效的图像编辑模式。	Choose a valid image edit mode.	有効な画像編集モードを選択してください。
+未知生成模式。	Unknown generation mode.	不明な生成モードです。
+最多可导入	You can import up to	取り込みの上限：
+张参考。	references.	枚の参照。
+接口没有返回	The API did not return	APIから次が返されませんでした：
+编码已缓存，重新导入相同图片即可复用	Encoding cached; re-import the same image to reuse it	エンコードをキャッシュしました。同じ画像を取り込めば再利用できます
+已编码，浏览器缓存不可用，请导出以便复用	Encoded, but the browser cache is unavailable; export it to reuse	エンコード済みですが、ブラウザーのキャッシュが使えません。再利用するには書き出してください
+上一项生成仍在进行。	The previous generation is still running.	前の生成がまだ進行中です。
+接口响应没有包含最终图像。	The API response had no final image.	API応答に最終画像が含まれていません。
+先为素材添加一张图片。	Add an image to the material first.	先に素材に画像を追加してください。
+这个条目尚未绑定词块，请编辑后保存。	This entry isn’t linked to a block; edit and save it.	この項目はブロックに関連付けられていません。編集して保存してください。
+已作为图生图底图	Set as the image-to-image base	画像から画像のベースに設定しました
+已引用「	Using “	引用しました「
+本地线索暂时无法读取，现有作品仍可使用。	Local lineage can’t be read now; existing works are still usable.	ローカルの系譜を読み込めませんが、既存の作品は使えます。
+已复用选中的	Reused the selected	選択した次を再利用しました：
+底图或参考图未能存入浏览器，可从「配方」导出备份。	The base or reference image couldn’t be stored in the browser; export a backup from Recipe.	ベース画像や参照画像をブラウザーに保存できませんでした。「レシピ」からバックアップを書き出せます。
+对话	Chat	対話
+官方参考	Official reference	公式参考
+实验室暂时无法打开。	The Lab can’t open right now.	ラボを開けません。
+当前模型不支持多角色，请先切换到	This model doesn’t support multiple characters; switch to	現在のモデルは複数キャラクターに非対応です。次に切り替えてください：
+个角色，请先移除一个角色。	characters; remove one first.	人です。先に1人削除してください。
+」加入角色	” to characters	」をキャラクターに追加
+提示词刚刚发生了变化，请完成编辑后重试。	The prompt just changed; finish editing and retry.	プロンプトが変更されました。編集を終えてから再試行してください。
+图像变体	Variations	画像バリエーション
+已删除	Deleted	削除しました
+删除失败，图片仍保留在历史中。	Delete failed; the image is still in History.	削除に失敗しました。画像は履歴に残っています。
+已恢复	Restored	復元しました
+张作品与配方	works and recipes	件の作品とレシピ
+恢复失败，可以再次点击撤销。	Restore failed; click Undo again.	復元に失敗しました。もう一度「元に戻す」をクリックしてください。
+作品已隐藏	Work hidden	作品は非表示です
+暂无记录	No records yet	記録なし
+查看图片线索	View lineage	画像の系譜を表示
+删除作品	Delete work	作品を削除
+可撤销	Can undo	元に戻せます
+预览已隐藏	Preview hidden	プレビューは非表示です
+等待显影	Waiting to develop	現像待ち
+中间预览	Intermediate preview	途中のプレビュー
+生成结果	Result	生成結果
+同分按原顺序	Ties keep their order	同点は元の順序
+张匹配	matches	件一致
+打开设置	Open settings	設定を開く
+返回工作台	Back to studio	ワークベンチに戻る
+关闭设置中的「隐藏	Turn off “Hide	設定の「非表示
+」即可查看。	” in Settings to view.	」をオフにすると表示されます。
+没有找到匹配的作品，试试更短的提示词或标签。	No matching works. Try a shorter prompt or tag.	一致する作品はありません。短いプロンプトやタグで試してください。
+第一张生成图会出现在这里。作品和配方保存在当前浏览器。	Your first image appears here. Works and recipes are saved in this browser.	最初に生成した画像がここに表示されます。作品とレシピはこのブラウザーに保存されます。
+作品操作	Work actions	作品の操作
+成人内容	Adult content	成人向けコンテンツ
+样本	Sample	サンプル
+正在生成	Generating	生成中
+画布上还有一项生成任务，请等它完成后再发送。	A generation is still running on the canvas; wait for it to finish before sending.	キャンバスで生成が進行中です。完了してから送信してください。
+万象集暂时无法读取，本次仍可生成，但不会自动记录例图。	Atlas can’t be read now; you can still generate, but examples won’t be recorded.	万象集を読み込めません。生成はできますが、例図は自動記録されません。
+处理中…	Processing…	処理中…
+正在处理	Processing	処理中
+已等待	Waited	待機時間
+秒	s	秒
+正在处理…	Processing…	処理中…
+未收到图像，请检查接口响应。	No image received; check the API response.	画像を受信していません。API応答を確認してください。
+本地角色索引暂不可用，本次仍保留	The local character index is unavailable; this run still keeps	ローカルのキャラクター索引は利用できませんが、今回は次を保持します：
+与生成来源线索。	and its generation lineage.	と生成元の系譜。
+作品已按设置隐藏	Work hidden by your settings	設定により作品を非表示にしました
+新图已完成	New image ready	新しい画像が完成しました
+点击历史首图或「查看新作」即可查看	Click the first History image or “View” to see it	履歴の先頭の画像か「表示」をクリックして確認できます
+作品已生成，但例图未能保存到万象集。	Generated, but the example couldn’t be saved to Atlas.	生成しましたが、例図を万象集に保存できませんでした。
+张作品已存入本地作品集。	works saved to the local archive.	件の作品をローカル作品集に保存しました。
+已生成，但浏览器存储空间不足。请下载本次结果。	Generated, but browser storage is full. Please download this result.	生成しましたが、ブラウザーの保存容量が不足しています。結果をダウンロードしてください。
+图像已生成，当前内容设置已隐藏预览。	Image generated; your content settings hide the preview.	画像を生成しました。現在のコンテンツ設定によりプレビューは非表示です。
+已停止等待。本次任务的计费以所用服务的账户记录为准。	Stopped waiting. Any charge follows your service’s account records.	待機を停止しました。今回の課金は利用サービスのアカウント記録に準じます。
+生成请求失败。	Generation request failed.	生成リクエストに失敗しました。
+切换至浅色界面	Switch to light	ライトに切り替え
+切换至深色界面	Switch to dark	ダークに切り替え
+浅色纸面	Light paper	ライト
+深色纸面	Dark paper	ダーク
+正在进行	In progress:	実行中：
+超分放大，完成后自动存入作品集…	upscaling; it saves to the archive when done…	アップスケール中。完了後に作品集へ自動保存します…
+流式传输中，正在等待首帧…	Streaming, waiting for the first frame…	ストリーミング中。最初のフレームを待っています…
+标准传输中，正在等待最终图像…	Waiting for the final image…	最終画像を待っています…
+下一次生成将沿用种子	The next generation reuses seed	次回の生成はこのシードを引き継ぎます：
+上次草稿无法完整恢复，可导入备份配方。	The last draft couldn’t be fully restored; import a backup recipe.	前回の下書きを完全には復元できません。バックアップのレシピを取り込んでください。
+这张成图已移除，或已被内容设置隐藏。	This image was removed or is hidden by content settings.	この画像は削除されたか、コンテンツ設定で非表示です。
+这张作品已移除，或已被内容设置隐藏。	This work was removed or is hidden by content settings.	この作品は削除されたか、コンテンツ設定で非表示です。
+未能打开，请重新启动桌面版。	couldn’t open; restart the desktop app.	を開けませんでした。デスクトップ版を再起動してください。
+已将画布送入图生图	Canvas sent to image-to-image	キャンバスを画像から画像へ送りました
+导出内容以当前编辑参数为准	Exports use the current settings	書き出しは現在の編集パラメーターに準じます
+配方文件超过	The recipe file exceeds	レシピファイルが次を超えています：
+请选择由	Choose a recipe exported by	次で書き出した
+导出的		書き出した
+配方。	recipe.	レシピを選択してください。
+未找到可读取的	No readable	読み取れる次が見つかりません：
+生成参数。	generation settings found.	生成パラメーター。
+配方读取失败。	Could not read the recipe.	レシピの読み込みに失敗しました。
+本地作品集暂时无法读取	The local archive can’t be read right now	ローカル作品集を読み込めません
+已隐藏凭据	Credentials hidden	認証情報を非表示
+已省略二进制数据	Binary data omitted	バイナリデータを省略
+已取消	Cancelled	キャンセルしました
+工具未完成	Tool did not finish	ツールが完了しませんでした
+操作未完成，请再试一次。	That didn’t finish. Please try again.	操作が完了しませんでした。もう一度お試しください。
+服务返回	The service returned	サービスの応答：
+请选择有效的生图模型和采样器。	Choose a valid image model and sampler.	有効な画像モデルとサンプラーを選択してください。
+宽、高须为	Width and height must be multiples of	幅と高さは次の倍数にしてください：
+的倍数，合计最多	, totalling at most	、合計で最大
+像素。	pixels.	画素。
+采样步数范围为	Steps must be between	ステップ数の範囲は
+范围为	must be between	の範囲は
+种子须为	Seed must be	シードは
+的整数，留空即可随机。	as a whole number; leave empty for random.	の整数にしてください。空欄ならランダムです。
+生图设置	Image settings	画像生成設定
+专用	Dedicated	専用
+跟随工作台	Follow studio	ワークベンチに従う
+应用到	Apply to	適用先：
+恢复跟随工作台	Follow studio again	ワークベンチに従う設定に戻す
+未能更新本机设置，请重试。	Couldn’t update local settings. Please retry.	ローカル設定を更新できませんでした。再試行してください。
+尺寸预设	Size preset	サイズのプリセット
+当前使用本机保存的	Currently using the saved	現在は保存済みの次を使用：
+生图设置。	image settings.	画像生成設定。
+当前跟随工作台。应用后，	Currently following the studio. After applying,	現在はワークベンチに従っています。適用後、
+将使用这里的设置。	will use these settings.	はここの設定を使います。
+未能保存生图设置。	Couldn’t save image settings.	画像生成設定を保存できませんでした。
+本次回复所有模型请求的输入与输出总计	Total input and output across all model requests in this reply	この返信のすべてのモデルリクエストの入力・出力の合計
+（输入	(input	（入力
+，输出	, output	、出力
+此回复没有完整的	This reply has no complete	この返信には完全な次がありません：
+用量记录	usage record	使用量の記録
+此回复没有生成速度记录	No speed record for this reply	この返信には生成速度の記録がありません
+每秒输出	Output	1秒あたりの出力
+数，按模型请求耗时估算	per second, estimated from request time	数。リクエスト時間から推定
+数，按模型报告的生成耗时计算	per second, from the model’s reported generation time	数。モデルが報告した生成時間から算出
+重新生成回复	Regenerate reply	返信を再生成
+从这里重新生成，后续消息保存在原对话	Regenerate from here; later messages stay in the original chat	ここから再生成します。以降のメッセージは元の対話に保存されます
+重新生成这条回复	Regenerate this reply	この返信を再生成
+将按当前生图设置重新出图	images use the current image settings	現在の画像生成設定で再出力します
+复制回复	Copy reply	返信をコピー
+已复制回复	Reply copied	返信をコピーしました
+无法写入剪贴板，可以选中回复文字复制。	Couldn’t write to the clipboard; select the reply text to copy it.	クリップボードに書き込めません。返信の文字を選択してコピーしてください。
+桌面	Desktop	デスクトップ
+请求失败。	request failed.	リクエストに失敗しました。
+提示词字段包含未授权的词块、角色分隔符或超长文本。	The prompt contains an unauthorized block, character separator or overly long text.	プロンプトに許可されていないブロック、キャラクター区切り、または長すぎるテキストが含まれています。
+需要明确是否生图，并提供角色列表。	Must say whether to render and provide the character list.	画像を生成するかどうかを明示し、キャラクター一覧を指定する必要があります。
+角色数超过当前模型支持的上限。	Too many characters for this model.	キャラクター数が現在のモデルの上限を超えています。
+场景提示词不能为空。	The scene prompt can’t be empty.	シーンのプロンプトは空にできません。
+请先搜索该角色，再使用图鉴返回的	Search for the character first, then use the catalog’s	先にキャラクターを検索し、図鑑が返す次を使用してください：
+角色提示词不能为空。	The character prompt can’t be empty.	キャラクタープロンプトは空にできません。
+（超出	(over by	（超過
+提示词超出容量：	prompt exceeds capacity:	プロンプトが容量を超えています：
+词块快照不可用，请重新选择。	The block snapshot is unavailable; select again.	ブロックのスナップショットが使えません。選び直してください。
+选中的词块为空，请重新选择。	The selected block is empty; select again.	選択したブロックが空です。選び直してください。
+正在核算提示词预算…	Checking the prompt budget…	プロンプト予算を確認中…
+部分插件未能加载	Some plugins failed to load	一部のプラグインを読み込めませんでした
+正在按预算精简提示词…	Trimming the prompt to budget…	予算に合わせてプロンプトを調整中…
+正在整理检索结果…	Organizing search results…	検索結果を整理中…
+正在构思画面…	Imagining the scene…	画面を構想中…
+模型没有返回修订后的配方。	The model didn’t return a revised recipe.	モデルが修正後のレシピを返しませんでした。
+模型返回了空白回复，请检查模型或切换接口协议。	The model returned an empty reply; check the model or switch protocols.	モデルが空の返信を返しました。モデルを確認するか、プロトコルを切り替えてください。
+使用固定负面词。请切换到	uses fixed negatives. Switch to	は固定ネガティブを使用します。次に切り替えてから
+，再用这份锁定配方生成。	, then generate with this locked recipe.	、このロック済みレシピで生成してください。
+请保留此前的	Keep the earlier	以前の次を保持し、
+选项，仅修改超限提示词。	options and only revise the prompts over the limit.	オプションはそのまま、上限を超えたプロンプトだけ修正してください。
+仅锁定词块和固定预设就已超限，请调整词块、预设或生图模型后重试。	Locked blocks and fixed presets alone exceed the limit; adjust blocks, presets or the image model and retry.	ロックしたブロックと固定プリセットだけで上限を超えています。ブロック・プリセット・画像モデルを調整して再試行してください。
+此次配方经两次修订仍超限。	The recipe is still over the limit after two revisions.	このレシピは2回修正しても上限を超えています。
+提示词已整理好。	Prompt ready.	プロンプトの準備ができました。
+已交给	Handed to	次に送信しました：
+，正在生成…	, generating…	、生成中…
+正在查看本次成图…	Looking at the result…	今回の画像を確認中…
+模型没有返回看图意见。	The model returned no image review.	モデルが画像の感想を返しませんでした。
+图像已生成。	Image generated.	画像を生成しました。
+成图已保存。看图未完成：	Image saved. Review didn’t finish:	画像を保存しました。確認は完了しませんでした：
+请输入名称和检索类别。	Enter a name and a search category.	名前と検索カテゴリを入力してください。
+已锁定画风，请使用现有词块。	The style is locked; use the existing blocks.	画風はロックされています。既存のブロックを使ってください。
+查找「	Search “	検索「
+个人	people	人
+未启用该工具。	This tool is not enabled.	このツールは有効になっていません。
+调用	Called	呼び出し
+这轮检索到达上限。可以缩小角色范围再继续。	This round hit the search limit. Narrow the characters and continue.	このラウンドの検索上限に達しました。キャラクターを絞って続けてください。
+联网检索	Web search	ウェブ検索
+允许	Allow	許可：
+搜索和读取网页	to search and read web pages	がウェブを検索・閲覧
+自动选择已有	Automatically use an existing	既存の次を自動で選択：
+此前选择的连接已移除	The previously chosen connection was removed	以前選択した接続は削除されました
+就绪	Ready	準備完了
+待配置	Needs setup	設定待ち
+已关闭	Off	オフ
+在「模型连接」中添加官方	Add an official	「モデル接続」で公式の
+连接并填入密钥，即可用于网页检索。	connection with a key in Model connections to enable web search.	接続を追加してキーを入力すると、ウェブ検索に使えます。
+复用该连接的密钥。搜索和网页抓取由	Reuses that connection’s key. Search and fetching are billed per call by	その接続のキーを再利用します。検索とページ取得は次の呼び出しごとに課金：
+按调用计费。	.	。
+检索连接	Search connection	検索用の接続
+设置分类	Settings sections	設定の分類
+模型连接	Model connections	モデル接続
+技能与工具	Skills and tools	スキルとツール
+正在读取支持的接口…	Loading supported APIs…	対応APIを読み込み中…
+重新读取接口	Reload APIs	APIを再読み込み
+服务没有返回可用接口。	The service returned no usable APIs.	サービスが利用可能なAPIを返しませんでした。
+选择已有模型连接	Choose a model connection	既存のモデル接続を選択
+使用中	In use	使用中
+新连接	New connection	新しい接続
+添加模型连接	Add model connection	モデル接続を追加
+例如：日常创作	e.g. Everyday	例：日常の創作
+本地服务可以留空	Can be empty for local services	ローカルサービスは空欄で構いません
+输入模型	Enter a model	モデルを入力
+，或从服务商拉取	, or fetch from the provider	、またはプロバイダーから取得
+在这台设备保存此密钥	Save this key on this device	この端末にキーを保存
+使用文本工具协议（兼容无函数调用的模型）	Use text tool protocol (for models without function calling)	テキストツールプロトコルを使用（関数呼び出し非対応のモデル向け）
+拉取模型	Fetch models	モデルを取得
+未返回模型，可以手动填写模型	No models returned; enter one manually	モデルが返されませんでした。手動で入力してください
+筛选	Filter	絞り込み
+个模型	models	件のモデル
+筛选模型	Filter models	モデルを絞り込む
+选择拉取到的模型	Choose a fetched model	取得したモデルを選択
+选一个模型	Pick a model	モデルを選ぶ
+没有匹配的模型	No matching models	一致するモデルはありません
+已读取	Loaded	読み込み済み：
+个模型。	models.	件のモデル。
+检测连接	Test connection	接続をテスト
+请先填写或选择要检测的模型。	Enter or choose a model to test first.	先にテストするモデルを入力または選択してください。
+模型未能完成连接检测。	The model didn’t pass the connection test.	モデルの接続テストが完了しませんでした。
+连接成功	Connected	接続に成功
+请填写或选择模型	Enter or choose a model	モデルを入力または選択してください
+删除连接	Delete connection	接続を削除
+确认删除连接	Confirm delete	接続の削除を確定
+连接名称与协议	Name and protocol	接続名とプロトコル
+连接名称	Connection name	接続名
+协议	Protocol	プロトコル
+服务商	Provider	プロバイダー
+生图账户	Image account	画像生成アカウント
+每行一个	One per line:	1行に1つ：
+或技能目录的完整路径	or full path to a skills folder	またはスキルフォルダーのフルパス
+每行一个本地扩展路径	One local extension path per line	1行に1つのローカル拡張パス
+服务名称	Service name	サービス名
+配置需要是有效的	Configuration must be valid	設定は有効な次である必要があります：
+，请检查逗号和引号。	; check commas and quotes.	。カンマと引用符を確認してください。
+配置应按服务名称填写。	Configuration must be keyed by service name.	設定はサービス名ごとに記入してください。
+读取技能与工具	Load skills and tools	スキルとツールを読み込む
+可用技能	Available skills	利用可能なスキル
+可用工具	Available tools	利用可能なツール
+无法加载	Can’t load	読み込めません
+已读取当前配置。	Current configuration loaded.	現在の設定を読み込みました。
+部分配置需要检查。	Some settings need checking.	一部の設定を確認する必要があります。
+当前配置没有提供技能或工具。	The current configuration provides no skills or tools.	現在の設定にはスキルやツールがありません。
+保存配置	Save configuration	設定を保存
+已保存，将在下一条消息中使用。	Saved; used from the next message.	保存しました。次のメッセージから使用されます。
+文件或目录	Files or folders	ファイルまたはフォルダー
+工具扩展	Tool extensions	ツール拡張
+服务	Service	サービス
+本地扩展和	Local extensions and	ローカル拡張と
+服务可以运行代码。只添加你信任的文件或服务。	services can run code. Only add files or services you trust.	サービスはコードを実行できます。信頼できるファイルやサービスだけを追加してください。
+无法保存到本地工作区。	Couldn’t save to the local workspace.	ローカルのワークスペースに保存できません。
+这张成图已移除或隐藏，无法交给模型查看。	This image was removed or hidden and can’t be shown to the model.	この画像は削除または非表示のため、モデルに渡せません。
+工作台负面提示词	Studio negative prompt	ワークベンチのネガティブプロンプト
+执行中	Running	実行中
+已跳过	Skipped	スキップ
+未记录返回	No result recorded	戻り値の記録なし
+未能写入剪贴板，可选中下方文本复制。	Couldn’t write to the clipboard; select the text below to copy.	クリップボードに書き込めません。下のテキストを選択してコピーしてください。
+已截取	Truncated	切り詰め済み
+返回	Result	戻り値
+工具调用	Tool calls	ツール呼び出し
+轮	round	ラウンド
+次	×	回
+图片。	images.	画像。
+请选择小于	Choose an image smaller than	次より小さい画像を選択してください：
+的图片。	.	。
+图片无法解码，请重新选择。	The image can’t be decoded; choose another.	画像をデコードできません。選び直してください。
+当前设备无法读取图片像素。	This device can’t read the image pixels.	この端末では画像の画素を読み込めません。
+图片无法转换为可发送的预览，请缩小图片后重试。	The image can’t be converted for sending; resize it and retry.	画像を送信用のプレビューに変換できません。縮小して再試行してください。
+图片	Image	画像
+附图	Attach image	画像を添付
+发送图片到当前对话模型	Send images to the chat model	画像を現在の対話モデルに送信
+也可直接粘贴	You can also paste	直接貼り付けもできます
+生成后看图	Review after generating	生成後に画像を確認
+看上次成图	Review last image	前回の画像を確認
+本轮会把最近一张成图发送给当前对话模型，点击取消	This turn sends the latest image to the chat model; click to cancel	このターンで最新の画像を対話モデルに送信します。クリックでキャンセル
+本轮生成成功后，把成图交给当前对话模型查看	After this turn generates, show the image to the chat model	このターンの生成に成功したら、画像を対話モデルに確認させます
+每条消息最多附	Each message can attach up to	1件のメッセージに添付できるのは最大
+张图。	images.	枚です。
+粘贴的图片	Pasted image	貼り付けた画像
+这张成图已附在输入框中。	This image is attached to the message.	この画像を入力欄に添付しました。
+新对话	New chat	新しい対話
+连接模型	Connect a model	モデルを接続
+低	Low	低
+中	Medium	中
+高	High	高
+最大	Max	最大
+超高	Very high	超高
+今天	Today	今日
+昨天	Yesterday	昨日
+生图配方	Image recipe	画像レシピ
+已锁定	Locked	ロック済み
+创作对话	Chats	創作の対話
+历史对话	Chat history	対話の履歴
+新建对话	New chat	新しい対話
+返回对话	Back to chat	対話に戻る
+重命名对话	Rename chat	対話の名前を変更
+对话名称	Chat name	対話の名前
+保存名称	Save name	名前を保存
+取消改名	Cancel rename	名前の変更をキャンセル
+删除对话	Delete chat	対話を削除
+删除这段对话？	Delete this chat?	この対話を削除しますか？
+请先停止这条对话中的任务。	Stop this chat’s task first.	先にこの対話のタスクを停止してください。
+锁定提示词块	Lock prompt blocks	プロンプトブロックをロック
+搜索名称、分组或提示词	Search name, group or prompt	名前・グループ・プロンプトで検索
+搜索词块	Search blocks	ブロックを検索
+词块锁定位置	Block lock position	ブロックのロック位置
+查看锁定的负面提示词	View locked negative prompt	ロックしたネガティブプロンプトを表示
+锁定工作台当前负面	Lock the studio’s current negative	ワークベンチの現在のネガティブをロック
+工作台还没有可以锁定的负面提示词。	The studio has no negative prompt to lock yet.	ワークベンチにロックできるネガティブプロンプトはまだありません。
+应用到对话	Apply to chat	対話に適用
+锁定后，整张图只使用这里的负面词。角色栏也不会额外添加负面词。	Once locked, the image uses only these negatives; character slots add none.	ロック後は、画像全体でここのネガティブだけを使います。キャラクター欄からは追加されません。
+选中的词块会逐字保留在这段对话的正向提示词里。	Selected blocks stay word for word in this chat’s positive prompt.	選択したブロックは、この対話のポジティブプロンプトに一字一句そのまま残ります。
+没有匹配的词块。	No matching blocks.	一致するブロックはありません。
+词块库里还没有可锁定的提示词。	The block library has nothing to lock yet.	ブロックライブラリにロックできるプロンプトはまだありません。
+切换模型连接	Switch model connection	モデル接続を切り替え
+管理模型连接	Manage model connections	モデル接続を管理
+思考强度	Thinking effort	思考の強さ
+描述你想画的画面…	Describe what you want to draw…	描きたい画面を説明してください…
+给	Message	メッセージ：
+发消息		へ送信
+发送，	to send,	で送信、
+换行	for a new line	で改行
+锁定词块	Lock blocks	ブロックをロック
+选择语言模型	Choose a language model	言語モデルを選択
+发送消息	Send message	メッセージを送信
+停止本次任务	Stop this task	このタスクを停止
+另一段对话正在运行	Another chat is running	別の対話を実行中です
+配置语言模型	Set up a language model	言語モデルを設定
+当前模型使用默认思考强度	This model uses its default thinking effort	現在のモデルは標準の思考の強さを使います
+选择语言模型后可设置思考强度	Choose a language model to set thinking effort	言語モデルを選ぶと思考の強さを設定できます
+解除	Unlock	解除
+锁定	Lock	ロック
+，已选	, selected	、選択済み：
+想画些什么？	What shall we draw?	何を描きましょう？
+描述一个画面，或先锁定你常用的画风。	Describe a scene, or lock your usual style first.	画面を説明するか、先にいつもの画風をロックしましょう。
+画一处场景	Draw a scene	シーンを描く
+画一幅雨后的街角，路面映着刚亮起的暖色橱窗。	Draw a street corner after rain, the road reflecting shop windows just lit in warm tones.	雨上がりの街角を描いて。路面に灯ったばかりの暖かなショーウィンドウが映り込む。
+让两位角色同框	Put two characters together	2人のキャラクターを同じ画面に
+画一张两位角色同框的插画，左边的人物是……，右边的人物是……	Draw an illustration of two characters together: on the left is…, on the right is…	2人のキャラクターが並ぶイラストを描いて。左の人物は……、右の人物は……
+思考中…	Thinking…	考え中…
+处理失败	Failed	処理に失敗
+已中断	Interrupted	中断しました
+查看成图	View image	画像を表示
+在画布中查看成图	View image on canvas	キャンバスで画像を表示
+这张成图已从作品集中移除。	This image was removed from the archive.	この画像は作品集から削除されました。
+附上成图	Attach image	画像を添付
+对话成图	Chat image	対話の画像
+这次对话尚未写入最终回复。	This chat has no final reply yet.	この対話にはまだ最終的な返信がありません。
+本次任务已停止。	Task stopped.	今回のタスクを停止しました。
+回复	Reply	返信
+对话记录	Chat transcript	対話の記録
+查看较早的消息	Show earlier messages	以前のメッセージを表示
+请查看附图。	Please look at the attached image.	添付画像を見てください。
+先选择一个用于对话的语言模型。	Choose a language model for chat first.	先に対話に使う言語モデルを選択してください。
+分支	Branch	分岐
+这段对话还没有可查看的成图。	This chat has no images to review yet.	この対話にはまだ確認できる画像がありません。
+最多同时查看	You can review at most	同時に確認できるのは最大
+张图，请先移除一张附件。	images; remove an attachment first.	枚です。先に添付を1つ削除してください。
+上次成图	Last image	前回の画像
+正在连接模型…	Connecting to the model…	モデルに接続中…
+这张成图不属于当前对话，请重新附图。	This image isn’t from this chat; attach it again.	この画像は現在の対話のものではありません。添付し直してください。
+已停止重新生成，已保留原回复。	Regeneration stopped; the original reply is kept.	再生成を停止しました。元の返信は残っています。
+无法打开本机对话记录。	Can’t open the local chat history.	ローカルの対話記録を開けません。
+粘贴	Paste	貼り付け
+中转站地址	Relay URL	中継のアドレス
+密钥保存在这台电脑。检测连接只查询账户状态。	The key is saved on this computer. Testing only checks account status.	キーはこのPCに保存されます。接続テストはアカウント状態の確認のみです。
+已保存，留空沿用当前密钥	Saved; leave empty to keep the current key	保存済み。空欄なら現在のキーを使います
+请填写中转站提供的	Enter the relay’s	中継が提供する次を入力してください：
+地址。	URL.	アドレス。
+请填写当前连接的	Enter this connection’s	この接続の次を入力してください：
+正在查询账户…	Checking account…	アカウントを確認中…
+账户验证失败，请检查地址与密钥。	Account check failed; verify the URL and key.	アカウントの確認に失敗しました。アドレスとキーを確認してください。
+该中转站不提供账户查询，首次生图时会验证密钥。	This relay has no account lookup; the key is checked on first generation.	この中継にはアカウント照会がありません。キーは最初の生成時に確認します。
+账户连接成功。	Account connected.	アカウントに接続しました。
+填写或拉取模型	Enter or fetch a model	モデルを入力または取得
+已拉取的模型	Fetched models	取得したモデル
+读取连接方式…	Loading connection options…	接続方法を読み込み中…
+密钥保存在这台电脑。模型	The key is saved on this computer. Models	キーはこのPCに保存されます。モデル
+可手动填写，也可从服务商拉取。	can be entered by hand or fetched from the provider.	は手動で入力するか、プロバイダーから取得できます。
+按服务商要求填写，可留空	As the provider requires; can be empty	プロバイダーの指定どおり。空欄可
+没有读取到可用的模型服务商。	No model providers were found.	利用可能なモデルプロバイダーが見つかりません。
+模型服务尚未就绪，请返回后重试。	The model service isn’t ready; go back and retry.	モデルサービスの準備ができていません。戻って再試行してください。
+请填写模型接口的地址。	Enter the model API URL.	モデルAPIのアドレスを入力してください。
+请填写服务商的	Enter the provider’s	プロバイダーの次を入力してください：
+正在读取模型列表…	Loading models…	モデル一覧を読み込み中…
+服务商未返回模型，可手动填写模型	The provider returned no models; enter one manually	プロバイダーがモデルを返しませんでした。手動で入力してください
+选择模型	Choose model	モデルを選択
+无法读取首次引导样式。	Can’t load the welcome guide styles.	起動ガイドのスタイルを読み込めません。
+连接图像服务	Connect an image service	画像サービスに接続
+选择官方服务或中转站，连接用于生图的账户。	Choose the official service or a relay, and connect your image account.	公式サービスか中継を選び、画像生成用のアカウントを接続します。
+连接语言模型	Connect a language model	言語モデルに接続
+选择用来对话、查角色和编写提示词的模型。	Choose the model for chatting, looking up characters and writing prompts.	対話・キャラクター検索・プロンプト作成に使うモデルを選びます。
+初始设置进度	Setup progress	初期設定の進行状況
+初始设置	Setup	初期設定
+下一步	Next	次へ
+完成设置	Finish	設定を完了
+暂时跳过	Skip for now	今はスキップ
+上一步	Back	戻る
+请检查连接设置后重试。	Check the connection settings and retry.	接続設定を確認して再試行してください。
+设置完成	Setup complete	設定が完了しました
+已准备就绪	All set	準備ができました
+，用时	, took	、所要時間
+最近对话	Recent chats	最近の対話
+更多…	More…	もっと見る…
+更多...	More...	もっと見る…
+Agent 设置	Agent settings	Agent 設定
+还没有对话	No chats yet	まだ対話はありません
+显示 Folio	Show Folio	Folio を表示
+退出 Folio	Quit Folio	Folio を終了
+Folio 菜单	Folio menu	Folio メニュー
+在顶栏显示用量概览	Show usage summary in the top bar	トップバーに使用量の概要を表示

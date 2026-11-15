@@ -177,8 +177,6 @@ export function mountMetaReuse({ getRecipe, getImageUrl, onApply, notify = () =>
   dialog.setAttribute('aria-labelledby', id);
   const spread = element('div', 'mr-spread');
   const visual = element('aside', 'mr-visual');
-  const edition = element('div', 'mr-edition');
-  edition.append(element('span', '', 'FOLIO / SOURCE'), element('span', 'mr-edition-number', '01'));
   const plate = element('div', 'mr-plate');
   const image = element('img', 'mr-image');
   image.alt = '待复用元数据的原图';
@@ -191,11 +189,10 @@ export function mountMetaReuse({ getRecipe, getImageUrl, onApply, notify = () =>
   );
   plate.append(image, placeholder);
   const imageCaption = element('div', 'mr-image-caption');
-  visual.append(edition, plate, imageCaption);
+  visual.append(plate, imageCaption);
   const sheet = element('section', 'mr-sheet');
   const header = element('header', 'mr-header');
   const titleGroup = element('div');
-  titleGroup.append(element('small', 'mr-kicker', 'SELECT · KEEP · CREATE'));
   const heading = element('h2', '', 'Reuse');
   heading.id = id;
   heading.append(element('i', '', 'the details.'));
@@ -385,8 +382,7 @@ export function mountMetaReuse({ getRecipe, getImageUrl, onApply, notify = () =>
       const mark = element('span', 'mr-checkmark');
       mark.append(glyph('check'));
       const text = element('span', 'mr-field-title', group.title);
-      const eyebrow = element('small', 'mr-field-eyebrow', group.eyebrow);
-      label.append(input, mark, text, eyebrow);
+      label.append(input, mark, text);
       field.append(label, contentFor(group));
       input.addEventListener('change', syncSelection);
       boxes.set(group.id, input);

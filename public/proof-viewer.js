@@ -67,10 +67,9 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
   const dialog = node('dialog', 'pv-dialog'),
     head = node('header', 'pv-dialog-head'),
     title = node('div', 'pv-dialog-title'),
-    quiet = node('small', '', 'FOLIO  /  IMAGE PROOF'),
     name = node('b', '', '图像查看'),
     close = tool('关闭大图', 'Esc', 'close')
-  title.append(quiet, name)
+  title.append(name)
   head.append(title, close)
   dialog.setAttribute('aria-label', '大图查看')
   dialog.append(head)
@@ -651,7 +650,7 @@ export function mountProofViewer(stage, image, { toolbarHost = stage } = {}) {
   })
   function status(state) {
     stamp.textContent =
-      state === 'pending' ? 'AWAITING PROOF' : state === 'stream' ? 'LIVE PROOF' : 'IMAGE PROOF'
+      state === 'pending' ? '等待出图' : state === 'stream' ? '实时预览' : '成图'
     bar.dataset.state = state
     size.textContent = naturalW + ' × ' + naturalH
   }

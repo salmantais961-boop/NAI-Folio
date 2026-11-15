@@ -621,7 +621,7 @@ body > #toast[data-state='out'] {
    Reading disclosures open and close by height. Masonry tiles and the compose
    column measure or animate their own disclosures, so they are left alone.
    ------------------------------------------------------------------------- */
-:is(.syntax-help, .ap-usage, .lc-change-details, .lc-prompt, .mr-parameter-details, .mr-character-details, .pt-legend)::details-content {
+details:not(.compose-panel details, .cat-tag-details)::details-content {
   block-size: 0;
   overflow: clip;
   opacity: 0;
@@ -630,7 +630,7 @@ body > #toast[data-state='out'] {
     opacity 320ms ease,
     content-visibility 460ms allow-discrete;
 }
-:is(.syntax-help, .ap-usage, .lc-change-details, .lc-prompt, .mr-parameter-details, .mr-character-details, .pt-legend)[open]::details-content {
+details:not(.compose-panel details, .cat-tag-details)[open]::details-content {
   block-size: auto;
   opacity: 1;
 }
@@ -698,15 +698,15 @@ html.m-theme-swap *::before,
 html.m-theme-swap *::after {
   transition: none !important;
 }
-html.m-vt-theme::view-transition-old(root),
-html.m-vt-theme::view-transition-new(root) {
+html:is(.m-vt-theme, .m-vt-reveal)::view-transition-old(root),
+html:is(.m-vt-theme, .m-vt-reveal)::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
 }
-html.m-vt-theme::view-transition-old(root) {
+html:is(.m-vt-theme, .m-vt-reveal)::view-transition-old(root) {
   z-index: 1;
 }
-html.m-vt-theme::view-transition-new(root) {
+html:is(.m-vt-theme, .m-vt-reveal)::view-transition-new(root) {
   z-index: 2;
 }
 

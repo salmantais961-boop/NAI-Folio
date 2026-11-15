@@ -192,12 +192,12 @@ export async function editThreeLayer({ width, height, previous, onSave }) {
   dialog.className = 'folio-draw fd-three';
   dialog.setAttribute('aria-label', '三维姿势与模型');
   dialog.innerHTML =
-    '<header><div><small>FOLIO　/　FIGURE STUDY</small><h2>三维形体室</h2></div><button data-3d="close" aria-label="关闭三维形体室">×</button></header>' +
-    '<div class="fd-three-body"><div class="fd-three-stage"></div><aside><small>SUBJECT</small><div class="fd-three-name">木制人偶</div>' +
+    '<header><div><h2>三维形体室</h2></div><button data-3d="close" aria-label="关闭三维形体室">×</button></header>' +
+    '<div class="fd-three-body"><div class="fd-three-stage"></div><aside><div class="fd-three-name">木制人偶</div>' +
     '<button data-3d="glb">导入 GLB</button><input type="file" accept=".glb,model/gltf-binary" hidden>' +
     '<label class="fd-preset">姿态<select aria-label="姿态预设"><option value="idle">自然站立</option><option value="walk">迈步</option><option value="reach">抬手</option><option value="sit">坐姿</option></select></label>' +
-    '<div class="fd-angles"><small>ARTICULATION</small><label>关节<select class="fd-joint" aria-label="三维关节"></select></label></div>' +
-    '<small>CAMERA</small><div class="fd-views"><button data-3d="front">正面</button><button data-3d="side">侧面</button><button data-3d="back">背面</button><button data-3d="home">复位</button></div>' +
+    '<div class="fd-angles"><label>关节<select class="fd-joint" aria-label="三维关节"></select></label></div>' +
+    '<small>视角</small><div class="fd-views"><button data-3d="front">正面</button><button data-3d="side">侧面</button><button data-3d="back">背面</button><button data-3d="home">复位</button></div>' +
     '</aside></div><footer><div><span class="fd-format">3D　/　透视视图</span><p class="fd-hint" role="status">拖动旋转，滚轮缩放，按住 Shift 拖动平移。</p></div>' +
     '<button data-3d="apply" class="fd-apply">应用三维图层 ↗</button></footer>';
   document.body.append(dialog);

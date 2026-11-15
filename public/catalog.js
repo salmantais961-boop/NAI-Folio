@@ -385,7 +385,7 @@ function scheduleSuggestions(input, inspect = false, acceptedTag = '') {
   opening = search;
   async function populate() {
     let result,
-      headingText = 'DANBOORU  /  LOCAL';
+      headingText = '本地标签';
     if (region.related) {
       const exclude = [...new Set(value.split(delimiters).map(usedTag).filter(Boolean))];
       try {
@@ -407,13 +407,13 @@ function scheduleSuggestions(input, inspect = false, acceptedTag = '') {
       }
       const exact = tags.find(row => compact(row[0]) === compact(region.query));
       result = { results: [...(exact ? [exact] : []), ...blocks, ...tags.filter(row => row !== exact)] };
-      headingText = blocks.length ? (tags.length ? '词块与标签' : 'FOLIO  /  PROMPT BLOCKS') : 'DANBOORU  /  LOCAL';
+      headingText = blocks.length ? (tags.length ? '词块与标签' : '词块') : '本地标签';
     } else if (source === 'official') {
       try {
         const rows = await officialTags(region);
         if (rows.length) {
           result = { results: rows };
-          headingText = 'NOVELAI  /  LIVE';
+          headingText = '官方联想';
         } else headingText = '官方无匹配 · 本地联想';
       } catch {
         headingText = '官方暂不可用 · 本地联想';
@@ -660,8 +660,6 @@ function makeTile(row, kind, appearance, select, observe) {
   const cover = node('span', 'cat-tile-image');
   const fallback = node('span', 'cat-missing', item.displayName.slice(0, 1));
   fallback.setAttribute('aria-hidden', 'true');
-  const label = node('span', 'cat-missing-caption', 'VISUAL INDEX');
-  fallback.append(label);
   cover.append(fallback);
   const local = isLocalCover(row[7]) ? new URL(row[7], coverRoot).href : '';
   const remote = !useImported && typeof row[6] === 'string' &&
@@ -816,8 +814,8 @@ export function openCatalog(initialKind, input, options = {}) {
   dialog = view;
   view.setAttribute('aria-labelledby', 'cat-heading');
   view.innerHTML = `
-    <header class="cat-header"><span class="cat-kicker"><i></i> FOLIO &nbsp;/&nbsp; VISUAL INDEX</span><button type="button" class="cat-close" aria-label="关闭图鉴">×</button></header>
-    <div class="cat-heading"><h2 id="cat-heading"></h2><div class="cat-nameplate"><b></b><span>DANBOORU COLLECTION</span></div></div>
+    <header class="cat-header"><button type="button" class="cat-close" aria-label="关闭图鉴">×</button></header>
+    <div class="cat-heading"><h2 id="cat-heading"></h2><div class="cat-nameplate"><b></b></div></div>
     <div class="cat-bar"><div class="cat-switch" aria-label="图鉴分类"><button type="button" data-kind="artist">画师</button><button type="button" data-kind="character">角色</button></div><label class="cat-search"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" autocomplete="off" spellcheck="false" aria-label="检索图鉴"></label></div>
     <div class="cat-meta"><div class="cat-status" role="status"></div><label class="cat-appearance"><input type="checkbox" checked>附带外貌标签</label></div><div class="cat-scroll"><div class="cat-grid"></div></div>
     <footer class="cat-footer"><span></span><div class="cat-pager"><button type="button" data-nav="-1" aria-label="上一页">←</button><span></span><button type="button" data-nav="1" aria-label="下一页">→</button></div></footer>`;

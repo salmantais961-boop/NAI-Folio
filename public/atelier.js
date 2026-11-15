@@ -132,8 +132,7 @@ function mountColumnGrip() {
 export function mountStudioFinish({ notify }) {
   mountColumnGrip();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const palette = document.getElementById('ink-palette'),
-    edition = document.getElementById('proof-edition');
+  const palette = document.getElementById('ink-palette');
   const ws = document.getElementById('studio'),
     cache = new WeakMap();
   let active = null;
@@ -203,7 +202,6 @@ export function mountStudioFinish({ notify }) {
     enter(palette);
   }
   function setProof(work, status, ordinal) {
-    edition.textContent = work ? 'PLATE ' + String(ordinal).padStart(3, '0') : status || 'STUDIO';
     if (active === work) return;
     active = work;
     palette.hidden = true;

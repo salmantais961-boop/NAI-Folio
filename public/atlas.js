@@ -75,7 +75,6 @@ export function mountAtlas(
     disposed = false;
   const heading = el('header', 'at-heading'),
     title = el('div');
-  title.append(el('div', 'at-kicker', 'FOLIO / A PERSONAL ATLAS'));
   const h1 = el('h1', '', '万象集');
   h1.append(el('i', '', 'Atlas.'));
   title.append(h1);
@@ -394,9 +393,7 @@ export function mountAtlas(
     const frame = el('div', 'at-spread'),
       visual = el('aside', 'at-detail-visual'),
       image = el('div', 'at-detail-image');
-    const visualTop = el('div', 'at-detail-edition');
-    visualTop.append(el('span', '', 'FOLIO / ATLAS'), el('span', '', 'PERSONAL COLLECTION'));
-    visual.append(visualTop, image);
+    visual.append(image);
     const sheet = el('section', 'at-detail-sheet'),
       top = el('header', 'at-detail-top'),
       close = closeButton();
@@ -435,7 +432,7 @@ export function mountAtlas(
       }
       const prompt = el('section', 'at-detail-prompt');
       prompt.append(
-        el('small', 'at-kicker', entry.type === 'oc' ? 'APPEARANCE / 外貌提示词' : 'FIXED PROMPT / 固定提示词'),
+        el('small', 'at-kicker', entry.type === 'oc' ? '外貌提示词' : '固定提示词'),
       );
       prompt.append(el('p', '', entry.prompt || '这条素材还没有附带提示词。'));
       sheet.append(prompt);

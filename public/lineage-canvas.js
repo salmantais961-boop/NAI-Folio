@@ -315,7 +315,6 @@ export function mountLineageCanvas({ getGraph, getImageUrl, onOpenWork, notify =
   const header = el('header', 'lc-head'),
     heading = el('div', 'lc-heading');
   heading.append(
-    el('span', 'lc-eyebrow', 'FOLIO / CONNECTIONS'),
     el('h2', '', '线索'),
     el('i', '', 'Every image has a story.'),
   );
@@ -587,7 +586,6 @@ export function mountLineageCanvas({ getGraph, getImageUrl, onOpenWork, notify =
     inspector.replaceChildren();
     const title = el('div', 'lc-detail-head');
     title.append(
-      el('span', 'lc-eyebrow', 'SELECTED / ' + String(graph.nodes.indexOf(node) + 1).padStart(2, '0')),
       el('h3', '', operation(node)),
       el('small', '', time(node.created)),
     );

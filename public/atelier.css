@@ -36,26 +36,6 @@
   color: var(--mute);
   font-size: 9px;
 }
-.app-top .account {
-  border-radius: 5px;
-  border: 1px solid color-mix(in srgb, var(--rule) 75%, transparent);
-  background: color-mix(in srgb, var(--white) 70%, transparent);
-  max-width: clamp(80px, 24vw, 280px);
-  min-width: 0;
-}
-.app-top .account > span:not([data-icon]) {
-  overflow: hidden;
-  min-width: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.app-top .account > i,
-.app-top .account > [data-icon] {
-  flex-shrink: 0;
-}
-.app-top .account:hover {
-  border-color: var(--accent);
-}
 .app-top #theme {
   border-radius: 50%;
 }
@@ -99,7 +79,6 @@
   user-select: none;
 }
 .panel-intro {
-  flex-direction: row-reverse;
   align-items: center;
   gap: 8px;
   margin: 1px 0 14px;
@@ -433,7 +412,7 @@
 .proof-mast {
   --mast-type-size: clamp(33px, 3.15vw, 57px);
   display: grid;
-  grid-template-areas: ". chapter" "mark title";
+  grid-template-areas: "mark title";
   align-items: center;
   gap: 3px 11px;
   min-width: 0;

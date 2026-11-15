@@ -24,7 +24,6 @@ function createChooser({ getItems, onChoose, notify = () => {}, imageMode = fals
   dialog.setAttribute('aria-labelledby', titleId);
   const head = node('header', 'ax-head');
   const titleGroup = node('div');
-  const eyebrow = node('small', 'ax-eyebrow', imageMode ? 'FOLIO / IMAGE INDEX' : 'FOLIO / CHARACTER INDEX');
   const title = node('h2', '', imageMode ? '选择例图' : '引用 OC');
   title.id = titleId;
   const subtitle = node(
@@ -32,7 +31,7 @@ function createChooser({ getItems, onChoose, notify = () => {}, imageMode = fals
     'ax-intro',
     imageMode ? '从作品集带走一张图，或上传新的原图。' : '让角色的名字，带上属于它的外貌。',
   );
-  titleGroup.append(eyebrow, title, subtitle);
+  titleGroup.append(title, subtitle);
   const close = button('×', 'ax-close', () => dismiss());
   close.setAttribute('aria-label', '关闭选择器');
   head.append(titleGroup, close);
@@ -282,11 +281,6 @@ function createChooser({ getItems, onChoose, notify = () => {}, imageMode = fals
       if (busy) return;
       currentOptions = options;
       dialog.classList.toggle('ax-oc-picker', !imageMode && options.type !== 'example');
-      eyebrow.textContent = imageMode
-        ? 'FOLIO / IMAGE INDEX'
-        : options.type === 'example'
-          ? 'FOLIO / EXAMPLE INDEX'
-          : 'FOLIO / CHARACTER INDEX';
       if (!imageMode)
         foot.lastElementChild.textContent =
           options.type === 'example'

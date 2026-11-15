@@ -36,7 +36,7 @@ function settle(animation) {
    View transitions
    ------------------------------------------------------------------------- */
 let transitionSeq = 0;
-const TRANSITION_CLASSES = ['m-vt-screen', 'm-vt-theme', 'm-vt-layered'];
+const TRANSITION_CLASSES = ['m-vt-screen', 'm-vt-theme', 'm-vt-layered', 'm-vt-reveal'];
 function runTransition(classes, update, { onReady, still = false } = {}) {
   const token = ++transitionSeq;
   const masthead = document.querySelector('.app-top');
@@ -71,6 +71,28 @@ export function transitionScreen(update, { scrollAfter = 0, layered = false } = 
     still: scrollY < 1 && scrollAfter < 1,
   });
   return true;
+}
+
+// The next view grows as a circle from the control that asked for it, exactly
+// like the paper-colour switch. `within` bounds the circle (and so its pace)
+// to the region that actually changes; the rest of the page is identical.
+export function transitionReveal(origin, update, { within = null, duration = 680 } = {}) {
+  if (calm() || !canTransition() || !origin?.isConnected) return update();
+  const box = origin.getBoundingClientRect();
+  const x = box.left + box.width / 2,
+    y = box.top + box.height / 2;
+  const area = within?.getBoundingClientRect() || { left: 0, top: 0, right: innerWidth, bottom: innerHeight };
+  const radius = Math.hypot(Math.max(x - area.left, area.right - x), Math.max(y - area.top, area.bottom - y));
+  let result;
+  const transition = runTransition(['m-vt-reveal'], () => (result = update()), {
+    onReady() {
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration, easing: 'cubic-bezier(.65,0,.35,1)', pseudoElement: '::view-transition-new(root)' },
+      );
+    },
+  });
+  return transition ? transition.updateCallbackDone.then(() => result) : result;
 }
 
 // Reveal the next paper colour as a circle expanding from the switch.
@@ -119,35 +141,22 @@ export function transitionTheme(origin, update) {
 const HEADINGS = '.panel-intro h1, .proof-head h2, .history-head h2, .studio-heading h1, .at-heading h1, .at-heading h2';
 export function revealHeadings(scope, delay = 60) {
   if (calm() || !scope) return;
-  const mask = 'linear-gradient(90deg, #000 34%, transparent 52%)';
   let order = 0;
   for (const heading of scope.querySelectorAll(HEADINGS)) {
     if (!heading.getClientRects().length) continue;
     const box = heading.getBoundingClientRect();
     if (box.bottom < 0 || box.top > innerHeight) continue;
-    settle(
-      heading.animate(
-        [
-          {
-            maskImage: mask,
-            maskSize: '300% 100%',
-            maskRepeat: 'no-repeat',
-            maskPosition: '100% 0',
-            filter: 'blur(5px)',
-            translate: '0 6px',
-          },
-          {
-            maskImage: mask,
-            maskSize: '300% 100%',
-            maskRepeat: 'no-repeat',
-            maskPosition: '0% 0',
-            filter: 'blur(0px)',
-            translate: '0 0',
-          },
-        ],
-        { duration: 1100, delay: delay + order++ * 90, easing: EASE_OUT, fill: 'backwards' },
-      ),
+    // Italic display glyphs paint outside their line boxes. A CSS mask clips
+    // those overhangs until it is removed, causing the visible end-of-swap pop.
+    // Fade the ink itself without a mask or temporary layout measurements.
+    for (const animation of heading.getAnimations())
+      if (animation.id === 'folio-heading') animation.cancel();
+    const animation = heading.animate(
+      [{ opacity: 0, translate: '0 4px' }, { opacity: 1, translate: '0 0' }],
+      { duration: 680, delay: delay + order++ * 70, easing: EASE_OUT, fill: 'backwards' },
     );
+    animation.id = 'folio-heading';
+    settle(animation);
   }
 }
 
@@ -189,6 +198,7 @@ function ghostDialog(dialog) {
   // document order for getElementById during the brief overlap.
   sheet.classList.add('m-ghost-sheet');
   for (const radio of sheet.querySelectorAll('input[type="radio"][name]')) radio.name = 'm-ghost-' + radio.name;
+  for (const select of sheet.querySelectorAll('select')) select.setAttribute('data-native-select', '');
   for (const [key, value] of [
     ['left', box.left + 'px'],
     ['top', box.top + 'px'],
@@ -445,50 +455,327 @@ function mountArchiveTilt(grid) {
 }
 
 /* ---------------------------------------------------------------------------
-   Controls that are revealed later (hidden → shown) arrive instead of popping.
+   Presence. Everything the interface reveals or withdraws through `hidden`
+   arrives and leaves instead of popping. Blocks in a vertical flow also
+   open and close by height, so their neighbours slide rather than jump.
+
+   The `hidden` setter is observed (every caller in Folio uses the property),
+   and the decision is taken once per frame: a node hidden and shown again in
+   the same task never animates. Leaving content is drawn by a short-lived
+   sibling copy, so callers keep their synchronous hide-and-measure logic.
    ------------------------------------------------------------------------- */
-const APPEAR_CHIP = [
-  '.proof-utilities > *',
-  '#cancel',
-  '#archive-search-clear',
-  '.pa-inline-cost',
-  '#proof-actions .pa-button',
+// Containers whose children are positioned or observed by their own motion.
+const PRESENCE_SKIP = [
+  '[data-motion="none"]',
+  '.m-ghost',
+  '.m-exit-ghost',
+  '.m-spacer',
+  '#archive-grid',
+  '.cat-grid',
+  '.at-grid',
+  '.history-panel',
+  '.pv-window',
+  '.pv-dialog',
+  '.lc-canvas',
+  '.lc-world',
+  '.cover',
+  'canvas',
 ].join(',');
-const APPEAR_BLOCK = ['#ink-palette', '.history-undo', '.ap-relay', '.ap-delete-line', '.pt-merge-dock'].join(',');
-function mountAppear() {
-  const seen = new WeakSet();
-  new MutationObserver((records) => {
-    if (calm()) return;
-    for (const record of records) {
-      const node = record.target;
-      if (record.oldValue === null || node.hidden || seen.has(node)) continue;
-      const chip = node.matches(APPEAR_CHIP);
-      if (!chip && !node.matches(APPEAR_BLOCK)) continue;
-      if (!node.getClientRects().length) continue;
-      seen.add(node);
-      const animation = node.animate(
-        chip
-          ? [
-              { opacity: 0, scale: 0.82, filter: 'blur(3px)' },
-              { opacity: 1, scale: 1, filter: 'blur(0px)' },
-            ]
-          : [
-              { opacity: 0, translate: '0 -6px', filter: 'blur(4px)' },
-              { opacity: 1, translate: '0 0', filter: 'blur(0px)' },
-            ],
-        { duration: chip ? 520 : 460, easing: chip ? SNAP : EASE_OUT },
+const PRESENCE_SELF_SKIP =
+  'main, #app, #studio, #archive, #atlas, #lab, #desktop-agent, #block-library-slot, img, video, dialog, [popover]';
+const presence = new Map();
+const manualPresence = new WeakSet();
+let presenceFrame = 0;
+let exitBudget = 0;
+
+function presenceAllowed(node) {
+  return !(node.matches(PRESENCE_SELF_SKIP) || node.closest(PRESENCE_SKIP));
+}
+function flowAxis(node) {
+  const parent = node.parentElement;
+  if (!parent) return null;
+  const style = getComputedStyle(parent);
+  const display = style.display;
+  if (display === 'block' || display === 'flow-root' || display === 'list-item') return 'block';
+  if ((display === 'flex' || display === 'inline-flex') && style.flexDirection.startsWith('column')) return 'block';
+  if (display === 'grid' && style.gridTemplateColumns.split(' ').length === 1) return 'block';
+  return null;
+}
+function isBlockPresence(node, rect, axis) {
+  if (axis !== 'block') return false;
+  const parent = node.parentElement.getBoundingClientRect();
+  return rect.width >= parent.width * 0.6 && rect.height <= innerHeight * 0.6;
+}
+function onScreen(rect) {
+  return rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth;
+}
+
+function snapshotExit(node) {
+  if (exitBudget > 10 || !node.isConnected || !presenceAllowed(node)) return null;
+  const rect = node.getBoundingClientRect();
+  if (rect.width < 2 || rect.height < 2 || !onScreen(rect)) return null;
+  if (rect.width * rect.height > innerWidth * innerHeight * 0.35) return null;
+  if (node.getElementsByTagName('*').length > 300) return null;
+  const style = getComputedStyle(node);
+  if (style.display === 'contents' || Number(style.opacity) < 0.05) return null;
+  exitBudget++;
+  const fixed = style.position === 'fixed';
+  const holder = fixed ? null : node.offsetParent;
+  let left = rect.left,
+    top = rect.top;
+  if (holder) {
+    const box = holder.getBoundingClientRect();
+    left = rect.left - box.left - holder.clientLeft + holder.scrollLeft;
+    top = rect.top - box.top - holder.clientTop + holder.scrollTop;
+  }
+  const axis = fixed || style.position === 'absolute' ? null : flowAxis(node);
+  const copy = node.cloneNode(true);
+  for (const select of copy.querySelectorAll('select')) select.setAttribute('data-native-select', '');
+  for (const radio of copy.querySelectorAll('input[type="radio"][name]')) radio.name = 'm-ghost-' + radio.name;
+  return {
+    copy,
+    rect,
+    left,
+    top,
+    fixed: fixed || !holder,
+    block: isBlockPresence(node, rect, axis),
+    margins: [parseFloat(style.marginTop) || 0, parseFloat(style.marginBottom) || 0],
+    parent: node.parentNode,
+  };
+}
+
+function playExit(node, shot) {
+  const parent = node.parentNode === shot.parent ? shot.parent : null;
+  if (!parent || !parent.isConnected) return;
+  const after = node.nextSibling;
+  const ghost = shot.copy;
+  ghost.classList.add('m-exit-ghost');
+  ghost.setAttribute('aria-hidden', 'true');
+  ghost.inert = true;
+  for (const [key, value] of [
+    ['position', shot.fixed ? 'fixed' : 'absolute'],
+    ['left', (shot.fixed ? shot.rect.left : shot.left) + 'px'],
+    ['top', (shot.fixed ? shot.rect.top : shot.top) + 'px'],
+    ['right', 'auto'],
+    ['bottom', 'auto'],
+    ['width', shot.rect.width + 'px'],
+    ['height', shot.rect.height + 'px'],
+    ['margin', '0'],
+    ['box-sizing', 'border-box'],
+    ['transition', 'none'],
+    ['pointer-events', 'none'],
+  ])
+    ghost.style.setProperty(key, value, 'important');
+  parent.insertBefore(ghost, after);
+  if (shot.block) {
+    // Hold the vacated space and let it close, so what follows slides up.
+    const spacer = make('div', 'm-spacer');
+    spacer.setAttribute('aria-hidden', 'true');
+    parent.insertBefore(spacer, ghost);
+    const [mt, mb] = shot.margins;
+    spacer
+      .animate(
+        [
+          { height: shot.rect.height + 'px', marginTop: mt + 'px', marginBottom: mb + 'px' },
+          { height: '0px', marginTop: '0px', marginBottom: '0px' },
+        ],
+        { duration: 380, easing: EASE_OUT, fill: 'forwards' },
+      )
+      .finished.then(
+        () => spacer.remove(),
+        () => spacer.remove(),
       );
-      animation.finished.then(
-        () => seen.delete(node),
-        () => seen.delete(node),
-      );
-    }
-  }).observe(document.body, {
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['hidden'],
-    attributeOldValue: true,
+  }
+  const small = shot.rect.width < 220 && shot.rect.height < 90;
+  ghost
+    .animate(
+      small
+        ? [
+            { opacity: 1, scale: 1, filter: 'blur(0px)' },
+            { opacity: 0, scale: 0.86, filter: 'blur(3px)' },
+          ]
+        : [
+            { opacity: 1, translate: '0 0', filter: 'blur(0px)' },
+            { opacity: 0, translate: shot.block ? '0 -6px' : '0 4px', filter: 'blur(4px)' },
+          ],
+      { duration: small ? 200 : 260, easing: EASE_IN, fill: 'forwards' },
+    )
+    .finished.then(
+      () => ghost.remove(),
+      () => ghost.remove(),
+    );
+}
+
+function playEnter(node) {
+  if (!node.isConnected || !presenceAllowed(node)) return;
+  if (node.getAnimations().some((animation) => animation.playState === 'running')) return;
+  const rect = node.getBoundingClientRect();
+  if (rect.width < 2 || rect.height < 2 || !onScreen(rect)) return;
+  if (rect.width * rect.height > innerWidth * innerHeight * 0.35) {
+    node.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' });
+    return;
+  }
+  const style = getComputedStyle(node);
+  if (style.display === 'contents') return;
+  const inFlow = style.position === 'static' || style.position === 'relative' || style.position === 'sticky';
+  if (inFlow && isBlockPresence(node, rect, flowAxis(node))) {
+    node.animate(
+      [
+        {
+          height: '0px',
+          paddingTop: '0px',
+          paddingBottom: '0px',
+          marginTop: '0px',
+          marginBottom: '0px',
+          overflow: 'clip',
+        },
+        {
+          height: rect.height + 'px',
+          paddingTop: style.paddingTop,
+          paddingBottom: style.paddingBottom,
+          marginTop: style.marginTop,
+          marginBottom: style.marginBottom,
+          overflow: 'clip',
+        },
+      ],
+      { duration: 460, easing: SPRING },
+    );
+    node.animate(
+      [
+        { opacity: 0, translate: '0 -6px', filter: 'blur(4px)' },
+        { opacity: 1, translate: '0 0', filter: 'blur(0px)' },
+      ],
+      { duration: 420, delay: 60, easing: EASE_OUT, fill: 'backwards' },
+    );
+    return;
+  }
+  const small = rect.width < 220 && rect.height < 90;
+  node.animate(
+    small
+      ? [
+          { opacity: 0, scale: 0.82, filter: 'blur(3px)' },
+          { opacity: 1, scale: 1, filter: 'blur(0px)' },
+        ]
+      : [
+          { opacity: 0, translate: '0 6px', scale: 0.985, filter: 'blur(4px)' },
+          { opacity: 1, translate: '0 0', scale: 1, filter: 'blur(0px)' },
+        ],
+    { duration: small ? 520 : 460, easing: small ? SNAP : EASE_OUT },
+  );
+}
+
+function flushPresence() {
+  presenceFrame = 0;
+  exitBudget = 0;
+  const batch = [...presence];
+  presence.clear();
+  if (calm()) return;
+  // Exits first: their copies are placed against the layout callers left.
+  for (const [node, entry] of batch) if (!entry.wasHidden && node.hidden && entry.shot) playExit(node, entry.shot);
+  for (const [node, entry] of batch) if (entry.wasHidden && !node.hidden) playEnter(node);
+}
+
+function mountPresence() {
+  const descriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'hidden');
+  if (!descriptor?.set || !descriptor.get) return;
+  Object.defineProperty(HTMLElement.prototype, 'hidden', {
+    ...descriptor,
+    set(value) {
+      const was = descriptor.get.call(this) === true;
+      const next = Boolean(value);
+      // The first render settles silently; the entrance choreography covers it.
+      if (
+        was !== next &&
+        this.isConnected &&
+        !manualPresence.has(this) &&
+        !presence.has(this) &&
+        performance.now() > 900 &&
+        !calm()
+      ) {
+        presence.set(this, { wasHidden: was, shot: was ? null : snapshotExit(this) });
+        if (!presenceFrame) presenceFrame = requestAnimationFrame(flushPresence);
+      }
+      descriptor.set.call(this, value);
+    },
   });
+}
+
+// Explicit forms for callers that move a node while showing or hiding it.
+export function reveal(node) {
+  manualPresence.add(node);
+  node.hidden = false;
+  manualPresence.delete(node);
+  if (!calm()) playEnter(node);
+}
+export function conceal(node) {
+  const shot = calm() || node.hidden ? null : (exitBudget = 0, snapshotExit(node));
+  manualPresence.add(node);
+  node.hidden = true;
+  manualPresence.delete(node);
+  if (shot) playExit(node, shot);
+}
+
+/* ---------------------------------------------------------------------------
+   Floating layers appended to <body> (suggestion lists, pickers) fade out
+   instead of vanishing when they are removed.
+   ------------------------------------------------------------------------- */
+function mountFloatingExit() {
+  const nativeRemove = Element.prototype.remove;
+  Element.prototype.remove = function remove() {
+    if (
+      this instanceof HTMLElement &&
+      this.parentNode === document.body &&
+      !calm() &&
+      !this.classList.contains('m-tip') &&
+      !this.classList.contains('m-leaving') &&
+      presenceAllowed(this)
+    ) {
+      const style = getComputedStyle(this);
+      const rect = this.getBoundingClientRect();
+      if (
+        (style.position === 'fixed' || style.position === 'absolute') &&
+        rect.width > 2 &&
+        rect.height > 2 &&
+        Number(style.opacity) > 0.05
+      ) {
+        const ghost = this.cloneNode(true);
+        for (const select of ghost.querySelectorAll('select')) select.setAttribute('data-native-select', '');
+        ghost.classList.add('m-exit-ghost');
+        ghost.removeAttribute('id');
+        ghost.setAttribute('aria-hidden', 'true');
+        ghost.inert = true;
+        for (const [key, value] of [
+          ['position', 'fixed'],
+          ['left', rect.left + 'px'],
+          ['top', rect.top + 'px'],
+          ['right', 'auto'],
+          ['bottom', 'auto'],
+          ['width', rect.width + 'px'],
+          ['height', rect.height + 'px'],
+          ['margin', '0'],
+          ['box-sizing', 'border-box'],
+          ['transition', 'none'],
+          ['animation', 'none'],
+          ['pointer-events', 'none'],
+        ])
+          ghost.style.setProperty(key, value, 'important');
+        this.after(ghost);
+        ghost
+          .animate(
+            [
+              { opacity: 1, translate: '0 0', scale: 1 },
+              { opacity: 0, translate: '0 -4px', scale: 0.97 },
+            ],
+            { duration: 180, easing: EASE_IN, fill: 'forwards' },
+          )
+          .finished.then(
+            () => nativeRemove.call(ghost),
+            () => nativeRemove.call(ghost),
+          );
+      }
+    }
+    return nativeRemove.call(this);
+  };
 }
 
 /* ---------------------------------------------------------------------------
@@ -641,7 +928,8 @@ function mountTooltips() {
 function mount() {
   mountNavInk(document.querySelector('.app-top nav'));
   mountArchiveTilt(document.getElementById('archive-grid'));
-  mountAppear();
+  mountPresence();
+  mountFloatingExit();
   mountTooltips();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });

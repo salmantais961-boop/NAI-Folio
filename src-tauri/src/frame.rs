@@ -1,4 +1,5 @@
 mod shadow;
+mod icons;
 
 use std::{io, ptr::null_mut, sync::Mutex};
 use windows_sys::Win32::{
@@ -64,6 +65,7 @@ unsafe extern "system" fn borderless_proc(
         return result;
     } else if matches!(message, WM_WINDOWPOSCHANGED | WM_DPICHANGED) {
         let result = DefSubclassProc(hwnd, message, wparam, lparam);
+        if message == WM_DPICHANGED { icons::apply(hwnd); }
         shadow::sync(hwnd, shadow_handle as HWND);
         return result;
     } else if message == WM_NCDESTROY {
@@ -73,6 +75,7 @@ unsafe extern "system" fn borderless_proc(
 }
 
 pub fn install(hwnd: HWND) -> io::Result<()> {
+    icons::apply(hwnd);
     unsafe {
         let shadow = shadow::create(hwnd);
         if SetWindowSubclass(hwnd, Some(borderless_proc), 1, shadow as usize) == 0 {

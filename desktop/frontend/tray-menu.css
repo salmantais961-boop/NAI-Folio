@@ -1,0 +1,186 @@
+/* Folio tray menu: a small leaf of the same paper as the app. The window is
+   transparent; the card keeps a margin so its shadow has room to fall. */
+:root {
+  --paper: #f8f8f5;
+  --well: #efefeb;
+  --ink: #191a1a;
+  --mute: #6b6e6d;
+  --rule: #dcddd8;
+  --accent: #393ecb;
+  --accent-soft: #e9e9fa;
+  --pad: 14px;
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --paper: #1d1f24;
+  --well: #26292f;
+  --ink: #f4f3ee;
+  --mute: #a9acb2;
+  --rule: #353840;
+  --accent: #afb4ff;
+  --accent-soft: #32334d;
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+html[data-i18n-pending] body {
+  visibility: hidden;
+}
+body {
+  padding: var(--pad);
+  font: 13px/1.4 var(--sans, 'Microsoft YaHei', sans-serif);
+  color: var(--ink);
+}
+.tm-card {
+  width: 252px;
+  max-height: calc(100dvh - var(--pad) * 2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--rule) 80%, transparent),
+    0 12px 30px -12px #0b0f1a55,
+    0 2px 6px -3px #0b0f1a30;
+  transform-origin: 100% 100%;
+}
+.tm-card[data-open] {
+  animation: tm-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.tm-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 9px;
+}
+.tm-mark {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  background: var(--ink);
+  mask: url('/mark.svg') center / contain no-repeat;
+}
+.tm-wordmark {
+  font: 26px/0.9 var(--display, Georgia, serif);
+  letter-spacing: -0.05em;
+}
+.tm-wordmark i {
+  color: var(--accent);
+  font-style: normal;
+}
+.tm-rule {
+  height: 1px;
+  margin: 5px 8px;
+  background: color-mix(in srgb, var(--rule) 75%, transparent);
+}
+.tm-label {
+  padding: 7px 10px 4px;
+  color: var(--mute);
+  font-size: 11px;
+}
+.tm-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+.tm-item svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+}
+.tm-item:is(:hover, :focus-visible) {
+  outline: none;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.tm-item:is(:hover, :focus-visible) svg {
+  opacity: 1;
+}
+.tm-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tm-meta {
+  flex: none;
+  color: var(--mute);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.tm-item:is(:hover, :focus-visible) .tm-meta {
+  color: inherit;
+  opacity: 0.7;
+}
+.tm-chat .tm-dot {
+  width: 16px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.tm-chat .tm-dot::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+}
+.tm-more {
+  color: var(--mute);
+}
+.tm-empty {
+  padding: 4px 10px 6px 36px;
+  color: var(--mute);
+  font-size: 12px;
+}
+.tm-quit:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, #c25042 12%, transparent);
+  color: #b0443a;
+}
+:root[data-theme='dark'] .tm-quit:is(:hover, :focus-visible) {
+  color: #ec8e83;
+}
+@keyframes tm-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+    filter: blur(3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tm-card[data-open] {
+    animation: none;
+  }
+}

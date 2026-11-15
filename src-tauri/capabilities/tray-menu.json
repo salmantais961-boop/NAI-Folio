@@ -1,0 +1,6 @@
+{
+  "identifier": "tray-menu",
+  "description": "Folio's custom tray menu window",
+  "windows": ["tray-menu"],
+  "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"]
+}
