@@ -83,7 +83,7 @@ export function mountArchiveAppreciation({
     edition = el('div', 'av-edition');
   const imageNumber = el('span'),
     imageDate = el('span');
-  edition.append(el('span', '', 'FOLIO / A CLOSER LOOK'), imageDate);
+  edition.append(imageDate);
   const plate = el('div', 'av-plate'),
     image = el('img');
   image.alt = '作品原图';
@@ -105,7 +105,7 @@ export function mountArchiveAppreciation({
   const sheet = el('section', 'av-sheet'),
     top = el('header', 'av-top'),
     title = el('div');
-  title.append(el('span', 'av-eyebrow', 'IMAGE APPRECIATION'), el('h2', '', 'In focus.'));
+  title.append(el('h2', '', 'In focus.'));
   const closeButton = button('', 'av-close', 'x');
   closeButton.setAttribute('aria-label', '关闭作品鉴赏');
   top.append(title, closeButton);
@@ -387,7 +387,7 @@ export function mountArchiveAppreciation({
         );
         block.append(el('p', 'av-prompt', character.prompt || '未填写正向提示词'));
         if (character.negative)
-          block.append(el('small', 'av-eyebrow', 'UNDESIRED'), el('p', 'av-prompt', character.negative));
+          block.append(el('small', 'av-eyebrow', '负面提示词'), el('p', 'av-prompt', character.negative));
         const center = character.center || character.centers?.[0];
         if (center) block.append(el('small', 'av-empty', `位置 ${center.x ?? '—'} / ${center.y ?? '—'}`));
         content.append(block);
@@ -397,7 +397,7 @@ export function mountArchiveAppreciation({
       const head = el('div', 'av-copy-heading'),
         copy = button('复制', 'av-copy');
       head.append(
-        el('span', 'av-eyebrow', selectedTab === 'prompt' ? 'POSITIVE PROMPT' : 'UNDESIRED CONTENT'),
+        el('span', 'av-eyebrow', selectedTab === 'prompt' ? '正向提示词' : '负面提示词'),
         copy,
       );
       copy.disabled = !value;

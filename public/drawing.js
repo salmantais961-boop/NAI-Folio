@@ -153,11 +153,11 @@ export async function openDrawing({ source = null, width = 832, height = 1216, o
   const dlg = el('dialog', '', 'folio-draw');
   dlg.setAttribute('aria-label', '绘图画布');
   dlg.innerHTML =
-    '<header><div><small>FOLIO　/　DRAWING ROOM</small><h2>绘图画布</h2></div><div class="fd-project-actions"><button data-action="open-project">打开画布</button><button data-action="save-project">保存画布</button><button data-action="close" aria-label="关闭画布">×</button></div></header>' +
+    '<header><div><h2>绘图画布</h2></div><div class="fd-project-actions"><button data-action="open-project">打开画布</button><button data-action="save-project">保存画布</button><button data-action="close" aria-label="关闭画布">×</button></div></header>' +
     '<div class="fd-tools" role="toolbar" aria-label="绘图工具"></div><div class="fd-body"><div class="fd-stage"><canvas aria-label="绘图区域"></canvas></div>' +
-    '<aside><small>INK</small><label class="fd-ink">笔色 <input type="color" value="#292c36" aria-label="笔色"></label>' +
+    '<aside><label class="fd-ink">笔色 <input type="color" value="#292c36" aria-label="笔色"></label>' +
     '<label>笔径 <output class="fd-size-value">24 px</output><input type="range" class="fd-size" min="1" max="192" value="24"></label>' +
-    '<div class="fd-layers-title"><small>LAYERS</small><b>图层</b></div><div class="fd-layers"></div>' +
+    '<div class="fd-layers-title"><b>图层</b></div><div class="fd-layers"></div>' +
     '<label>不透明度 <output class="fd-opacity-value"></output><input type="range" class="fd-opacity" min="0" max="100"></label>' +
     '<div class="fd-layer-actions"><button data-action="add">＋ 画层</button><button data-action="pose">＋ 线架</button><button data-action="three">＋ 三维 / GLB</button><button data-action="edit3d">编辑三维</button><button data-action="import">导入图片</button>' +
     '<button data-action="up">上移</button><button data-action="down">下移</button><button data-action="remove">删除层</button></div>' +

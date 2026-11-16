@@ -145,7 +145,7 @@ export function mountControls(el, callbacks = {}) {
           d.medium,
         )
       : ''
-    return `<div class="fc-model-bar"><div class="fc-engine-line"><label class="fc-engine"><span class="fc-engine-icon folio-mark" aria-hidden="true"></span><span class="fc-engine-fields"><small>IMAGE MODEL</small><select aria-label="生成模型" data-f="model">${options(
+    return `<div class="fc-model-bar"><div class="fc-engine-line"><label class="fc-engine"><span class="fc-engine-icon folio-mark" aria-hidden="true"></span><span class="fc-engine-fields"><small>模型</small><select aria-label="生成模型" data-f="model">${options(
       MODELS.map(([id, n]) => [id, n]),
       d.model,
     )}</select></span></label>${dataset}${effort}</div>${modes}</div>`
@@ -288,7 +288,7 @@ export function mountControls(el, callbacks = {}) {
     return disclosure(
       'references',
       '图像参考',
-      d.references.length ? `${d.references.length} REF.` : 'REFERENCE',
+      d.references.length ? `${d.references.length} 张` : '未添加',
       `${
         canAdd
           ? `<div class="fc-ref-add"><label class="fc-input"><span>参考类型</span><select data-f="refKind">${options(
@@ -330,7 +330,7 @@ export function mountControls(el, callbacks = {}) {
         [[0, '关闭'], ...[0.3, 0.35, 0.4, 0.45, 0.5].map((n) => [n, String(n)])],
         d.blur,
       )
-    return `<div class="fc-source">${src ? `<div class="fc-ref-top"><img src="${esc(src.data)}" alt="底图"><div><small>BASE IMAGE</small><b>${esc(src.name)}</b><small>${src.width} × ${src.height} PX</small></div>${button('remove-source', '移除')}</div>` : ''}<label class="fc-file-button">${src ? '替换底图' : '＋ 导入底图'}<input type="file" data-file="source" accept="image/png,image/jpeg,image/webp"></label>${extra}</div>`
+    return `<div class="fc-source">${src ? `<div class="fc-ref-top"><img src="${esc(src.data)}" alt="底图"><div><small>底图</small><b>${esc(src.name)}</b><small>${src.width} × ${src.height} PX</small></div>${button('remove-source', '移除')}</div>` : ''}<label class="fc-file-button">${src ? '替换底图' : '＋ 导入底图'}<input type="file" data-file="source" accept="image/png,image/jpeg,image/webp"></label>${extra}</div>`
   }
   function render() {
     for (const fn of cleanups) if (typeof fn === 'function') fn()

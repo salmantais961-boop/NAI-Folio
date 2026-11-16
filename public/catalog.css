@@ -158,6 +158,7 @@
 }
 .cat-header {
   height: 25px;
+  justify-content: flex-end;
 }
 .cat-kicker {
   gap: 8px;

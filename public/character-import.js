@@ -44,7 +44,7 @@ export function mountCharacterImport(field, { migrate, replaceCharacters, getCon
     dialog.setAttribute('aria-labelledby', 'ci-title');
     const spread = make('div', 'ci-spread');
     const aside = make('aside', 'ci-aside');
-    aside.append(make('small', 'ci-kicker', 'A CHARACTER STUDY'), make('span', 'ci-total', '01'));
+    aside.append(make('span', 'ci-total', '01'));
     const title = make('h2', '', 'Meet');
     title.append(make('i', '', 'your characters.'));
     aside.append(
@@ -60,7 +60,6 @@ export function mountCharacterImport(field, { migrate, replaceCharacters, getCon
     const sheet = make('section', 'ci-sheet');
     const header = make('header', 'ci-header');
     const heading = make('div');
-    heading.append(make('small', 'ci-kicker', 'OPTIONAL · KEEP FOR LATER'));
     const titleText = make('h3', '', '把角色收藏为 OC');
     titleText.id = 'ci-title';
     heading.append(titleText, make('p', '', '勾选要收藏的角色，名称与外貌都可以调整。'));
@@ -123,7 +122,7 @@ export function mountCharacterImport(field, { migrate, replaceCharacters, getCon
         state();
       };
       selection.append(selected, make('span', '', '角色 ' + (item.slot + 1)));
-      top.append(selection, make('small', '', 'CHARACTER / ' + String(index + 1).padStart(2, '0')));
+      top.append(selection);
       const nameLabel = make('label', 'ci-name-label');
       nameLabel.append(make('span', '', 'OC 名称'));
       const name = make('input', 'ci-name');

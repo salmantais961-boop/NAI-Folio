@@ -40,6 +40,13 @@
 * {
   box-sizing: border-box;
 }
+html[data-i18n-pending] body {
+  visibility: hidden;
+}
+/* In English the decorative English companions would repeat the title. */
+html[lang='en'] :is(.panel-intro h1 > span, #recipe-heading > span, .at-heading h1 > i) {
+  display: none;
+}
 html {
   scroll-behavior: smooth;
 }
@@ -1040,7 +1047,7 @@ dialog::backdrop {
   backdrop-filter: blur(5px);
 }
 .dialog-top {
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 .utility-dialog {
   width: 410px;

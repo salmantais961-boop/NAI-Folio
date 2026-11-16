@@ -2,12 +2,16 @@
 
 mod bridge;
 mod frame;
+mod tray;
 
 use bridge::Bridge;
 use std::{
     error::Error,
     ptr::null_mut,
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc, Mutex,
+    },
     thread,
     time::Duration,
 };
@@ -15,6 +19,7 @@ use tauri::{
     webview::NewWindowResponse, App, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder,
     WindowEvent,
 };
+use tray::{CloseToTray, MenuAnchor};
 
 type Service = Arc<Mutex<Option<Bridge>>>;
 
@@ -61,13 +66,19 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     frame::install(handle as _)?;
     let corners = frame::Corners::default();
     corners.clip(handle as _);
-    window.on_window_event(move |event| {
-        if matches!(
-            event,
-            WindowEvent::Resized(_) | WindowEvent::ScaleFactorChanged { .. }
-        ) {
+    let close_to_tray = Arc::new(AtomicBool::new(false));
+    app.manage(CloseToTray(close_to_tray.clone()));
+    tray::ensure_tray(app.handle())?;
+    let hide_target = window.clone();
+    window.on_window_event(move |event| match event {
+        WindowEvent::Resized(_) | WindowEvent::ScaleFactorChanged { .. } => {
             corners.clip(handle as _);
         }
+        WindowEvent::CloseRequested { api, .. } if close_to_tray.load(Ordering::Relaxed) => {
+            api.prevent_close();
+            let _ = hide_target.hide();
+        }
+        _ => {}
     });
     window.show()?;
     let service = Arc::new(Mutex::new(Some(service)));
@@ -96,6 +107,13 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
 
 fn main() {
     let app = tauri::Builder::default()
+        .manage(MenuAnchor::default())
+        .invoke_handler(tauri::generate_handler![
+            tray::set_close_action,
+            tray::tray_menu_show,
+            tray::tray_menu_hide,
+            tray::tray_action
+        ])
         .setup(|app| {
             if let Err(error) = setup(app) {
                 frame::alert(null_mut(), &format!("Folio 无法启动：{error}"));

@@ -195,8 +195,8 @@ export function openPixelSnap({ source, onApply } = {}) {
   dialog.className = 'cat-dialog snap-dialog';
   dialog.setAttribute('aria-labelledby', 'snap-title');
   dialog.innerHTML = `
-    <header class="cat-header"><span class="cat-kicker"><i></i> FOLIO &nbsp;/&nbsp; LOCAL TOOLS</span><button class="cat-close" type="button" aria-label="关闭像素整理">×</button></header>
-    <div class="cat-heading"><h2 id="snap-title">Pixel Snap</h2><div class="cat-nameplate"><b>像素网格整理</b><span>LOCAL EDITION</span></div></div>
+    <header class="cat-header"><button class="cat-close" type="button" aria-label="关闭像素整理">×</button></header>
+    <div class="cat-heading"><h2 id="snap-title">Pixel Snap</h2><div class="cat-nameplate"><b>像素网格整理</b></div></div>
     <p class="snap-note">为已有像素画重新对齐网格。在本机检测像素间距，可微调起点并缩减色板。</p>
     <div class="snap-frame"><p>导入一张像素画开始整理</p></div>
     <div class="snap-settings">

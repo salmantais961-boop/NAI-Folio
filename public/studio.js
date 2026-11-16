@@ -26,7 +26,7 @@ import { planCharacterMigration } from './character-sections.js';
 import { mountAtlas } from './atlas.js';
 import { ensureChunkEntries, captureGenerated } from './atlas-store.js';
 import { searchItems, normalizeSearch } from './fuzzy-search.js';
-import { mountBilling } from './billing.js';
+import { mountBilling, accountUsageSummary } from './billing.js';
 import { estimateAnlas } from './billing-estimate.js';
 import { mountProofViewer } from './proof-viewer.js';
 import { mountProofActions } from './proof-actions.js';
@@ -34,12 +34,13 @@ import { mountStudioFinish } from './atelier.js';
 import { mountStudioEntrance } from './studio-motion.js';
 import { mountScreenExit } from './screen-exit.js';
 import { transitionScreen, transitionTheme, mountToast, revealHeadings } from './motion.js';
+import { mountTrayNavigation } from './desktop-tray.js';
 import { mountGenerationAtmosphere } from './generation-atmosphere.js';
 import { mountArchiveLayout } from './archive-layout.js';
 import { mountArchiveBatch } from './archive-batch.js';
 import { archiveSearchText } from './archive-tags.js';
 import { classifyWorkNSFW } from './nsfw-tags.js';
-import { getHideNSFW } from './content-preferences.js';
+import { getHideNSFW, getShowHeaderUsage } from './content-preferences.js';
 import { mountRemovalConfirmation } from './removal-confirmation.js';
 import { mountArchiveScoring } from './archive-scoring.js';
 import { mountArchiveAppreciation } from './archive-appreciation.js';
@@ -361,9 +362,13 @@ function setScreen(target, viewTransition = false) {
   if (changed) {
     // Animate the content, keeping the shared masthead fixed and immediately usable.
     studioEntrance.cancel();
-    if (screen === 'studio' || agentMode) studioEntrance.play();
-    else if (!viewTransition) finish.enter($(screen));
-    revealHeadings(screenNode(screen), viewTransition ? 120 : 40);
+    // View Transition snapshots must capture fully painted display type. Inner
+    // entrance animations would otherwise be frozen half-revealed in the image.
+    if (!viewTransition) {
+      if (screen === 'studio' || agentMode) studioEntrance.play();
+      else finish.enter($(screen));
+      revealHeadings(screenNode(screen), 40);
+    }
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         if (currentScreen === screen)
@@ -1381,6 +1386,17 @@ try {
   setTheme('light');
 }
 const getModel = () => controls?.getSettings().model;
+function paintHeaderUsage() {
+  const usage = $('header-usage');
+  const text = accountUsageSummary(latestAccount);
+  usage.hidden = !getShowHeaderUsage();
+  usage.textContent = text;
+  usage.title = '账户用量 · ' + text;
+  usage.setAttribute('aria-label', usage.title);
+}
+window.addEventListener('folio:header-usage-preference', paintHeaderUsage);
+$('header-usage').onclick = () => controls.openAccount();
+paintHeaderUsage();
 const billing = mountBilling({
   summary: $('usage-summary'),
   cost: $('cost-summary'),
@@ -1449,11 +1465,11 @@ controls = mountControls($('controls'), {
   },
   onAccount(info) {
     $('account').classList.toggle('connected', info.connected);
-    $('account').querySelector('span').textContent = info.label;
-    $('account').title = '打开设置 · ' + info.label;
+    $('account').title = '设置 · ' + info.label;
     $('account').setAttribute('aria-label', $('account').title);
     billing.setAccount(info);
     latestAccount = info;
+    paintHeaderUsage();
     proofActions?.refresh();
   },
 });
@@ -1561,11 +1577,11 @@ $('clear-preview').onclick = showEmpty;
 $('artists').onclick = () => openCatalog('artist', activePrompt);
 $('characters').onclick = () => openCatalog('character', activePrompt);
 $('studio-nav').onclick = $('brand').onclick = () => navigateScreen(false);
-if ($('agent-nav')) {
-  let opening;
-  $('agent-nav').onclick = async () => {
-    try {
-      opening ??= import('./desktop-agent-studio.js').then(({ mount }) =>
+let agentOpening;
+async function openDesktopAgent({ immediate = false } = {}) {
+  try {
+    if (!$('agent-nav')) throw Error('Agent 需要在桌面版中打开。');
+      agentOpening ??= import('./desktop-agent-studio.js').then(({ mount }) =>
         desktopAgent = mount($('desktop-agent'), {
           controls, generate, search: searchAgentCatalog, onImageSettingsChange: syncCanvasSettings,
           readWorkImage(id) {
@@ -1580,14 +1596,25 @@ if ($('agent-nav')) {
             setPanel('canvas');
           },
         }));
-      await opening;
-      navigateScreen('agent');
-    } catch (error) {
-      opening = null;
-      notify(error.message || 'Agent 未能打开，请重新启动桌面版。');
-    }
-  };
+    await agentOpening;
+    // Tray actions can immediately change an Agent subview; do the page swap
+    // synchronously so the subview is captured by its own reveal if needed.
+    if (immediate) setScreen('agent');
+    else navigateScreen('agent');
+    return desktopAgent;
+  } catch (error) {
+    agentOpening = null;
+    throw error;
+  }
 }
+if ($('agent-nav')) $('agent-nav').onclick = () => void openDesktopAgent().catch(error => notify(error.message));
+mountTrayNavigation({
+  openAgent: () => openDesktopAgent({ immediate: true }),
+  navigate: screen => navigateScreen(screen),
+  settings: () => controls.openAccount(),
+  theme: () => $('theme').click(),
+  onError: error => notify(error.message || '托盘操作未能完成，请重试。'),
+});
 $('archive-nav').onclick = () => navigateScreen(true);
 $('lab-nav').onclick = () => navigateScreen('lab');
 $('atlas-nav').onclick = () => navigateScreen('atlas');
@@ -1657,7 +1684,7 @@ $('theme').onclick = () =>
   transitionTheme($('theme'), () =>
     setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'),
   );
-$('account').onclick = () => controls.openAccount();
+$('account').onclick = () => controls.openAccount({ toggle: true });
 $('generate').onclick = generate;
 $('cancel').onclick = () => request?.abort();
 document.addEventListener('keydown', (e) => {

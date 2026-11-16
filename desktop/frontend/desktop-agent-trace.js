@@ -9,13 +9,25 @@ const states = {
   skipped: '已跳过',
   unconfirmed: '未记录返回',
 };
-const numberFormat = new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 1 });
+// Same reading as the thought line: tenths of a second, ticking every 0.1 s.
 function duration(row, until = row.endedAt) {
   if (!Number.isFinite(row.startedAt) || !Number.isFinite(until)) return '';
-  const ms = Math.max(0, until - row.startedAt);
-  if (ms < 1000) return Math.round(ms) + ' ms';
-  if (ms < 60_000) return numberFormat.format(ms / 1000) + ' s';
-  return Math.floor(ms / 60_000) + ' 分 ' + Math.round((ms % 60_000) / 1000) + ' 秒';
+  const ds = Math.floor(Math.max(0, until - row.startedAt) / 100);
+  return ds < 600 ? (ds / 10).toFixed(1) + 's' : Math.floor(ds / 600) + 'm ' + ((ds % 600) / 10).toFixed(1) + 's';
+}
+const marks = {
+  done: 'm5 12 4.5 4.5L19 7',
+  error: 'm7 7 10 10M17 7 7 17',
+  stopped: 'M8 7v10M16 7v10',
+};
+function stepMark(state) {
+  if (state === 'running' || state === 'queued') return element('i', 'thought-line__pulse');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  const path = document.createElementNS(svg.namespaceURI, 'path');
+  path.setAttribute('d', marks[state] || marks.stopped);
+  svg.append(path);
+  return svg;
 }
 function observedState(row, live) {
   if (!live && (row.state === 'queued' || row.state === 'running')) return 'unconfirmed';
@@ -81,15 +93,16 @@ function codeSection(label, onCopyFailure) {
   };
 }
 
-function makeCall(notice) {
+function makeCall(notice, embedded) {
   const item = element('details', 'da-trace-call');
   const summary = element('summary', 'da-trace-row');
-  const dot = element('i', 'da-trace-dot');
+  const dot = element(embedded ? 'span' : 'i', embedded ? 'thought-line__mark da-trace-mark' : 'da-trace-dot');
   dot.setAttribute('aria-hidden', 'true');
   const name = element('code', 'da-trace-name'),
     state = element('span', 'da-trace-state');
   const time = element('span', 'da-trace-time');
-  summary.append(dot, name, state, time, icon('chevron'));
+  if (embedded) summary.append(dot, element('span', 'da-trace-verb', '调用'), name, state, time, icon('chevron'));
+  else summary.append(dot, name, state, time, icon('chevron'));
   const panel = element('div', 'da-trace-body');
   item.append(summary, panel);
   // Large argument/result strings are only inserted into the DOM when this call is opened.
@@ -115,6 +128,10 @@ function makeCall(notice) {
     update(row, live) {
       model = row;
       const display = observedState(row, live);
+      if (embedded && item.dataset.state !== display) {
+        dot.replaceChildren(stepMark(display));
+        dot.dataset.state = display;
+      }
       item.dataset.state = display;
       name.textContent = row.name;
       name.title = row.name;
@@ -125,14 +142,16 @@ function makeCall(notice) {
   };
 }
 
-export function createToolTrace(live, notice) {
-  const root = element('details', 'da-trace');
-  root.open = live;
-  const summary = element('summary', 'da-trace-summary');
+export function createToolTrace(live, notice, { embedded = false } = {}) {
+  const root = element(embedded ? 'section' : 'details', 'da-trace' + (embedded ? ' da-trace--embedded' : ''));
+  if (!embedded) root.open = live;
+  root.setAttribute('aria-label', '工具调用');
+  const summary = element(embedded ? 'div' : 'summary', 'da-trace-summary');
   const amount = element('span', 'da-trace-count');
   const rail = element('div', 'da-trace-rail');
   rail.setAttribute('aria-hidden', 'true');
-  summary.append(icon('tools'), element('strong', '', '工具调用'), rail, amount, icon('chevron'));
+  summary.append(icon('tools'), element('strong', '', '工具调用'), rail, amount);
+  if (!embedded) summary.append(icon('chevron'));
   const list = element('div', 'da-trace-groups');
   root.append(summary, list);
   const groups = new Map(),
@@ -145,6 +164,7 @@ export function createToolTrace(live, notice) {
 
   return {
     root,
+    destroy: stopClock,
     update(rows, active) {
       let complete = 0;
       for (const row of rows) {
@@ -159,7 +179,7 @@ export function createToolTrace(live, notice) {
             list.append(group);
             groups.set(round, group);
           }
-          call = makeCall(notice);
+          call = makeCall(notice, embedded);
           groups.get(round).append(call.item);
           call.bar = element('i', 'da-trace-segment');
           rail.append(call.bar);
@@ -179,8 +199,9 @@ export function createToolTrace(live, notice) {
             stopClock();
             return;
           }
-          if (root.open && !document.hidden) for (const call of calls.values()) call.tick(Date.now());
-        }, 500);
+          const disclosed = embedded ? !root.closest('[inert]') : root.open;
+          if (disclosed && !document.hidden) for (const call of calls.values()) call.tick(Date.now());
+        }, 100);
       } else stopClock();
     },
   };

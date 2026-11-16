@@ -227,9 +227,7 @@ export function mountPromptEditor(field, { runs, paintWeight, getModel, signal }
         if (expanded) {
           const heading = document.createElement('span');
           heading.className = 'pt-block-heading';
-          const eyebrow = document.createElement('small');
-          eyebrow.textContent = 'PROMPT BLOCK';
-          heading.append(label, eyebrow, toggle, remove);
+          heading.append(label, toggle, remove);
           const body = document.createElement('span');
           body.className = 'pt-expanded-body';
           body.setAttribute('aria-label', '词块「' + name + '」的提示词');

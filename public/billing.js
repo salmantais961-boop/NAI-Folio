@@ -6,6 +6,22 @@ const fmt = (n) => (Number.isFinite(n) ? integer.format(n) : '未返回')
 const time = (t) =>
   new Date(t).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false })
 
+// A shared, single-line readout for settings and the optional masthead.
+export function accountUsageSummary(account) {
+  if (!account?.connected) return '未连接'
+  if (account.accountAvailable === false) return '余额未知'
+  const parts = [Number.isFinite(account.anlas) ? fmt(account.anlas) + ' Anlas' : '余额未知']
+  if (account.tier >= 3 && (account.entitled ?? account.active)) {
+    const usage = account.usage
+    const remaining = usage?.isNegative === true ? 0 : usage?.percent
+    let quota = 'V5 剩余 ' + (Number.isFinite(remaining) ? fmt(remaining) + '%' : '未知')
+    if (Number.isFinite(usage?.purchasedPercent) && usage.purchasedPercent > 0)
+      quota += ' + ' + fmt(usage.purchasedPercent) + '%'
+    parts.push(quota)
+  }
+  return parts.join(' · ')
+}
+
 function element(tag, text, cls) {
   const n = document.createElement(tag)
   if (text !== null && text !== undefined) n.textContent = text

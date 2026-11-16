@@ -8,6 +8,8 @@
     <meta name="description" content="Folio · NovelAI 本地图像工作台与 Danbooru 提示词图典" />
     <title>Folio — NovelAI 图像工作台</title>
     <link rel="icon" href="/mark.svg?v=petal" type="image/svg+xml" />
+    <script src="/i18n-boot.js"></script>
+    <script type="module" src="/i18n.js"></script>
     <link rel="preload" href="/fonts/italiana.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="stylesheet" href="/fonts/misans/font-face.css" />
     <link rel="stylesheet" href="/typography.css" />
@@ -113,17 +115,18 @@
           ><button id="archive-nav">作品集 <small id="nav-count">00</small></button
           ><button id="atlas-nav">万象集</button><!-- web-cover --><button id="replay">封面画刊 <span>↗</span></button><!-- /web-cover -->
         </nav>
-        <div class="header-actions account-island" role="group" aria-label="设置与界面主题">
-          <button
-            id="theme"
-            class="icon-btn"
-            title="切换深浅色"
-            aria-label="切换深浅色"
-            data-icon="moon"
-          ></button
-          ><button id="account" class="account" title="打开设置" aria-label="打开设置" aria-haspopup="dialog">
-            <i></i><span>连接 NovelAI</span><span data-icon="arrow-up-right"></span>
-          </button>
+        <div class="header-actions header-tools" role="group" aria-label="界面主题与设置">
+          <button id="header-usage" class="header-usage" type="button" aria-label="账户用量" aria-haspopup="dialog" hidden></button>
+          <button id="theme" class="icon-btn" title="切换深浅色" aria-label="切换深浅色" data-icon="moon"></button
+          ><button
+            id="account"
+            class="icon-btn settings-btn"
+            title="设置"
+            aria-label="设置"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            data-icon="settings"
+          ></button>
         </div>
       </header>
       <main class="studio workspace" id="studio" data-panel="compose">
@@ -146,7 +149,6 @@
             ></div>
             <div class="compose-scroll" id="editor-scroll">
               <header class="panel-intro">
-                <span class="chapter"><i class="square"></i> 01 / COMPOSITION</span>
                 <h1>创作台<span lang="en">Compose</span></h1>
               </header>
               <div id="usage-summary"></div>
@@ -154,7 +156,7 @@
               <section class="prompt-section" aria-label="提示词编辑器">
                 <div class="field-label">
                   <i class="tone-mark positive-mark" aria-hidden="true"></i
-                  ><label for="prompt">正向提示词</label><span>PROMPT</span>
+                  ><label for="prompt">正向提示词</label>
                 </div>
                 <div class="field-surface">
                   <textarea
@@ -167,7 +169,7 @@
                 </div>
                 <div class="field-label negative-label">
                   <i class="tone-mark negative-mark" aria-hidden="true"></i
-                  ><label for="negative">负面提示词</label><span>UNDESIRED CONTENT</span>
+                  ><label for="negative">负面提示词</label>
                 </div>
                 <div class="field-surface">
                   <textarea
@@ -217,7 +219,6 @@
             <div id="background-grid" class="folio-dot-background" aria-hidden="true"></div>
             <header class="proof-head">
               <div class="proof-mast">
-                <span class="chapter">02 / CANVAS <i class="mast-dash"></i> <span id="proof-edition">STUDIO</span></span>
                 <span class="iris-mark folio-mark" aria-hidden="true"></span>
                 <h2>Image <em>Atelier</em><b>.</b></h2>
               </div>
@@ -299,7 +300,6 @@
           <aside class="history-panel" aria-label="生成历史">
             <div class="history-shell">
               <div class="history-head">
-                <span class="chapter">03 / LOG</span>
                 <div>
                   <h2>历史</h2>
                   <b id="strip-count">00</b>
@@ -316,11 +316,10 @@
       <main class="archive" id="archive" hidden>
         <header class="studio-heading">
           <div>
-            <div class="micro eyebrow"><i class="square"></i> LOCAL ARCHIVE <span>/</span> FOLIO</div>
             <h1>Image <em>Archive</em><span class="blue-dot">.</span></h1>
           </div>
           <div class="heading-right">
-            <b>本地作品集</b><span class="micro">COLLECTION &nbsp;/&nbsp; 02</span>
+            <b>本地作品集</b>
           </div>
         </header>
         <div class="archive-search-bar" role="search" aria-label="搜索全部作品">
@@ -370,18 +369,13 @@
       </main>
       <main id="atlas" hidden></main>
       <main id="lab" aria-label="实验室" hidden></main>
-      <footer class="app-foot">
-        <span>FOLIO <b>/</b> AURORA ATELIER</span><span>LOCAL IMAGE WORKSPACE <i class="square"></i></span>
-      </footer>
     </div>
     <dialog id="utility" class="utility-dialog" aria-labelledby="recipe-heading">
       <div class="dialog-top">
-        <span class="micro eyebrow">FOLIO &nbsp;/&nbsp; RECIPE</span
-        ><button data-close class="icon-btn" aria-label="关闭" data-icon="x"></button>
+        <button data-close class="icon-btn" aria-label="关闭" data-icon="x"></button>
       </div>
       <div class="recipe-layout">
         <figure class="recipe-plate">
-          <span class="micro">A WORK IN PROGRESS</span>
           <div class="recipe-picture">
             <img id="recipe-preview" alt="当前画布预览" hidden />
             <span id="recipe-blank"><em>Recipe.</em><small>把灵感，留给下一次创作。</small></span>
