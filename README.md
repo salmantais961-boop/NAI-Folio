@@ -8,10 +8,10 @@
 
 | Windows x64 | 怎么打开 |
 | --- | --- |
-| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.13.0/Folio-Desktop-1.13.0-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
-| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.13.0/NAI-Folio-1.13.0-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
+| [**桌面安装版 ↓**　EXE](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.14.0/Folio-Desktop-1.14.0-windows-x64-setup.exe) | 安装后，从开始菜单打开 **Folio Desktop**。想用 Agent 对话画图，选这个版本。 |
+| [**浏览器便携版 ↓**　ZIP](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.14.0/NAI-Folio-1.14.0-windows-x64.zip) | 把压缩包完整解压，双击 **启动工作台.cmd**，工作台会在浏览器里打开。 |
 
-**1.13.0** 生成时的预览更顺，历史条在出图后不再整排重绘。标签联想换成 336,155 条 ffdkj 中英文词库，选中一个标签还能看到常和它一起出现的搭配。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.13.0) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.13.0/SHA256SUMS.txt)
+**1.14.0** Agent 执行过程可以展开回看，桌面版新增托盘快捷入口；设置更紧凑，支持中、英、日界面切换，并修好了标题动效和退出行为。[更新说明](https://github.com/salmantais961-boop/NAI-Folio/releases/tag/v1.14.0) · [SHA-256 校验清单](https://github.com/salmantais961-boop/NAI-Folio/releases/download/v1.14.0/SHA256SUMS.txt)
 
 第一次打开桌面版，跟着引导先选 NovelAI 官方账户或中转站，再选 Agent 对话用的语言模型。只想先看看界面，可以跳过，之后到设置里补填。使用 WebUI 时，点右上角 **连接 NovelAI** 即可添加账户。
 
