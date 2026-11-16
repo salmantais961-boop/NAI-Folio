@@ -74,9 +74,14 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
         WindowEvent::Resized(_) | WindowEvent::ScaleFactorChanged { .. } => {
             corners.clip(handle as _);
         }
-        WindowEvent::CloseRequested { api, .. } if close_to_tray.load(Ordering::Relaxed) => {
+        WindowEvent::CloseRequested { api, .. } => {
             api.prevent_close();
-            let _ = hide_target.hide();
+            if close_to_tray.load(Ordering::Relaxed) {
+                let _ = hide_target.hide();
+            } else {
+                // The hidden tray-menu window must not keep the app alive.
+                hide_target.app_handle().exit(0);
+            }
         }
         _ => {}
     });
